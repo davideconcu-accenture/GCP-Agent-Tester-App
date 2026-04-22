@@ -1,29 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, Suspense } from "react";
+import { useEffect, useMemo, useState, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  MinusCircle,
-  GitPullRequest,
-  FileText,
-  Wrench,
-  ListChecks,
-  ClipboardList,
-  Loader2,
-} from "lucide-react";
-import {
-  Badge,
-  Card,
-  CardBody,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui";
+import { Badge, Dot, KeyValue, Section, Button } from "@/components/ui";
 import {
   getRun,
   streamRun,
@@ -31,17 +12,17 @@ import {
   type RunEvent,
   type ArtifactKind,
 } from "@/lib/api";
-import { cn, formatTs, statusColor, statusLabel } from "@/lib/utils";
+import { cn, formatTs, relativeTs, statusDot, statusLabel } from "@/lib/utils";
 
-export default function RunPage() {
+export default function Page() {
   return (
-    <Suspense fallback={<div className="p-8 text-muted text-sm">Caricamento…</div>}>
-      <RunPageInner />
+    <Suspense fallback={<div className="max-w-[1280px] mx-auto px-6 py-10 text-fg-muted text-[13px]">Caricamento…</div>}>
+      <RunView />
     </Suspense>
   );
 }
 
-function RunPageInner() {
+function RunView() {
   const sp = useSearchParams();
   const id = sp.get("id") || "";
   const [run, setRun] = useState<RunDetail | null>(null);
@@ -49,34 +30,30 @@ function RunPageInner() {
   const [artifacts, setArtifacts] = useState<RunDetail["artifacts"]>({});
   const [status, setStatus] = useState<string>("pending");
   const [summary, setSummary] = useState<string | null>(null);
+  const [tab, setTab] = useState<"stream" | "results" | "fix" | "report">("stream");
 
-  // Bootstrap: prendo lo stato corrente poi mi attacco allo stream.
   useEffect(() => {
     if (!id) return;
     let unsub: (() => void) | null = null;
     let alive = true;
 
-    getRun(id)
-      .then((r) => {
-        if (!alive) return;
-        setRun(r);
-        setEvents(r.events || []);
-        setArtifacts(r.artifacts || {});
-        setStatus(r.status);
-        setSummary(r.summary || null);
+    getRun(id).then((r) => {
+      if (!alive) return;
+      setRun(r);
+      setEvents(r.events || []);
+      setArtifacts(r.artifacts || {});
+      setStatus(r.status);
+      setSummary(r.summary || null);
 
-        // Il server SSE ci rimanderà gli eventi storici; per evitare duplicati
-        // tracciamo quanti ne abbiamo già ricevuti dal GET iniziale.
-        const seen = (r.events || []).length;
-        let i = 0;
-        unsub = streamRun(id, (ev) => {
-          if (i++ < seen) return; // skippa replay iniziale
-          applyEvent(ev);
-        });
-      })
-      .catch(() => {});
+      const seen = (r.events || []).length;
+      let i = 0;
+      unsub = streamRun(id, (ev) => {
+        if (i++ < seen) return;
+        apply(ev);
+      });
+    }).catch(() => {});
 
-    function applyEvent(ev: RunEvent) {
+    function apply(ev: RunEvent) {
       if (ev.type === "status") {
         setStatus(ev.status);
         if (ev.summary !== undefined) setSummary(ev.summary ?? null);
@@ -89,326 +66,340 @@ function RunPageInner() {
       setEvents((e) => [...e, ev]);
     }
 
-    return () => {
-      alive = false;
-      unsub?.();
-    };
+    return () => { alive = false; unsub?.(); };
   }, [id]);
 
-  const reasoning = useMemo(
-    () =>
-      events
-        .filter((e): e is Extract<RunEvent, { type: "agent_text" }> => e.type === "agent_text")
-        .map((e) => e.text)
-        .join(""),
-    [events],
-  );
+  // Switch automatico al tab giusto quando arriva un artefatto rilevante
+  useEffect(() => {
+    if (artifacts.test_results && tab === "stream" && status === "completed") setTab("results");
+  }, [artifacts.test_results, status, tab]);
 
-  const toolEvents = events.filter(
-    (e) => e.type === "tool_call" || e.type === "tool_response" || e.type === "tool_start" || e.type === "tool_end",
-  );
+  const counts = useMemo(() => {
+    const r: any[] = (artifacts.test_results as any)?.results || [];
+    return r.reduce((a: Record<string, number>, x: any) => {
+      a[x.status] = (a[x.status] || 0) + 1;
+      return a;
+    }, {});
+  }, [artifacts.test_results]);
+
+  if (!id) {
+    return <div className="max-w-[1280px] mx-auto px-6 py-10 text-fg-muted text-[13px]">ID run mancante.</div>;
+  }
 
   return (
-    <div className="flex-1 px-6 py-8 max-w-7xl mx-auto w-full">
-      {/* Header */}
-      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
-        <div className="min-w-0">
-          <a href="/" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-text mb-2">
-            <ArrowLeft className="w-4 h-4" /> Torna alla dashboard
-          </a>
-          <h1 className="text-xl font-semibold text-text">
+    <div className="max-w-[1280px] mx-auto w-full">
+      {/* Hero */}
+      <div className="px-6 pt-8 pb-6 border-b border-border">
+        <a href="/" className="text-2xs font-mono text-fg-subtle hover:text-fg inline-flex items-center gap-1 mb-3">
+          ← dashboard
+        </a>
+        <div className="flex items-start justify-between gap-6 flex-wrap">
+          <h1 className="text-[22px] font-semibold tracking-tight leading-snug flex-1 min-w-0 break-words">
             {run?.request || "Caricamento…"}
           </h1>
-          <div className="flex items-center gap-3 mt-2 text-xs text-muted">
-            {run?.etl_hint && <span>ETL: {run.etl_hint}</span>}
-            <span>Run #{id}</span>
-            {run?.created_at && <span>{formatTs(run.created_at as any)}</span>}
-          </div>
+          <span className="inline-flex items-center gap-2 text-[13px] shrink-0 pt-1">
+            <Dot variant={statusDot(status)} pulse={status === "running"} />
+            <span className="font-medium">{statusLabel(status)}</span>
+          </span>
         </div>
-        <Badge className={cn(statusColor(status), "text-sm")}>
-          {status === "running" && <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />}
-          {statusLabel(status)}
-        </Badge>
+
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-0 text-[13px] max-w-3xl">
+          <KeyValue k="Run" v={<span className="font-mono text-2xs">{id}</span>} />
+          <KeyValue k="ETL" v={run?.etl_hint ? <span className="font-mono text-2xs">{run.etl_hint}</span> : <span className="text-fg-subtle">— auto —</span>} />
+          <KeyValue k="Creato" v={formatTs(run?.created_at as any) || "—"} />
+          <KeyValue k="Aggiornato" v={run?.updated_at ? relativeTs(run.updated_at as any) : "—"} />
+        </div>
+
+        {summary && (
+          <div className="mt-5 text-[13px] leading-relaxed text-fg border-l-2 border-fg pl-3 max-w-3xl">
+            {summary}
+          </div>
+        )}
       </div>
 
-      {summary && (
-        <div className="mb-6 p-4 rounded-lg border border-border bg-surface2 text-sm text-text">
-          {summary}
+      {/* Tabs */}
+      <div className="px-6 border-b border-border sticky top-12 bg-bg z-[5]">
+        <div className="flex items-center gap-1 -mb-px">
+          <Tab active={tab === "stream"} onClick={() => setTab("stream")} label="Stream" count={events.filter(e => e.type === "tool_call").length || undefined} />
+          <Tab active={tab === "results"} onClick={() => setTab("results")} label="Risultati test" count={Object.values(counts).reduce((a: number, b: any) => a + b, 0) || undefined} disabled={!artifacts.test_plan && !artifacts.test_results} />
+          <Tab active={tab === "fix"} onClick={() => setTab("fix")} label="Fix & PR" disabled={!artifacts.fix_proposal && !artifacts.pr_opened} />
+          <Tab active={tab === "report"} onClick={() => setTab("report")} label="Report" disabled={!artifacts.final_report} />
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="px-6 py-6">
+        {tab === "stream" && <StreamTab events={events} status={status} />}
+        {tab === "results" && <ResultsTab plan={artifacts.test_plan} results={artifacts.test_results} counts={counts} />}
+        {tab === "fix" && <FixTab fix={artifacts.fix_proposal} pr={artifacts.pr_opened} />}
+        {tab === "report" && <ReportTab report={artifacts.final_report} />}
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+
+function Tab({ active, onClick, label, count, disabled }: { active: boolean; onClick: () => void; label: string; count?: number; disabled?: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "h-10 px-3 text-[13px] tracking-tight border-b-2 transition-colors inline-flex items-center gap-2",
+        active ? "border-fg text-fg" : "border-transparent text-fg-muted hover:text-fg",
+        disabled && "opacity-30 cursor-not-allowed hover:text-fg-muted",
+      )}
+    >
+      {label}
+      {count !== undefined && (
+        <span className="text-2xs font-mono text-fg-subtle">{count}</span>
+      )}
+    </button>
+  );
+}
+
+// ═══ Stream tab ═════════════════════════════════════════════════════════════
+
+function StreamTab({ events, status }: { events: RunEvent[]; status: string }) {
+  // Unione reasoning + tool in una timeline cronologica unica.
+  const items = useMemo(() => {
+    const out: Array<
+      | { kind: "text"; text: string; ts?: number }
+      | { kind: "tool_call"; name: string; args: any; ts?: number }
+      | { kind: "tool_response"; name: string; preview: string; ts?: number }
+    > = [];
+    let buf = "";
+
+    const flush = (ts?: number) => {
+      if (buf) {
+        out.push({ kind: "text", text: buf, ts });
+        buf = "";
+      }
+    };
+
+    for (const e of events) {
+      if (e.type === "agent_text") {
+        buf += (e as any).text;
+      } else if (e.type === "tool_call") {
+        flush(e.ts);
+        out.push({ kind: "tool_call", name: e.name, args: (e as any).args, ts: e.ts });
+      } else if (e.type === "tool_response") {
+        flush(e.ts);
+        out.push({ kind: "tool_response", name: e.name, preview: (e as any).preview, ts: e.ts });
+      }
+    }
+    flush();
+    return out;
+  }, [events]);
+
+  const endRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (status === "running") endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [items.length, status]);
+
+  if (items.length === 0) {
+    return (
+      <div className="py-20 text-center text-fg-muted text-[13px]">
+        <Dot variant="running" pulse />
+        <span className="ml-2">In attesa dei primi output dell'agente…</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl">
+      {items.map((it, i) => (
+        <div key={i} className="animate-rise mb-5">
+          {it.kind === "text" && (
+            <div className="prose-plain">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{it.text}</ReactMarkdown>
+              {i === items.length - 1 && status === "running" && (
+                <span className="inline-block w-[7px] h-[14px] bg-fg ml-0.5 animate-blink align-middle" />
+              )}
+            </div>
+          )}
+          {it.kind === "tool_call" && (
+            <div className="border border-border rounded overflow-hidden">
+              <div className="h-8 px-3 bg-bg-subtle border-b border-border flex items-center gap-2 text-2xs font-mono">
+                <span className="text-fg-subtle">→ tool</span>
+                <span className="font-semibold text-fg">{it.name}</span>
+              </div>
+              <ToolArgs args={it.args} />
+            </div>
+          )}
+          {it.kind === "tool_response" && (
+            <div className="border border-border rounded overflow-hidden">
+              <div className="h-8 px-3 bg-bg-subtle border-b border-border flex items-center gap-2 text-2xs font-mono">
+                <span className="text-success">← risultato</span>
+                <span className="text-fg-muted">{it.name}</span>
+              </div>
+              <pre className="px-3 py-2 text-2xs font-mono text-fg-muted overflow-x-auto whitespace-pre-wrap break-all">
+                {it.preview}
+              </pre>
+            </div>
+          )}
+        </div>
+      ))}
+      <div ref={endRef} />
+    </div>
+  );
+}
+
+function ToolArgs({ args }: { args: any }) {
+  const entries = Object.entries(args || {});
+  if (entries.length === 0) return <div className="px-3 py-2 text-2xs font-mono text-fg-subtle italic">nessun argomento</div>;
+  return (
+    <div className="divide-y divide-border">
+      {entries.map(([k, v]) => {
+        const s = typeof v === "string" ? v : JSON.stringify(v);
+        const multi = s.length > 80 || s.includes("\n");
+        return (
+          <div key={k} className={cn("px-3 py-1.5 text-2xs font-mono", multi && "flex-col")}>
+            <span className="text-fg-subtle mr-2">{k}</span>
+            <span className={cn("text-fg", multi && "block mt-1 whitespace-pre-wrap break-all")}>{s}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ═══ Results tab ════════════════════════════════════════════════════════════
+
+function ResultsTab({ plan, results, counts }: { plan: any; results: any; counts: Record<string, number> }) {
+  const tests: any[] = plan?.tests || [];
+  const resList: any[] = results?.results || [];
+  const resById = Object.fromEntries(resList.map((r: any) => [r.id, r]));
+
+  if (tests.length === 0 && resList.length === 0) {
+    return <div className="text-fg-muted text-[13px]">Nessun test ancora.</div>;
+  }
+
+  return (
+    <div className="space-y-6 max-w-5xl">
+      {plan?.rationale && (
+        <div className="text-[13px] text-fg-muted italic border-l-2 border-border pl-3">
+          {plan.rationale}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Colonna sinistra: reasoning + timeline */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Ragionamento dell'agente</CardTitle>
-              {status === "running" && <Loader2 className="w-4 h-4 animate-spin text-accent" />}
-            </CardHeader>
-            <CardBody>
-              {reasoning ? (
-                <div className="prose-dark text-sm">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{reasoning}</ReactMarkdown>
-                </div>
-              ) : (
-                <div className="text-sm text-muted italic">In attesa del primo output…</div>
-              )}
-            </CardBody>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Timeline tool</CardTitle>
-              <span className="text-xs text-muted">{toolEvents.length} eventi</span>
-            </CardHeader>
-            <CardBody className="p-0">
-              <ul className="divide-y divide-border max-h-[500px] overflow-y-auto">
-                {toolEvents.map((e, i) => (
-                  <li key={i} className="px-5 py-2.5 text-xs">
-                    {e.type === "tool_call" && (
-                      <div>
-                        <span className="text-accent font-mono">→ {e.name}</span>
-                        <span className="text-muted ml-2">
-                          {summarizeArgs((e as any).args)}
-                        </span>
-                      </div>
-                    )}
-                    {e.type === "tool_response" && (
-                      <div>
-                        <span className="text-ok font-mono">← {e.name}</span>
-                        <span className="text-muted ml-2 font-mono">
-                          {((e as any).preview || "").slice(0, 120)}
-                        </span>
-                      </div>
-                    )}
-                    {(e.type === "tool_start" || e.type === "tool_end") && (
-                      <div className="text-muted font-mono">
-                        {e.type === "tool_start" ? "▸" : "✓"} {(e as any).name}
-                        {(e as any).purpose ? ` — ${(e as any).purpose}` : ""}
-                      </div>
-                    )}
-                  </li>
-                ))}
-                {toolEvents.length === 0 && (
-                  <li className="px-5 py-6 text-sm text-muted text-center">
-                    Nessun tool ancora invocato.
-                  </li>
-                )}
-              </ul>
-            </CardBody>
-          </Card>
-        </div>
-
-        {/* Colonna destra: artefatti */}
-        <div className="space-y-6">
-          <ArtifactPanel
-            icon={<ClipboardList className="w-4 h-4 text-accent" />}
-            title="Piano test"
-            kind="test_plan"
-            data={artifacts.test_plan}
-            render={renderTestPlan}
-          />
-          <ArtifactPanel
-            icon={<ListChecks className="w-4 h-4 text-accent" />}
-            title="Risultati test"
-            kind="test_results"
-            data={artifacts.test_results}
-            render={renderTestResults}
-          />
-          <ArtifactPanel
-            icon={<Wrench className="w-4 h-4 text-accent" />}
-            title="Fix proposto"
-            kind="fix_proposal"
-            data={artifacts.fix_proposal}
-            render={renderFixProposal}
-          />
-          <ArtifactPanel
-            icon={<GitPullRequest className="w-4 h-4 text-accent" />}
-            title="Pull Request"
-            kind="pr_opened"
-            data={artifacts.pr_opened}
-            render={renderPR}
-          />
-          <ArtifactPanel
-            icon={<FileText className="w-4 h-4 text-accent" />}
-            title="Report finale"
-            kind="final_report"
-            data={artifacts.final_report}
-            render={renderReport}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────
-
-function summarizeArgs(args: Record<string, unknown> | undefined): string {
-  if (!args) return "";
-  const entries = Object.entries(args);
-  if (entries.length === 0) return "";
-  return entries
-    .map(([k, v]) => `${k}=${truncate(String(v), 60)}`)
-    .join(", ");
-}
-
-function truncate(s: string, n: number): string {
-  return s.length > n ? s.slice(0, n) + "…" : s;
-}
-
-function ArtifactPanel<T>({
-  icon,
-  title,
-  kind,
-  data,
-  render,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  kind: ArtifactKind;
-  data: T | undefined;
-  render: (d: T) => React.ReactNode;
-}) {
-  if (!data) return null;
-  return (
-    <Card>
-      <CardHeader>
+      {Object.keys(counts).length > 0 && (
         <div className="flex items-center gap-2">
-          {icon}
-          <CardTitle>{title}</CardTitle>
+          {counts.PASS ? <Badge variant="success">pass · {counts.PASS}</Badge> : null}
+          {counts.FAIL ? <Badge variant="danger">fail · {counts.FAIL}</Badge> : null}
+          {counts.ERROR ? <Badge variant="warning">error · {counts.ERROR}</Badge> : null}
+          {counts.IGNORED ? <Badge variant="neutral">ignored · {counts.IGNORED}</Badge> : null}
         </div>
-      </CardHeader>
-      <CardBody>{render(data)}</CardBody>
-    </Card>
-  );
-}
+      )}
 
-function statusIcon(s: string) {
-  switch (s) {
-    case "PASS": return <CheckCircle2 className="w-4 h-4 text-ok" />;
-    case "FAIL": return <XCircle className="w-4 h-4 text-err" />;
-    case "ERROR": return <AlertTriangle className="w-4 h-4 text-warn" />;
-    case "IGNORED": return <MinusCircle className="w-4 h-4 text-muted" />;
-    default: return null;
-  }
-}
-
-function renderTestPlan(d: any) {
-  const tests: any[] = d.tests || [];
-  return (
-    <div className="space-y-2">
-      {d.rationale && <p className="text-xs text-muted italic">{d.rationale}</p>}
-      <ul className="space-y-2">
-        {tests.map((t) => (
-          <li key={t.id} className="text-xs border border-border rounded-md p-3">
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <span className="font-medium text-text">{t.name}</span>
-              <Badge className="border-border2 text-muted">{t.priority}</Badge>
-            </div>
-            <div className="text-muted mb-2">{t.description}</div>
-            <div className="text-[10px] text-muted uppercase tracking-wide">{t.category}</div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function renderTestResults(d: any) {
-  const results: any[] = d.results || [];
-  const counts = results.reduce((acc: Record<string, number>, r: any) => {
-    acc[r.status] = (acc[r.status] || 0) + 1;
-    return acc;
-  }, {});
-  return (
-    <div className="space-y-3">
-      <div className="flex gap-2 flex-wrap">
-        {["PASS", "FAIL", "ERROR", "IGNORED"].map((s) =>
-          counts[s] ? (
-            <Badge
-              key={s}
-              className={cn(
-                s === "PASS" && "bg-ok/20 text-ok border-ok/40",
-                s === "FAIL" && "bg-err/20 text-err border-err/40",
-                s === "ERROR" && "bg-warn/20 text-warn border-warn/40",
-                s === "IGNORED" && "bg-muted/20 text-muted border-muted/40",
-              )}
-            >
-              {s}: {counts[s]}
-            </Badge>
-          ) : null,
-        )}
+      <div className="border border-border rounded overflow-hidden">
+        <table className="w-full text-[13px]">
+          <thead>
+            <tr className="bg-bg-subtle border-b border-border text-2xs font-mono uppercase tracking-wider text-fg-subtle">
+              <th className="text-left font-normal px-3 py-2 w-[90px]">Esito</th>
+              <th className="text-left font-normal px-3 py-2">Test</th>
+              <th className="text-left font-normal px-3 py-2 w-[140px]">Categoria</th>
+              <th className="text-left font-normal px-3 py-2 w-[80px]">Priorità</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(resList.length > 0 ? resList : tests).map((t: any) => {
+              const res = resById[t.id] || (resList.length === 0 ? null : t);
+              const status = res?.status;
+              return (
+                <tr key={t.id} className="border-b border-border last:border-b-0 align-top">
+                  <td className="px-3 py-3">
+                    {status ? (
+                      <Badge variant={
+                        status === "PASS" ? "success" :
+                        status === "FAIL" ? "danger" :
+                        status === "ERROR" ? "warning" : "neutral"
+                      }>
+                        {status.toLowerCase()}
+                      </Badge>
+                    ) : (
+                      <span className="text-2xs font-mono text-fg-subtle">…</span>
+                    )}
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="text-fg font-medium">{t.name}</div>
+                    {t.description && <div className="text-fg-muted text-[12px] mt-0.5">{t.description}</div>}
+                    {res?.evidence && <div className="text-fg-subtle text-2xs mt-1.5 font-mono">{res.evidence}</div>}
+                  </td>
+                  <td className="px-3 py-3 text-2xs font-mono text-fg-muted">{t.category || "—"}</td>
+                  <td className="px-3 py-3 text-2xs font-mono text-fg-muted">{t.priority || "—"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
-      <ul className="space-y-2">
-        {results.map((r) => (
-          <li key={r.id} className="text-xs border border-border rounded-md p-3">
-            <div className="flex items-start gap-2">
-              {statusIcon(r.status)}
-              <div className="min-w-0 flex-1">
-                <div className="font-medium text-text">{r.name}</div>
-                {r.evidence && <div className="text-muted mt-1">{r.evidence}</div>}
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
 
-function renderFixProposal(d: any) {
+// ═══ Fix tab ════════════════════════════════════════════════════════════════
+
+function FixTab({ fix, pr }: { fix: any; pr: any }) {
+  if (!fix && !pr) return <div className="text-fg-muted text-[13px]">Nessun fix proposto.</div>;
+
   return (
-    <div className="space-y-3 text-xs">
-      <div>
-        <div className="text-muted uppercase text-[10px] tracking-wide mb-1">Root cause</div>
-        <div className="text-text">{d.root_cause}</div>
-      </div>
-      <div>
-        <div className="text-muted uppercase text-[10px] tracking-wide mb-1">File</div>
-        <code className="bg-surface2 px-2 py-0.5 rounded">{d.file_path}</code>
-      </div>
-      <Badge
-        className={
-          d.validation_passed
-            ? "bg-ok/20 text-ok border-ok/40"
-            : "bg-warn/20 text-warn border-warn/40"
-        }
-      >
-        {d.validation_passed ? "Validato" : "Non validato"}
-      </Badge>
-      {d.validation_notes && <p className="text-muted">{d.validation_notes}</p>}
-      <details className="mt-2">
-        <summary className="cursor-pointer text-accent">Mostra diff SQL</summary>
-        <pre className="mt-2 max-h-64 overflow-auto bg-surface2 p-2 rounded font-mono text-[11px]">
-          {d.fixed_sql}
-        </pre>
-      </details>
+    <div className="space-y-6 max-w-4xl">
+      {fix && (
+        <>
+          <div>
+            <div className="text-2xs font-mono uppercase tracking-wider text-fg-subtle mb-2">Root cause</div>
+            <div className="text-[14px] leading-relaxed">{fix.root_cause}</div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-[13px]">
+            <KeyValue k="File" v={<span className="font-mono text-2xs">{fix.file_path}</span>} />
+            <KeyValue k="Validato" v={
+              fix.validation_passed
+                ? <Badge variant="success">sì</Badge>
+                : <Badge variant="warning">no</Badge>
+            } />
+            {fix.validation_notes && <div className="col-span-full text-[13px] text-fg-muted">{fix.validation_notes}</div>}
+          </div>
+
+          <Section title="SQL corretto">
+            <pre className="text-2xs font-mono text-fg px-4 py-3 overflow-auto max-h-[400px] whitespace-pre leading-relaxed">
+              {fix.fixed_sql}
+            </pre>
+          </Section>
+        </>
+      )}
+
+      {pr && !pr.error && (
+        <Section title="Pull Request" action={
+          <Button size="sm" variant="secondary" onClick={() => window.open(pr.url, "_blank")}>
+            Apri su GitHub →
+          </Button>
+        }>
+          <div className="p-4 space-y-2 text-[13px]">
+            <KeyValue k="PR" v={<a href={pr.url} target="_blank" rel="noreferrer" className="underline">#{pr.number}</a>} />
+            <KeyValue k="Branch" v={<code className="text-2xs font-mono">{pr.branch}</code>} />
+          </div>
+        </Section>
+      )}
+
+      {pr?.error && (
+        <div className="border border-danger/30 bg-danger/5 rounded p-3 text-[13px] text-danger">
+          {pr.error}
+        </div>
+      )}
     </div>
   );
 }
 
-function renderPR(d: any) {
-  if (d.error) return <div className="text-err text-xs">{d.error}</div>;
-  return (
-    <div className="text-sm">
-      <a
-        href={d.url}
-        target="_blank"
-        rel="noreferrer"
-        className="inline-flex items-center gap-2 text-accent hover:underline"
-      >
-        <GitPullRequest className="w-4 h-4" /> PR #{d.number}
-      </a>
-      <div className="text-xs text-muted mt-1">Branch: <code>{d.branch}</code></div>
-    </div>
-  );
-}
+// ═══ Report tab ═════════════════════════════════════════════════════════════
 
-function renderReport(d: any) {
+function ReportTab({ report }: { report: any }) {
+  if (!report) return <div className="text-fg-muted text-[13px]">Nessun report ancora.</div>;
   return (
-    <div className="prose-dark text-sm max-h-[500px] overflow-y-auto">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{d.markdown || ""}</ReactMarkdown>
+    <div className="prose-plain max-w-3xl">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{report.markdown || ""}</ReactMarkdown>
     </div>
   );
 }

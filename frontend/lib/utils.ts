@@ -5,27 +5,46 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatTs(ts?: number | string): string {
+export function formatTs(ts?: number | string | null): string {
   if (!ts) return "";
   const d = typeof ts === "number" ? new Date(ts * 1000) : new Date(ts);
-  return d.toLocaleString("it-IT", { hour12: false });
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleString("it-IT", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
-export function statusColor(status?: string): string {
-  switch (status) {
-    case "running": return "bg-accent/20 text-accent border-accent/40";
-    case "completed": return "bg-ok/20 text-ok border-ok/40";
-    case "failed": return "bg-err/20 text-err border-err/40";
-    case "pending": return "bg-muted/20 text-muted border-muted/40";
-    default: return "bg-muted/20 text-muted border-muted/40";
-  }
+export function relativeTs(ts?: number | string | null): string {
+  if (!ts) return "";
+  const d = typeof ts === "number" ? new Date(ts * 1000) : new Date(ts);
+  const ms = Date.now() - d.getTime();
+  if (isNaN(ms)) return "";
+  const s = Math.round(ms / 1000);
+  if (s < 60) return `${s}s fa`;
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m}m fa`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `${h}h fa`;
+  return formatTs(ts);
 }
 
-export function statusLabel(status?: string): string {
+export type UIStatus = "pending" | "running" | "completed" | "failed" | string;
+
+export function statusDot(s: UIStatus): "neutral" | "running" | "success" | "danger" | "warning" {
+  if (s === "running") return "running";
+  if (s === "completed") return "success";
+  if (s === "failed") return "danger";
+  return "neutral";
+}
+
+export function statusLabel(status?: UIStatus): string {
   return {
     running: "In esecuzione",
     completed: "Completato",
     failed: "Fallito",
-    pending: "In attesa",
+    pending: "In coda",
   }[status || ""] || status || "—";
 }

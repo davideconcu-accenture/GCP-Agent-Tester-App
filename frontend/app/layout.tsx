@@ -13,20 +13,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
       </head>
       <body>
         <div className="min-h-screen flex flex-col">
-          <header className="border-b border-border px-6 py-4 flex items-center justify-between">
-            <a href="/" className="flex items-center gap-2 font-semibold text-text hover:opacity-80">
-              <span className="w-2 h-2 rounded-full bg-accent" />
-              ETL QA Agent
-            </a>
-            <div className="text-xs text-muted">Gemini 2.5 Pro · Vertex AI · BigQuery</div>
+          <header className="h-12 border-b border-border bg-bg sticky top-0 z-10">
+            <div className="h-full max-w-[1280px] mx-auto px-6 flex items-center justify-between">
+              <a href="/" className="flex items-center gap-2 font-semibold tracking-tight text-[14px]">
+                <span className="inline-block w-[14px] h-[14px] border border-fg bg-fg" />
+                ETL QA
+              </a>
+              <div className="text-2xs font-mono text-fg-subtle">
+                gemini-2.5-pro · vertex-ai
+              </div>
+            </div>
           </header>
-          <main className="flex-1 flex flex-col">{children}</main>
+          <main className="flex-1">{children}</main>
         </div>
       </body>
     </html>
