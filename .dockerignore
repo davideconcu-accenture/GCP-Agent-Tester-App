@@ -1,0 +1,9 @@
+**/__pycache__
+**/node_modules
+**/.next
+**/out
+**/.venv
+**/.env
+**/.git
+etl-agent-gcp/
+*.md

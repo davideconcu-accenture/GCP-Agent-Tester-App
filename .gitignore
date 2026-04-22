@@ -1,0 +1,21 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Node / Next
+node_modules/
+.next/
+out/
+.turbo/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+
+etl-agent-gcp/
