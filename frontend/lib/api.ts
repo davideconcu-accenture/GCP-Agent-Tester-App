@@ -29,9 +29,17 @@ export interface RunSummary {
   status: "pending" | "running" | "completed" | "failed";
   request: string;
   etl_hint?: string | null;
+  model?: string | null;
   summary?: string | null;
   created_at?: any;
   updated_at?: any;
+}
+
+export interface ModelInfo {
+  id: string;
+  label: string;
+  desc: string;
+  tier: "balanced" | "fast" | "pro" | string;
 }
 
 export interface RunDetail extends RunSummary {
@@ -42,6 +50,12 @@ export interface RunDetail extends RunSummary {
 export async function listEtls(): Promise<{ etls: string[] }> {
   const r = await fetch(`${API_BASE}/api/etls`);
   if (!r.ok) throw new Error(`GET /api/etls ${r.status}`);
+  return r.json();
+}
+
+export async function listModels(): Promise<{ models: ModelInfo[]; default: string }> {
+  const r = await fetch(`${API_BASE}/api/models`);
+  if (!r.ok) throw new Error(`GET /api/models ${r.status}`);
   return r.json();
 }
 
@@ -57,11 +71,19 @@ export async function getRun(id: string): Promise<RunDetail> {
   return r.json();
 }
 
-export async function createRun(request: string, etl?: string): Promise<{ run_id: string }> {
+export async function createRun(
+  request: string,
+  etl?: string,
+  model?: string,
+): Promise<{ run_id: string }> {
   const r = await fetch(`${API_BASE}/api/runs`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ request, etl: etl || null }),
+    body: JSON.stringify({
+      request,
+      etl: etl || null,
+      model: model || null,
+    }),
   });
   if (!r.ok) throw new Error(`POST /api/runs ${r.status}`);
   return r.json();

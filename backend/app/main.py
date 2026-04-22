@@ -25,6 +25,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app import store
+from app.config import AVAILABLE_MODELS, get_settings
 from app.runner import launch_background
 from app.tools import list_available_etls
 
@@ -44,15 +45,33 @@ app.add_middleware(
 class CreateRunRequest(BaseModel):
     request: str
     etl: str | None = None
+    model: str | None = None  # id del modello Gemini scelto nella UI
 
 
 @app.post("/api/runs")
 async def create_run(body: CreateRunRequest):
     if not body.request.strip():
         raise HTTPException(400, "richiesta vuota")
-    run_id = store.create_run(body.request, body.etl)
-    launch_background(run_id, body.request, body.etl)
+
+    # Valida il modello se specificato (whitelist dal catalogo)
+    model = body.model or None
+    if model:
+        valid_ids = {m["id"] for m in AVAILABLE_MODELS}
+        if model not in valid_ids:
+            raise HTTPException(400, f"modello non valido: {model}")
+
+    run_id = store.create_run(body.request, body.etl, model=model)
+    launch_background(run_id, body.request, body.etl, model_override=model)
     return {"run_id": run_id}
+
+
+@app.get("/api/models")
+async def api_list_models():
+    """Catalogo modelli disponibili + default attivo (da env)."""
+    return {
+        "models": AVAILABLE_MODELS,
+        "default": get_settings().gemini_model,
+    }
 
 
 @app.get("/api/runs")

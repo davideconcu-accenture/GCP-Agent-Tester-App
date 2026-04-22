@@ -10,7 +10,9 @@ const config: Config = {
     extend: {
       colors: {
         bg: "var(--bg)",
+        "bg-elevated": "var(--bg-elevated)",
         "bg-subtle": "var(--bg-subtle)",
+        "bg-hover": "var(--bg-hover)",
         border: "var(--border)",
         "border-strong": "var(--border-strong)",
         fg: "var(--fg)",
@@ -18,9 +20,15 @@ const config: Config = {
         "fg-subtle": "var(--fg-subtle)",
         accent: "var(--accent)",
         "accent-fg": "var(--accent-fg)",
+        "accent-hover": "var(--accent-hover)",
         success: "var(--success)",
+        "success-soft": "var(--success-soft)",
         danger: "var(--danger)",
+        "danger-soft": "var(--danger-soft)",
         warning: "var(--warning)",
+        "warning-soft": "var(--warning-soft)",
+        info: "var(--info)",
+        "info-soft": "var(--info-soft)",
       },
       fontFamily: {
         sans: ["Geist", "Inter", "system-ui", "sans-serif"],
@@ -30,7 +38,17 @@ const config: Config = {
         "2xs": ["11px", { lineHeight: "14px" }],
       },
       borderRadius: {
-        DEFAULT: "6px",
+        DEFAULT: "8px",
+        lg: "10px",
+        xl: "12px",
+      },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        DEFAULT: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+      },
+      backdropBlur: {
+        header: "12px",
       },
     },
   },

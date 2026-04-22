@@ -65,7 +65,14 @@ Fase 4 — Fix (solo se ci sono FAIL/ERROR)
 
 Fase 5 — Report (SEMPRE)
   12. Chiama `save_final_report` con un Markdown conciso (riepilogo, test, fix, link PR).
-  13. Rispondi all'utente in 4-6 righe.
+  13. Rispondi all'utente in 4-6 righe di testo semplice in italiano.
+
+## CHIUSURA DEL RUN
+
+Dopo `save_final_report` il tuo lavoro è concluso. NON chiamare nessun altro tool.
+In particolare NON esistono tool come `done`, `finish`, `end_task`, `complete`, `terminate`,
+`stop`, `exit`: non inventarli. Per concludere ti basta produrre un messaggio di testo
+(il sommario di 4-6 righe del punto 13) e il run termina automaticamente.
 
 ## REGOLE CRITICHE
 
@@ -85,9 +92,15 @@ R5 — Italiano per UI/report/PR. Inglese solo nel SQL.
 """
 
 
-def build_agent() -> LlmAgent:
-    """Crea l'agente ADK con tutti i tool registrati."""
+def build_agent(model_override: str | None = None) -> LlmAgent:
+    """
+    Crea l'agente ADK con tutti i tool registrati.
+
+    `model_override` permette al runner di ripartire con un modello diverso
+    (fallback a Flash quando Pro satura con 429 RESOURCE_EXHAUSTED).
+    """
     s = get_settings()
+    model = model_override or s.gemini_model
 
     tools = [
         FunctionTool(func=list_available_etls),
@@ -102,7 +115,7 @@ def build_agent() -> LlmAgent:
 
     return LlmAgent(
         name="etl_qa_agent",
-        model=s.gemini_model,
+        model=model,
         description="Agente QA che testa ETL BigQuery e apre PR con i fix.",
         instruction=SYSTEM_PROMPT,
         tools=tools,

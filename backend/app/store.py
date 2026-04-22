@@ -74,14 +74,21 @@ def _publish_sync(run_id: str, event: dict[str, Any]) -> None:
 
 # ── API pubblica ─────────────────────────────────────────────────────────────
 
-def create_run(request_text: str, etl_hint: str | None = None) -> str:
+def create_run(
+    request_text: str,
+    etl_hint: str | None = None,
+    model: str | None = None,
+) -> str:
     """Crea un nuovo run su Firestore e ne restituisce l'ID."""
     run_id = uuid.uuid4().hex[:12]
+    # `model` viene salvato così come scelto dall'utente (None = default env).
+    effective_model = model or get_settings().gemini_model
     _col().document(run_id).set({
         "id": run_id,
         "status": "pending",
         "request": request_text,
         "etl_hint": etl_hint,
+        "model": effective_model,
         "created_at": firestore.SERVER_TIMESTAMP,
         "updated_at": firestore.SERVER_TIMESTAMP,
         "events": [],
