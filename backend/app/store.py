@@ -139,6 +139,61 @@ def delete_run(run_id: str) -> bool:
     return True
 
 
+async def delete_all_runs() -> int:
+    """Elimina tutti i run dalla storia.
+
+    - Cancella prima i task in esecuzione e attende la loro terminazione,
+      così gli handler di CancelledError fanno in tempo a scrivere lo status
+      finale prima della cancellazione dei documenti.
+    - Cancella i documenti in Firestore a batch di 500 (limite Firestore).
+    - Notifica i subscriber SSE ancora connessi e li rimuove.
+
+    Ritorna il numero di run eliminati.
+    """
+    # 1) Cancella i task attivi e attendi che finiscano (max ~3s).
+    tasks = [t for t in _running_tasks.values() if not t.done()]
+    for t in tasks:
+        t.cancel()
+    if tasks:
+        try:
+            await asyncio.wait_for(
+                asyncio.gather(*tasks, return_exceptions=True),
+                timeout=3.0,
+            )
+        except asyncio.TimeoutError:
+            # Andiamo avanti comunque: i task orfani verranno sganciati
+            # dalla cancellazione dei doc sottostanti.
+            pass
+
+    # 2) Elimina i documenti in batch.
+    db = _get_db()
+    col = _col()
+    count = 0
+    batch = db.batch()
+    pending_in_batch = 0
+    for doc in col.stream():
+        batch.delete(doc.reference)
+        count += 1
+        pending_in_batch += 1
+        if pending_in_batch >= 500:
+            batch.commit()
+            batch = db.batch()
+            pending_in_batch = 0
+    if pending_in_batch > 0:
+        batch.commit()
+
+    # 3) Notifica e rimuovi i subscriber residui.
+    for run_id in list(_subscribers.keys()):
+        subs = _subscribers.pop(run_id, set())
+        for q in list(subs):
+            try:
+                q.put_nowait({"type": "status", "status": "deleted"})
+            except asyncio.QueueFull:
+                pass
+
+    return count
+
+
 def list_runs(limit: int = 50) -> list[dict[str, Any]]:
     q = _col().order_by("created_at", direction=firestore.Query.DESCENDING).limit(limit)
     return [d.to_dict() for d in q.stream()]

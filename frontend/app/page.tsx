@@ -14,6 +14,7 @@ import {
 import {
   createRun,
   deleteRun,
+  deleteAllRuns,
   listEtls,
   listRuns,
   type RunSummary,
@@ -28,6 +29,7 @@ export default function HomePage() {
   const [runs, setRuns] = useState<RunSummary[] | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleting, setDeleting] = useState<Set<string>>(new Set());
+  const [wipingAll, setWipingAll] = useState(false);
 
   async function refresh() {
     try {
@@ -64,6 +66,31 @@ export default function HomePage() {
     }
   }
 
+  async function handleWipeAll() {
+    const n = runs?.length ?? 0;
+    if (n === 0 || wipingAll) return;
+    const msg =
+      `Cancellare TUTTO lo storico? Verranno eliminati ${n} run` +
+      (runs?.some((r) => r.status === "running" || r.status === "pending")
+        ? ", compresi quelli in esecuzione (verranno interrotti)."
+        : ".") +
+      "\n\nL'azione è irreversibile.";
+    if (!confirm(msg)) return;
+    setWipingAll(true);
+    const snapshot = runs;
+    setRuns([]); // Optimistic.
+    try {
+      await deleteAllRuns();
+    } catch (e) {
+      // Ripristina e informa.
+      setRuns(snapshot ?? null);
+      alert("Impossibile cancellare lo storico: " + (e as Error).message);
+    } finally {
+      setWipingAll(false);
+      refresh();
+    }
+  }
+
   return (
     <div className="max-w-[1280px] mx-auto px-6 py-10 w-full">
       {/* Heading */}
@@ -74,10 +101,33 @@ export default function HomePage() {
             Storico delle analisi eseguite dall'agente.
           </p>
         </div>
-        <Button onClick={() => setSheetOpen(true)} size="md">
-          Nuova Richiesta
-          <kbd className="ml-1 text-2xs font-mono opacity-60">N</kbd>
-        </Button>
+        <div className="flex items-center gap-2">
+          {(runs?.length ?? 0) > 0 && (
+            <button
+              onClick={handleWipeAll}
+              disabled={wipingAll}
+              title="Cancella tutto lo storico dei run"
+              className={cn(
+                "h-9 px-3 text-[13px] inline-flex items-center gap-1.5 border rounded transition-colors",
+                "border-border text-fg-muted hover:border-danger/50 hover:text-danger hover:bg-danger/5",
+                wipingAll && "opacity-50 cursor-not-allowed",
+              )}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 6h18" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+              </svg>
+              {wipingAll ? "Cancellazione…" : "Cancella storico"}
+            </button>
+          )}
+          <Button onClick={() => setSheetOpen(true)} size="md">
+            Nuova Richiesta
+            <kbd className="ml-1 text-2xs font-mono opacity-60">N</kbd>
+          </Button>
+        </div>
       </div>
 
       {/* Table */}

@@ -76,6 +76,13 @@ async def delete_run(run_id: str):
     return {"ok": True}
 
 
+@app.delete("/api/runs")
+async def delete_all_runs():
+    """Cancella tutto lo storico. I run in esecuzione vengono interrotti prima."""
+    deleted = await store.delete_all_runs()
+    return {"ok": True, "deleted": deleted}
+
+
 @app.post("/api/runs/{run_id}/stop")
 async def stop_run(run_id: str):
     run = store.get_run(run_id)

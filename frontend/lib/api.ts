@@ -87,6 +87,12 @@ export async function deleteRun(id: string): Promise<void> {
   }
 }
 
+export async function deleteAllRuns(): Promise<{ deleted: number }> {
+  const r = await fetch(`${API_BASE}/api/runs`, { method: "DELETE" });
+  if (!r.ok) throw new Error(`DELETE /api/runs ${r.status}`);
+  return r.json();
+}
+
 export async function stopRun(id: string): Promise<void> {
   const r = await fetch(`${API_BASE}/api/runs/${id}/stop`, { method: "POST" });
   if (!r.ok) {
