@@ -19,36 +19,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <div className="min-h-screen flex flex-col">
-          <header
-            className="h-14 border-b border-border sticky top-0 z-20"
-            style={{
-              background: "var(--blur-bg)",
-              backdropFilter: "saturate(180%) blur(12px)",
-              WebkitBackdropFilter: "saturate(180%) blur(12px)",
-            }}
-          >
+          <header className="h-12 border-b border-border bg-bg sticky top-0 z-10">
             <div className="h-full max-w-[1280px] mx-auto px-6 flex items-center justify-between">
-              <a href="/" className="group flex items-center gap-2.5 font-semibold tracking-tight text-[14px]">
-                <span className="relative inline-flex items-center justify-center w-6 h-6 rounded-md bg-fg text-bg shadow-sm overflow-hidden">
-                  <span className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-white/20" />
-                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 relative" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 7h16" />
-                    <path d="M4 12h10" />
-                    <path d="M4 17h16" />
-                    <circle cx="18" cy="12" r="2.5" fill="currentColor" />
-                  </svg>
-                </span>
-                <span>
-                  ETL QA
-                  <span className="ml-1.5 text-2xs font-mono font-normal text-fg-subtle align-middle">Agent</span>
-                </span>
+              <a href="/" className="flex items-center gap-2 font-semibold tracking-tight text-[14px]">
+                <span className="inline-block w-[14px] h-[14px] border border-fg bg-fg" />
+                ETL QA
               </a>
-              <div className="flex items-center gap-2 text-2xs font-mono text-fg-subtle">
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-border bg-bg-elevated/60">
-                  <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                  vertex-ai
-                </span>
-                <span className="hidden sm:inline">gemini-2.5-pro</span>
+              <div className="text-2xs font-mono text-fg-subtle">
+                gemini-2.5-pro · vertex-ai
               </div>
             </div>
           </header>
