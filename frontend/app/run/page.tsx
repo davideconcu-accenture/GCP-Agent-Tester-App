@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, Suspense, useRef } from "react";
+import { Fragment, useEffect, useMemo, useState, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -16,7 +16,7 @@ import { cn, formatTs, relativeTs, statusDot, statusLabel } from "@/lib/utils";
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="max-w-[1280px] mx-auto px-6 py-10 text-fg-muted text-[13px]">Caricamento…</div>}>
+    <Suspense fallback={<div className="px-6 py-10 text-fg-muted text-[13px]">Caricamento…</div>}>
       <RunView />
     </Suspense>
   );
@@ -83,11 +83,11 @@ function RunView() {
   }, [artifacts.test_results]);
 
   if (!id) {
-    return <div className="max-w-[1280px] mx-auto px-6 py-10 text-fg-muted text-[13px]">ID run mancante.</div>;
+    return <div className="px-6 py-10 text-fg-muted text-[13px]">ID run mancante.</div>;
   }
 
   return (
-    <div className="max-w-[1280px] mx-auto w-full">
+    <div className="w-full">
       {/* Hero */}
       <div className="px-6 pt-8 pb-6 border-b border-border">
         <a href="/" className="text-2xs font-mono text-fg-subtle hover:text-fg inline-flex items-center gap-1 mb-3">
@@ -106,6 +106,7 @@ function RunView() {
         <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-0 text-[13px] max-w-3xl">
           <KeyValue k="Run" v={<span className="font-mono text-2xs">{id}</span>} />
           <KeyValue k="ETL" v={run?.etl_hint ? <span className="font-mono text-2xs">{run.etl_hint}</span> : <span className="text-fg-subtle">— auto —</span>} />
+          <KeyValue k="Modello" v={run?.model ? <span className="font-mono text-2xs">{run.model}</span> : <span className="text-fg-subtle">— default —</span>} />
           <KeyValue k="Creato" v={formatTs(run?.created_at as any) || "—"} />
           <KeyValue k="Aggiornato" v={run?.updated_at ? relativeTs(run.updated_at as any) : "—"} />
         </div>
@@ -130,7 +131,7 @@ function RunView() {
       {/* Content */}
       <div className="px-6 py-6">
         {tab === "stream" && <StreamTab events={events} status={status} />}
-        {tab === "results" && <ResultsTab plan={artifacts.test_plan} results={artifacts.test_results} counts={counts} />}
+        {tab === "results" && <ResultsTab plan={artifacts.test_plan} results={artifacts.test_results} counts={counts} runStatus={status} />}
         {tab === "fix" && <FixTab fix={artifacts.fix_proposal} pr={artifacts.pr_opened} />}
         {tab === "report" && <ReportTab report={artifacts.final_report} />}
       </div>
@@ -267,17 +268,62 @@ function ToolArgs({ args }: { args: any }) {
 
 // ═══ Results tab ════════════════════════════════════════════════════════════
 
-function ResultsTab({ plan, results, counts }: { plan: any; results: any; counts: Record<string, number> }) {
+type TestStatus = "PASS" | "FAIL" | "ERROR" | "IGNORED" | "RUNNING" | "PENDING";
+
+function testStatusBadge(s: TestStatus) {
+  if (s === "PASS") return <Badge variant="success">pass</Badge>;
+  if (s === "FAIL") return <Badge variant="danger">fail</Badge>;
+  if (s === "ERROR") return <Badge variant="warning">error</Badge>;
+  if (s === "IGNORED") return <Badge variant="neutral">ignored</Badge>;
+  if (s === "RUNNING") {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-2xs font-mono uppercase tracking-wider text-fg-muted">
+        <Dot variant="running" pulse />
+        in corso
+      </span>
+    );
+  }
+  return <Badge variant="neutral">in coda</Badge>;
+}
+
+function ResultsTab({
+  plan,
+  results,
+  counts,
+  runStatus,
+}: {
+  plan: any;
+  results: any;
+  counts: Record<string, number>;
+  runStatus: string;
+}) {
   const tests: any[] = plan?.tests || [];
   const resList: any[] = results?.results || [];
   const resById = Object.fromEntries(resList.map((r: any) => [r.id, r]));
 
-  if (tests.length === 0 && resList.length === 0) {
+  // Merge: ogni test planned, con il suo risultato se presente.
+  // Se non c'è un plan (caso raro), fallback ai soli risultati.
+  const rows = tests.length > 0
+    ? tests.map((t) => ({ ...t, result: resById[t.id] }))
+    : resList.map((r) => ({ ...r, result: r }));
+
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  function toggle(id: string) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  if (rows.length === 0) {
     return <div className="text-fg-muted text-[13px]">Nessun test ancora.</div>;
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6 w-full">
       {plan?.rationale && (
         <div className="text-[13px] text-fg-muted italic border-l-2 border-border pl-3">
           {plan.rationale}
@@ -294,42 +340,73 @@ function ResultsTab({ plan, results, counts }: { plan: any; results: any; counts
       )}
 
       <div className="border border-border rounded overflow-hidden">
-        <table className="w-full text-[13px]">
+        <table className="w-full text-[13px] table-fixed">
           <thead>
             <tr className="bg-bg-subtle border-b border-border text-2xs font-mono uppercase tracking-wider text-fg-subtle">
-              <th className="text-left font-normal px-3 py-2 w-[90px]">Esito</th>
+              <th className="text-left font-normal px-3 py-2 w-[110px]">Esito</th>
               <th className="text-left font-normal px-3 py-2">Test</th>
-              <th className="text-left font-normal px-3 py-2 w-[140px]">Categoria</th>
-              <th className="text-left font-normal px-3 py-2 w-[80px]">Priorità</th>
+              <th className="text-left font-normal px-3 py-2 w-[160px]">Categoria</th>
+              <th className="text-left font-normal px-3 py-2 w-[90px]">Priorità</th>
+              <th className="text-right font-normal px-3 py-2 w-[100px]">Query</th>
             </tr>
           </thead>
           <tbody>
-            {(resList.length > 0 ? resList : tests).map((t: any) => {
-              const res = resById[t.id] || (resList.length === 0 ? null : t);
-              const status = res?.status;
+            {rows.map((t: any) => {
+              const res = t.result;
+              const rawStatus: string | undefined = res?.status;
+              const status: TestStatus = rawStatus
+                ? (rawStatus as TestStatus)
+                : (runStatus === "running" || runStatus === "pending" ? "RUNNING" : "PENDING");
+              const hasQuery = typeof t.query === "string" && t.query.trim().length > 0;
+              const isOpen = expanded.has(t.id);
               return (
-                <tr key={t.id} className="border-b border-border last:border-b-0 align-top">
-                  <td className="px-3 py-3">
-                    {status ? (
-                      <Badge variant={
-                        status === "PASS" ? "success" :
-                        status === "FAIL" ? "danger" :
-                        status === "ERROR" ? "warning" : "neutral"
-                      }>
-                        {status.toLowerCase()}
-                      </Badge>
-                    ) : (
-                      <span className="text-2xs font-mono text-fg-subtle">…</span>
-                    )}
-                  </td>
-                  <td className="px-3 py-3">
-                    <div className="text-fg font-medium">{t.name}</div>
-                    {t.description && <div className="text-fg-muted text-[12px] mt-0.5">{t.description}</div>}
-                    {res?.evidence && <div className="text-fg-subtle text-2xs mt-1.5 font-mono">{res.evidence}</div>}
-                  </td>
-                  <td className="px-3 py-3 text-2xs font-mono text-fg-muted">{t.category || "—"}</td>
-                  <td className="px-3 py-3 text-2xs font-mono text-fg-muted">{t.priority || "—"}</td>
-                </tr>
+                <Fragment key={t.id}>
+                  <tr className="border-b border-border last:border-b-0 align-top">
+                    <td className="px-3 py-3 whitespace-nowrap">
+                      {testStatusBadge(status)}
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="text-fg font-medium break-words">{t.name || t.id}</div>
+                      {t.description && <div className="text-fg-muted text-[12px] mt-0.5 break-words">{t.description}</div>}
+                      {res?.evidence && <div className="text-fg-subtle text-2xs mt-1.5 font-mono break-words whitespace-pre-wrap">{res.evidence}</div>}
+                      {typeof res?.row_count === "number" && (
+                        <div className="text-fg-subtle text-2xs mt-1 font-mono">rows: {res.row_count}</div>
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-2xs font-mono text-fg-muted">{t.category || "—"}</td>
+                    <td className="px-3 py-3 text-2xs font-mono text-fg-muted">{t.priority || "—"}</td>
+                    <td className="px-3 py-3 text-right">
+                      {hasQuery ? (
+                        <button
+                          onClick={() => toggle(t.id)}
+                          className="text-2xs font-mono text-fg-subtle hover:text-fg inline-flex items-center gap-1"
+                        >
+                          {isOpen ? "nascondi" : "mostra"}
+                          <span className={cn("inline-block transition-transform", isOpen && "rotate-180")}>▾</span>
+                        </button>
+                      ) : (
+                        <span className="text-2xs font-mono text-fg-subtle">—</span>
+                      )}
+                    </td>
+                  </tr>
+                  {hasQuery && isOpen && (
+                    <tr className="border-b border-border last:border-b-0 bg-bg-subtle">
+                      <td colSpan={5} className="px-3 py-3">
+                        <div className="text-2xs font-mono uppercase tracking-wider text-fg-subtle mb-2">
+                          Query SQL
+                          {t.pass_condition && (
+                            <span className="ml-3 normal-case tracking-normal text-fg-muted">
+                              pass_condition: <code className="text-fg">{t.pass_condition}</code>
+                            </span>
+                          )}
+                        </div>
+                        <pre className="text-2xs font-mono text-fg px-3 py-2 bg-bg border border-border rounded overflow-auto max-h-[360px] whitespace-pre leading-relaxed">
+                          {t.query}
+                        </pre>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               );
             })}
           </tbody>
@@ -345,7 +422,7 @@ function FixTab({ fix, pr }: { fix: any; pr: any }) {
   if (!fix && !pr) return <div className="text-fg-muted text-[13px]">Nessun fix proposto.</div>;
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 w-full">
       {fix && (
         <>
           <div>
@@ -398,7 +475,7 @@ function FixTab({ fix, pr }: { fix: any; pr: any }) {
 function ReportTab({ report }: { report: any }) {
   if (!report) return <div className="text-fg-muted text-[13px]">Nessun report ancora.</div>;
   return (
-    <div className="prose-plain max-w-3xl">
+    <div className="prose-plain max-w-4xl">
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{report.markdown || ""}</ReactMarkdown>
     </div>
   );

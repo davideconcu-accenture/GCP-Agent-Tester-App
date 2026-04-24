@@ -44,14 +44,15 @@ app.add_middleware(
 class CreateRunRequest(BaseModel):
     request: str
     etl: str | None = None
+    model: str | None = None
 
 
 @app.post("/api/runs")
 async def create_run(body: CreateRunRequest):
     if not body.request.strip():
         raise HTTPException(400, "richiesta vuota")
-    run_id = store.create_run(body.request, body.etl)
-    launch_background(run_id, body.request, body.etl)
+    run_id = store.create_run(body.request, body.etl, body.model)
+    launch_background(run_id, body.request, body.etl, body.model)
     return {"run_id": run_id}
 
 
@@ -66,6 +67,13 @@ async def get_run(run_id: str):
     if run is None:
         raise HTTPException(404, "run non trovato")
     return run
+
+
+@app.delete("/api/runs/{run_id}")
+async def delete_run(run_id: str):
+    if not store.delete_run(run_id):
+        raise HTTPException(404, "run non trovato")
+    return {"ok": True}
 
 
 @app.get("/api/runs/{run_id}/stream")

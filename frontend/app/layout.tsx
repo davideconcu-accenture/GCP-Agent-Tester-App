@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ETL QA Agent",
+  title: "ACN Tester Agent",
   description: "Agente QA autonomo per ETL BigQuery",
 };
 
@@ -23,10 +23,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="h-full max-w-[1280px] mx-auto px-6 flex items-center justify-between">
               <a href="/" className="flex items-center gap-2 font-semibold tracking-tight text-[14px]">
                 <span className="inline-block w-[14px] h-[14px] border border-fg bg-fg" />
-                ETL QA
+                ACN Tester Agent
               </a>
               <div className="text-2xs font-mono text-fg-subtle">
-                gemini-2.5-pro · vertex-ai
+                vertex-ai
               </div>
             </div>
           </header>

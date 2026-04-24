@@ -97,13 +97,15 @@ def read_sql_code(etl_name: str) -> dict[str, Any]:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# BIGQUERY — esegue query read-only sul dataset banca_raw
+# BIGQUERY — esegue query read-only (i dataset da usare sono quelli dichiarati
+# nei file SQL dell'ETL, non esiste un dataset predefinito)
 # ═════════════════════════════════════════════════════════════════════════════
 
 def execute_bigquery_query(query: str, purpose: str) -> dict[str, Any]:
     """
-    Esegue una query BigQuery read-only. Usala per verificare regole business,
-    null check, duplicati, integrità referenziale, correttezza dei join.
+    Esegue una query BigQuery read-only. Usala per: verifica esistenza tabelle
+    (INFORMATION_SCHEMA.TABLES), regole business, null check, duplicati,
+    integrità referenziale, correttezza dei join.
 
     Args:
         query: SQL SELECT (solo SELECT / WITH ammessi).

@@ -25,13 +25,13 @@ APP_NAME = "etl-qa-agent"
 _USER_ID = "web"  # tutti i run sono anonimi, stessa "sessione utente"
 
 
-async def execute_run(run_id: str, request_text: str, etl_hint: str | None) -> None:
+async def execute_run(run_id: str, request_text: str, etl_hint: str | None, model: str | None = None) -> None:
     """Esegue un run in background, inoltrando gli eventi nel bus."""
     token = CURRENT_RUN_ID.set(run_id)
     try:
         set_status(run_id, "running")
 
-        agent = build_agent()
+        agent = build_agent(model=model)
         session_service = InMemorySessionService()
         await session_service.create_session(
             app_name=APP_NAME,
@@ -120,6 +120,6 @@ def _preview(obj, limit: int = 600) -> str:
     return s[:limit] + ("…" if len(s) > limit else "")
 
 
-def launch_background(run_id: str, request_text: str, etl_hint: str | None) -> None:
+def launch_background(run_id: str, request_text: str, etl_hint: str | None, model: str | None = None) -> None:
     """Lancia il run in background senza attendere (usato da FastAPI)."""
-    asyncio.create_task(execute_run(run_id, request_text, etl_hint))
+    asyncio.create_task(execute_run(run_id, request_text, etl_hint, model))

@@ -74,7 +74,7 @@ def _publish_sync(run_id: str, event: dict[str, Any]) -> None:
 
 # ── API pubblica ─────────────────────────────────────────────────────────────
 
-def create_run(request_text: str, etl_hint: str | None = None) -> str:
+def create_run(request_text: str, etl_hint: str | None = None, model: str | None = None) -> str:
     """Crea un nuovo run su Firestore e ne restituisce l'ID."""
     run_id = uuid.uuid4().hex[:12]
     _col().document(run_id).set({
@@ -82,6 +82,7 @@ def create_run(request_text: str, etl_hint: str | None = None) -> str:
         "status": "pending",
         "request": request_text,
         "etl_hint": etl_hint,
+        "model": model,
         "created_at": firestore.SERVER_TIMESTAMP,
         "updated_at": firestore.SERVER_TIMESTAMP,
         "events": [],
@@ -94,6 +95,23 @@ def create_run(request_text: str, etl_hint: str | None = None) -> str:
 def get_run(run_id: str) -> dict[str, Any] | None:
     doc = _col().document(run_id).get()
     return doc.to_dict() if doc.exists else None
+
+
+def delete_run(run_id: str) -> bool:
+    """Elimina un run dalla storia. Ritorna True se era presente."""
+    ref = _col().document(run_id)
+    snap = ref.get()
+    if not snap.exists:
+        return False
+    ref.delete()
+    # Rimuovi eventuali sottoscrittori pendenti (se ancora vivi).
+    subs = _subscribers.pop(run_id, set())
+    for q in list(subs):
+        try:
+            q.put_nowait({"type": "status", "status": "deleted"})
+        except asyncio.QueueFull:
+            pass
+    return True
 
 
 def list_runs(limit: int = 50) -> list[dict[str, Any]]:

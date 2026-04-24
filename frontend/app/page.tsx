@@ -13,9 +13,12 @@ import {
 } from "@/components/ui";
 import {
   createRun,
+  deleteRun,
   listEtls,
   listRuns,
   type RunSummary,
+  GEMINI_MODELS,
+  DEFAULT_GEMINI_MODEL,
 } from "@/lib/api";
 import { cn, relativeTs, statusDot, statusLabel } from "@/lib/utils";
 
@@ -24,6 +27,7 @@ export default function HomePage() {
   const [etls, setEtls] = useState<string[]>([]);
   const [runs, setRuns] = useState<RunSummary[] | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [deleting, setDeleting] = useState<Set<string>>(new Set());
 
   async function refresh() {
     try {
@@ -41,24 +45,43 @@ export default function HomePage() {
     return () => clearInterval(t);
   }, []);
 
+  async function handleDelete(id: string) {
+    if (!confirm("Eliminare definitivamente questa richiesta?")) return;
+    setDeleting((prev) => new Set(prev).add(id));
+    // Optimistic UI update.
+    setRuns((prev) => (prev ? prev.filter((r) => r.id !== id) : prev));
+    try {
+      await deleteRun(id);
+    } catch {
+      // Se fallisce, ricarica la lista.
+      refresh();
+    } finally {
+      setDeleting((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  }
+
   return (
     <div className="max-w-[1280px] mx-auto px-6 py-10 w-full">
       {/* Heading */}
       <div className="flex items-end justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-[28px] font-semibold tracking-tight leading-tight">Segnalazioni</h1>
+          <h1 className="text-[28px] font-semibold tracking-tight leading-tight">Storico Richieste</h1>
           <p className="text-[13px] text-fg-muted mt-1">
             Storico delle analisi eseguite dall'agente.
           </p>
         </div>
         <Button onClick={() => setSheetOpen(true)} size="md">
-          Nuova segnalazione
+          Nuova Richiesta
           <kbd className="ml-1 text-2xs font-mono opacity-60">N</kbd>
         </Button>
       </div>
 
       {/* Table */}
-      <RunsTable runs={runs} />
+      <RunsTable runs={runs} onDelete={handleDelete} deleting={deleting} />
 
       {/* Sheet nuovo run */}
       {sheetOpen && (
@@ -80,7 +103,15 @@ export default function HomePage() {
 
 // ────────────────────────────────────────────────────────────────────────────
 
-function RunsTable({ runs }: { runs: RunSummary[] | null }) {
+function RunsTable({
+  runs,
+  onDelete,
+  deleting,
+}: {
+  runs: RunSummary[] | null;
+  onDelete: (id: string) => void;
+  deleting: Set<string>;
+}) {
   if (runs === null) {
     return (
       <div className="border border-border rounded overflow-hidden">
@@ -94,8 +125,8 @@ function RunsTable({ runs }: { runs: RunSummary[] | null }) {
   if (runs.length === 0) {
     return (
       <div className="border border-border rounded py-16 text-center">
-        <div className="text-[14px] font-medium text-fg">Nessun run ancora</div>
-        <div className="text-[13px] text-fg-muted mt-1">Premi N o clicca "Nuova segnalazione" per iniziare.</div>
+        <div className="text-[14px] font-medium text-fg">Nessuna richiesta ancora</div>
+        <div className="text-[13px] text-fg-muted mt-1">Premi N o clicca "Nuova Richiesta" per iniziare.</div>
       </div>
     );
   }
@@ -109,13 +140,17 @@ function RunsTable({ runs }: { runs: RunSummary[] | null }) {
             <th className="text-left font-normal px-4 py-2">Richiesta</th>
             <th className="text-left font-normal px-4 py-2 w-[180px]">ETL</th>
             <th className="text-left font-normal px-4 py-2 w-[120px]">Quando</th>
+            <th className="text-right font-normal px-4 py-2 w-[56px]"></th>
           </tr>
         </thead>
         <tbody>
           {runs.map((r) => (
             <tr
               key={r.id}
-              className="border-b border-border last:border-b-0 hover:bg-bg-subtle cursor-pointer transition-colors"
+              className={cn(
+                "border-b border-border last:border-b-0 hover:bg-bg-subtle cursor-pointer transition-colors group",
+                deleting.has(r.id) && "opacity-40",
+              )}
               onClick={() => (window.location.href = `/run?id=${r.id}`)}
             >
               <td className="px-4 py-3">
@@ -132,6 +167,26 @@ function RunsTable({ runs }: { runs: RunSummary[] | null }) {
               </td>
               <td className="px-4 py-3 text-fg-muted text-2xs">
                 {relativeTs(r.created_at as any)}
+              </td>
+              <td className="px-2 py-3 text-right">
+                <button
+                  aria-label="Elimina"
+                  title="Elimina questa richiesta"
+                  disabled={deleting.has(r.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(r.id);
+                  }}
+                  className="h-7 w-7 inline-flex items-center justify-center rounded text-fg-subtle opacity-0 group-hover:opacity-100 hover:bg-danger/10 hover:text-danger transition-all disabled:opacity-30"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                  </svg>
+                </button>
               </td>
             </tr>
           ))}
@@ -153,6 +208,7 @@ function NewRunSheet({
   onCreated: (runId: string) => void;
 }) {
   const [etl, setEtl] = useState("");
+  const [model, setModel] = useState<string>(DEFAULT_GEMINI_MODEL);
   const [request, setRequest] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -174,7 +230,7 @@ function NewRunSheet({
     setSubmitting(true);
     setError(null);
     try {
-      const { run_id } = await createRun(request.trim(), etl || undefined);
+      const { run_id } = await createRun(request.trim(), etl || undefined, model || undefined);
       onCreated(run_id);
     } catch (e: any) {
       setError(e.message || "Errore nella creazione del run");
@@ -185,13 +241,13 @@ function NewRunSheet({
   return (
     <>
       <div
-        className="fixed inset-0 bg-fg/10 z-40 animate-rise"
+        className="fixed inset-0 bg-black/55 backdrop-blur-[2px] z-40 animate-rise"
         onClick={onClose}
         style={{ animationDuration: "120ms" }}
       />
-      <div className="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-bg border-l border-border z-50 flex flex-col animate-rise">
+      <div className="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-bg border-l border-border z-50 flex flex-col animate-rise shadow-2xl">
         <div className="h-12 px-5 flex items-center justify-between border-b border-border">
-          <h2 className="text-[14px] font-semibold tracking-tight">Nuova segnalazione</h2>
+          <h2 className="text-[14px] font-semibold tracking-tight">Nuova Richiesta</h2>
           <button
             onClick={onClose}
             className="text-fg-subtle hover:text-fg text-[18px] leading-none"
@@ -212,6 +268,18 @@ function NewRunSheet({
             </Select>
             <p className="text-2xs text-fg-subtle mt-1.5">
               Se non selezioni nulla, l'agente scandirà il repo e sceglierà l'ETL più pertinente.
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="model">Modello Gemini</Label>
+            <Select id="model" value={model} onChange={(e) => setModel(e.target.value)}>
+              {GEMINI_MODELS.map((m) => (
+                <option key={m.value} value={m.value}>{m.label}</option>
+              ))}
+            </Select>
+            <p className="text-2xs text-fg-subtle mt-1.5">
+              Pro è più preciso ma più lento. Flash è più rapido, utile per richieste semplici.
             </p>
           </div>
 

@@ -29,10 +29,19 @@ export interface RunSummary {
   status: "pending" | "running" | "completed" | "failed";
   request: string;
   etl_hint?: string | null;
+  model?: string | null;
   summary?: string | null;
   created_at?: any;
   updated_at?: any;
 }
+
+export const GEMINI_MODELS: { value: string; label: string }[] = [
+  { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro (più accurato)" },
+  { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash (più veloce)" },
+  { value: "gemini-2.0-flash-001", label: "Gemini 2.0 Flash" },
+  { value: "gemini-2.0-flash-lite-001", label: "Gemini 2.0 Flash Lite" },
+];
+export const DEFAULT_GEMINI_MODEL = "gemini-2.5-pro";
 
 export interface RunDetail extends RunSummary {
   events: RunEvent[];
@@ -57,14 +66,25 @@ export async function getRun(id: string): Promise<RunDetail> {
   return r.json();
 }
 
-export async function createRun(request: string, etl?: string): Promise<{ run_id: string }> {
+export async function createRun(
+  request: string,
+  etl?: string,
+  model?: string,
+): Promise<{ run_id: string }> {
   const r = await fetch(`${API_BASE}/api/runs`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ request, etl: etl || null }),
+    body: JSON.stringify({ request, etl: etl || null, model: model || null }),
   });
   if (!r.ok) throw new Error(`POST /api/runs ${r.status}`);
   return r.json();
+}
+
+export async function deleteRun(id: string): Promise<void> {
+  const r = await fetch(`${API_BASE}/api/runs/${id}`, { method: "DELETE" });
+  if (!r.ok && r.status !== 404) {
+    throw new Error(`DELETE /api/runs/${id} ${r.status}`);
+  }
 }
 
 export function streamRun(
