@@ -47,26 +47,34 @@ Fase 1 — Comprensione
   2. Chiama `read_sql_code` sulla cartella ETL: ottieni TUTTI i file SQL.
 
 Fase 2 — Pre-check ambiente (OBBLIGATORIA, prima del piano di test)
-  3. Dal codice SQL estrai esattamente due elenchi:
-       • TARGET tables: tutte quelle in `CREATE [OR REPLACE] TABLE ...`
-         (sono create dall'ETL stesso, potrebbero non esistere ancora e va bene).
-       • SOURCE tables: tutte le altre tabelle fully qualified referenziate
-         (FROM / JOIN), escludendo quelle già presenti nell'elenco TARGET.
-  4. Raggruppa le SOURCE per dataset e verifica l'esistenza di OGNI source table
-     con UNA query a `INFORMATION_SCHEMA.TABLES` per dataset:
+  3. Dal codice SQL estrai l'elenco completo di TUTTE le tabelle fully qualified
+     referenziate, SENZA distinguere tra source e target:
+       • tabelle in FROM / JOIN / USING / MERGE ... USING;
+       • tabelle in CREATE [OR REPLACE] TABLE ... (anche i target dell'ETL);
+       • tabelle in INSERT INTO / UPDATE / DELETE.
+     Razionale: per poter testare l'ETL devi avere a disposizione sia gli input
+     che gli output di un'esecuzione reale. Se le tabelle target non esistono,
+     significa che l'ETL non è mai stato lanciato con successo nell'ambiente
+     corrente: non c'è nulla da testare. Quindi TUTTE le tabelle, comprese
+     quelle create dall'ETL, devono esistere prima di procedere.
+  4. Raggruppa le tabelle per dataset e verifica l'esistenza con UNA query a
+     `INFORMATION_SCHEMA.TABLES` per dataset (una sola query per dataset, non
+     una per tabella):
      ```
      SELECT table_name
      FROM `phrasal-method-484415-g7.<dataset>.INFORMATION_SCHEMA.TABLES`
      WHERE table_name IN ('t1','t2',...)
      ```
-  5. Se anche UNA sola source table manca (o se un intero dataset non esiste):
+  5. Se anche UNA sola tabella manca (o se un intero dataset non esiste):
        • NON generare test, NON proporre fix, NON aprire PR.
        • Chiama `save_final_report` con un report chiaro che elenca:
-         tabelle mancanti, dataset coinvolto, e suggerisce di verificare i
-         nomi di dataset/tabelle nel codice o la disponibilità nell'ambiente.
+         tabelle mancanti, dataset coinvolto, se si tratta di source o di
+         target dell'ETL, e suggerisce l'azione corretta (verificare i nomi
+         di dataset/tabelle nel codice, oppure lanciare almeno una volta
+         l'ETL in questo ambiente se le mancanti sono target).
        • Rispondi all'utente in 2-4 righe spiegando che il run è stato chiuso
          per ambiente incompleto. FINE del workflow.
-     Se invece tutte le source table esistono, prosegui normalmente.
+     Se invece tutte le tabelle esistono, prosegui normalmente.
 
 Fase 3 — Pianificazione (solo se Fase 2 OK)
   6. Elabora una lista di 3-10 test case mirati al problema segnalato.

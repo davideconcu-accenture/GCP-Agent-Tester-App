@@ -18,7 +18,13 @@ from google.genai import types
 
 from app.agent import build_agent
 from app.config import get_settings
-from app.store import CURRENT_RUN_ID, append_event, set_status
+from app.store import (
+    CURRENT_RUN_ID,
+    append_event,
+    register_task,
+    set_status,
+    unregister_task,
+)
 
 
 APP_NAME = "etl-qa-agent"
@@ -62,11 +68,17 @@ async def execute_run(run_id: str, request_text: str, etl_hint: str | None, mode
 
         set_status(run_id, "completed")
 
+    except asyncio.CancelledError:
+        # Cancellazione richiesta dall'utente tramite il pulsante "Interrompi".
+        append_event(run_id, "error", {"message": "Run interrotto dall'utente."})
+        set_status(run_id, "cancelled", summary="Run interrotto dall'utente.")
+        # Non rilanciamo: il task termina in modo pulito.
     except Exception as e:
         append_event(run_id, "error", {"message": str(e), "trace": traceback.format_exc()[-2000:]})
         set_status(run_id, "failed", summary=str(e))
     finally:
         CURRENT_RUN_ID.reset(token)
+        unregister_task(run_id)
 
 
 def _forward_event(run_id: str, event) -> None:
@@ -122,4 +134,5 @@ def _preview(obj, limit: int = 600) -> str:
 
 def launch_background(run_id: str, request_text: str, etl_hint: str | None, model: str | None = None) -> None:
     """Lancia il run in background senza attendere (usato da FastAPI)."""
-    asyncio.create_task(execute_run(run_id, request_text, etl_hint, model))
+    task = asyncio.create_task(execute_run(run_id, request_text, etl_hint, model))
+    register_task(run_id, task)

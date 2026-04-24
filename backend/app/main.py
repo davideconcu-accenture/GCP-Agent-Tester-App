@@ -76,6 +76,21 @@ async def delete_run(run_id: str):
     return {"ok": True}
 
 
+@app.post("/api/runs/{run_id}/stop")
+async def stop_run(run_id: str):
+    run = store.get_run(run_id)
+    if run is None:
+        raise HTTPException(404, "run non trovato")
+    if run.get("status") in {"completed", "failed", "cancelled"}:
+        return {"ok": True, "already_finished": True}
+    cancelled = store.cancel_run(run_id)
+    if not cancelled:
+        # Nessun task attivo in questo processo: marca comunque come cancellato
+        # per uscire dallo stato "running" orfano.
+        store.set_status(run_id, "cancelled", summary="Run interrotto dall'utente.")
+    return {"ok": True}
+
+
 @app.get("/api/runs/{run_id}/stream")
 async def stream_run(run_id: str, request: Request):
     run = store.get_run(run_id)
@@ -87,7 +102,7 @@ async def stream_run(run_id: str, request: Request):
         for ev in run.get("events", []):
             yield _sse(ev)
         # Se già finito, chiudi.
-        if run.get("status") in {"completed", "failed"}:
+        if run.get("status") in {"completed", "failed", "cancelled"}:
             yield _sse({"type": "status", "status": run["status"], "summary": run.get("summary")})
             return
 
@@ -104,7 +119,7 @@ async def stream_run(run_id: str, request: Request):
                     yield ": keepalive\n\n"
                     continue
                 yield _sse(ev)
-                if ev.get("type") == "status" and ev.get("status") in {"completed", "failed"}:
+                if ev.get("type") == "status" and ev.get("status") in {"completed", "failed", "cancelled"}:
                     break
         finally:
             await store.unsubscribe(run_id, q)

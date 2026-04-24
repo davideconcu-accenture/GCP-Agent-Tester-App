@@ -31,12 +31,13 @@ export function relativeTs(ts?: number | string | null): string {
   return formatTs(ts);
 }
 
-export type UIStatus = "pending" | "running" | "completed" | "failed" | string;
+export type UIStatus = "pending" | "running" | "completed" | "failed" | "cancelled" | string;
 
 export function statusDot(s: UIStatus): "neutral" | "running" | "success" | "danger" | "warning" {
   if (s === "running") return "running";
   if (s === "completed") return "success";
   if (s === "failed") return "danger";
+  if (s === "cancelled") return "warning";
   return "neutral";
 }
 
@@ -45,6 +46,7 @@ export function statusLabel(status?: UIStatus): string {
     running: "In esecuzione",
     completed: "Completato",
     failed: "Fallito",
+    cancelled: "Interrotto",
     pending: "In coda",
   }[status || ""] || status || "—";
 }

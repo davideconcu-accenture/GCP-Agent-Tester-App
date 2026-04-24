@@ -26,7 +26,7 @@ export type ArtifactKind =
 
 export interface RunSummary {
   id: string;
-  status: "pending" | "running" | "completed" | "failed";
+  status: "pending" | "running" | "completed" | "failed" | "cancelled";
   request: string;
   etl_hint?: string | null;
   model?: string | null;
@@ -84,6 +84,13 @@ export async function deleteRun(id: string): Promise<void> {
   const r = await fetch(`${API_BASE}/api/runs/${id}`, { method: "DELETE" });
   if (!r.ok && r.status !== 404) {
     throw new Error(`DELETE /api/runs/${id} ${r.status}`);
+  }
+}
+
+export async function stopRun(id: string): Promise<void> {
+  const r = await fetch(`${API_BASE}/api/runs/${id}/stop`, { method: "POST" });
+  if (!r.ok) {
+    throw new Error(`POST /api/runs/${id}/stop ${r.status}`);
   }
 }
 

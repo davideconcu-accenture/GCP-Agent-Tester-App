@@ -62,6 +62,31 @@ async def unsubscribe(run_id: str, q: asyncio.Queue) -> None:
                 del _subscribers[run_id]
 
 
+# ── Registro task asyncio in esecuzione (per permettere la cancellazione) ────
+_running_tasks: dict[str, asyncio.Task] = {}
+
+
+def register_task(run_id: str, task: asyncio.Task) -> None:
+    _running_tasks[run_id] = task
+
+
+def unregister_task(run_id: str) -> None:
+    _running_tasks.pop(run_id, None)
+
+
+def cancel_run(run_id: str) -> bool:
+    """Richiede la cancellazione del task associato a un run.
+
+    Ritorna True se un task in esecuzione esisteva ed è stato richiesto lo stop,
+    False se il run non era attivo in questo processo.
+    """
+    task = _running_tasks.get(run_id)
+    if task is None or task.done():
+        return False
+    task.cancel()
+    return True
+
+
 def _publish_sync(run_id: str, event: dict[str, Any]) -> None:
     """Pubblica sull'event bus (chiamabile da contesto sincrono)."""
     subs = _subscribers.get(run_id, set())

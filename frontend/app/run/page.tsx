@@ -8,6 +8,7 @@ import { Badge, Dot, KeyValue, Section, Button } from "@/components/ui";
 import {
   getRun,
   streamRun,
+  stopRun,
   type RunDetail,
   type RunEvent,
   type ArtifactKind,
@@ -31,6 +32,28 @@ function RunView() {
   const [status, setStatus] = useState<string>("pending");
   const [summary, setSummary] = useState<string | null>(null);
   const [tab, setTab] = useState<"stream" | "results" | "fix" | "report">("stream");
+  const [stopping, setStopping] = useState(false);
+
+  const canStop = status === "running" || status === "pending";
+
+  async function handleStop() {
+    if (!id || !canStop || stopping) return;
+    if (!window.confirm("Interrompere l'esecuzione del run? L'operazione non può essere annullata.")) return;
+    setStopping(true);
+    try {
+      await stopRun(id);
+      // Lo status viene aggiornato via SSE, ma diamo un feedback subito.
+    } catch (e) {
+      // Ripristina lo stato del pulsante se la richiesta fallisce.
+      setStopping(false);
+      alert("Impossibile interrompere il run: " + (e as Error).message);
+    }
+  }
+
+  // Se il run cambia stato (via SSE), resetta il loading del pulsante.
+  useEffect(() => {
+    if (!canStop) setStopping(false);
+  }, [canStop]);
 
   useEffect(() => {
     if (!id) return;
@@ -69,9 +92,16 @@ function RunView() {
     return () => { alive = false; unsub?.(); };
   }, [id]);
 
-  // Switch automatico al tab giusto quando arriva un artefatto rilevante
+  // Switch automatico al tab giusto quando arriva un artefatto rilevante.
+  // Usiamo un ref così scatta una sola volta: se l'utente torna su Stream
+  // dopo la fine del run, resta lì.
+  const didAutoSwitchRef = useRef(false);
   useEffect(() => {
-    if (artifacts.test_results && tab === "stream" && status === "completed") setTab("results");
+    if (didAutoSwitchRef.current) return;
+    if (artifacts.test_results && tab === "stream" && status === "completed") {
+      didAutoSwitchRef.current = true;
+      setTab("results");
+    }
   }, [artifacts.test_results, status, tab]);
 
   const counts = useMemo(() => {
@@ -97,10 +127,29 @@ function RunView() {
           <h1 className="text-[22px] font-semibold tracking-tight leading-snug flex-1 min-w-0 break-words">
             {run?.request || "Caricamento…"}
           </h1>
-          <span className="inline-flex items-center gap-2 text-[13px] shrink-0 pt-1">
-            <Dot variant={statusDot(status)} pulse={status === "running"} />
-            <span className="font-medium">{statusLabel(status)}</span>
-          </span>
+          <div className="flex items-center gap-3 shrink-0 pt-1">
+            <span className="inline-flex items-center gap-2 text-[13px]">
+              <Dot variant={statusDot(status)} pulse={status === "running"} />
+              <span className="font-medium">{statusLabel(status)}</span>
+            </span>
+            {canStop && (
+              <button
+                onClick={handleStop}
+                disabled={stopping}
+                title="Interrompi l'esecuzione del run"
+                className={cn(
+                  "h-8 px-3 text-[13px] inline-flex items-center gap-1.5 border rounded transition-colors",
+                  "border-danger/40 text-danger hover:bg-danger/5 hover:border-danger/70",
+                  stopping && "opacity-50 cursor-not-allowed",
+                )}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                  <rect x="6" y="6" width="12" height="12" rx="1" />
+                </svg>
+                {stopping ? "Interruzione…" : "Interrompi"}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-0 text-[13px] max-w-3xl">
@@ -130,10 +179,30 @@ function RunView() {
 
       {/* Content */}
       <div className="px-6 py-6">
-        {tab === "stream" && <StreamTab events={events} status={status} />}
-        {tab === "results" && <ResultsTab plan={artifacts.test_plan} results={artifacts.test_results} counts={counts} runStatus={status} />}
+        {tab === "stream" && (
+          <StreamTab
+            events={events}
+            status={status}
+            meta={{ id, request: run?.request, model: run?.model, etl: run?.etl_hint }}
+          />
+        )}
+        {tab === "results" && (
+          <ResultsTab
+            plan={artifacts.test_plan}
+            results={artifacts.test_results}
+            counts={counts}
+            runStatus={status}
+            runId={id}
+          />
+        )}
         {tab === "fix" && <FixTab fix={artifacts.fix_proposal} pr={artifacts.pr_opened} />}
-        {tab === "report" && <ReportTab report={artifacts.final_report} />}
+        {tab === "report" && (
+          <ReportTab
+            report={artifacts.final_report}
+            runId={id}
+            request={run?.request}
+          />
+        )}
       </div>
     </div>
   );
@@ -160,9 +229,114 @@ function Tab({ active, onClick, label, count, disabled }: { active: boolean; onC
   );
 }
 
+// ═══ Download helpers ═══════════════════════════════════════════════════════
+
+function triggerDownload(filename: string, content: string, mime: string) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function csvEscape(v: unknown): string {
+  const s = v === null || v === undefined ? "" : String(v);
+  if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
+function toCsv(rows: (string | number | null | undefined)[][]): string {
+  return rows.map((r) => r.map(csvEscape).join(",")).join("\r\n");
+}
+
+function streamToMarkdown(events: RunEvent[], meta: { id: string; request?: string; status?: string; model?: string | null; etl?: string | null }): string {
+  const lines: string[] = [];
+  lines.push(`# Stream — run ${meta.id}`);
+  lines.push("");
+  if (meta.request) lines.push(`**Richiesta**: ${meta.request}`);
+  if (meta.etl) lines.push(`**ETL**: \`${meta.etl}\``);
+  if (meta.model) lines.push(`**Modello**: \`${meta.model}\``);
+  if (meta.status) lines.push(`**Stato finale**: ${meta.status}`);
+  lines.push(`**Esportato**: ${new Date().toISOString()}`);
+  lines.push("");
+  lines.push("---");
+  lines.push("");
+
+  let textBuf = "";
+  const flushText = () => {
+    if (textBuf.trim()) {
+      lines.push(textBuf.trim());
+      lines.push("");
+    }
+    textBuf = "";
+  };
+
+  for (const e of events) {
+    if (e.type === "agent_text") {
+      textBuf += (e as any).text;
+    } else if (e.type === "tool_call") {
+      flushText();
+      lines.push(`### → tool_call: \`${e.name}\``);
+      const args = (e as any).args || {};
+      const entries = Object.entries(args);
+      if (entries.length === 0) {
+        lines.push("_nessun argomento_");
+      } else {
+        lines.push("```");
+        for (const [k, v] of entries) {
+          const s = typeof v === "string" ? v : JSON.stringify(v);
+          lines.push(`${k}: ${s}`);
+        }
+        lines.push("```");
+      }
+      lines.push("");
+    } else if (e.type === "tool_response") {
+      flushText();
+      lines.push(`### ← tool_response: \`${e.name}\``);
+      lines.push("```");
+      lines.push(String((e as any).preview || ""));
+      lines.push("```");
+      lines.push("");
+    } else if (e.type === "error") {
+      flushText();
+      lines.push(`### ⚠ errore`);
+      lines.push("```");
+      lines.push(String((e as any).message || ""));
+      lines.push("```");
+      lines.push("");
+    }
+  }
+  flushText();
+  return lines.join("\n");
+}
+
+function IconButton({
+  onClick,
+  title,
+  children,
+}: {
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      className="h-7 px-2.5 text-2xs font-mono inline-flex items-center gap-1.5 border border-border rounded text-fg-muted hover:text-fg hover:border-border-strong hover:bg-bg-subtle transition-colors"
+    >
+      {children}
+    </button>
+  );
+}
+
 // ═══ Stream tab ═════════════════════════════════════════════════════════════
 
-function StreamTab({ events, status }: { events: RunEvent[]; status: string }) {
+function StreamTab({ events, status, meta }: { events: RunEvent[]; status: string; meta: { id: string; request?: string; model?: string | null; etl?: string | null } }) {
   // Unione reasoning + tool in una timeline cronologica unica.
   const items = useMemo(() => {
     const out: Array<
@@ -199,6 +373,11 @@ function StreamTab({ events, status }: { events: RunEvent[]; status: string }) {
     if (status === "running") endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [items.length, status]);
 
+  const downloadStream = () => {
+    const md = streamToMarkdown(events, { id: meta.id, request: meta.request, status, model: meta.model, etl: meta.etl });
+    triggerDownload(`stream-${meta.id}.md`, md, "text/markdown;charset=utf-8");
+  };
+
   if (items.length === 0) {
     return (
       <div className="py-20 text-center text-fg-muted text-[13px]">
@@ -208,8 +387,22 @@ function StreamTab({ events, status }: { events: RunEvent[]; status: string }) {
     );
   }
 
+  const isEnded = status === "completed" || status === "failed" || status === "cancelled";
+
   return (
     <div className="max-w-3xl">
+      {isEnded && (
+        <div className="flex items-center justify-end mb-4">
+          <IconButton onClick={downloadStream} title="Scarica lo stream come file Markdown">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Scarica .md
+          </IconButton>
+        </div>
+      )}
       {items.map((it, i) => (
         <div key={i} className="animate-rise mb-5">
           {it.kind === "text" && (
@@ -291,11 +484,13 @@ function ResultsTab({
   results,
   counts,
   runStatus,
+  runId,
 }: {
   plan: any;
   results: any;
   counts: Record<string, number>;
   runStatus: string;
+  runId: string;
 }) {
   const tests: any[] = plan?.tests || [];
   const resList: any[] = results?.results || [];
@@ -318,17 +513,50 @@ function ResultsTab({
     });
   }
 
+  const downloadCsv = () => {
+    const header = ["id", "name", "category", "priority", "pass_condition", "status", "evidence", "row_count", "query"];
+    const dataRows: (string | number | null | undefined)[][] = rows.map((t: any) => {
+      const res = t.result;
+      const rawStatus: string | undefined = res?.status;
+      const status = rawStatus ?? (runStatus === "running" || runStatus === "pending" ? "RUNNING" : "PENDING");
+      return [
+        t.id ?? "",
+        t.name ?? "",
+        t.category ?? "",
+        t.priority ?? "",
+        t.pass_condition ?? "",
+        status,
+        res?.evidence ?? "",
+        typeof res?.row_count === "number" ? res.row_count : "",
+        t.query ?? "",
+      ];
+    });
+    // BOM per Excel → gli UTF-8 accentati si vedono bene
+    const csv = "\uFEFF" + toCsv([header, ...dataRows]);
+    triggerDownload(`test-results-${runId}.csv`, csv, "text/csv;charset=utf-8");
+  };
+
   if (rows.length === 0) {
     return <div className="text-fg-muted text-[13px]">Nessun test ancora.</div>;
   }
 
   return (
     <div className="space-y-6 w-full">
-      {plan?.rationale && (
-        <div className="text-[13px] text-fg-muted italic border-l-2 border-border pl-3">
-          {plan.rationale}
-        </div>
-      )}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        {plan?.rationale ? (
+          <div className="text-[13px] text-fg-muted italic border-l-2 border-border pl-3 flex-1 min-w-[240px]">
+            {plan.rationale}
+          </div>
+        ) : <div />}
+        <IconButton onClick={downloadCsv} title="Scarica i test come CSV (apribile in Excel)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Scarica CSV
+        </IconButton>
+      </div>
 
       {Object.keys(counts).length > 0 && (
         <div className="flex items-center gap-2">
@@ -472,11 +700,38 @@ function FixTab({ fix, pr }: { fix: any; pr: any }) {
 
 // ═══ Report tab ═════════════════════════════════════════════════════════════
 
-function ReportTab({ report }: { report: any }) {
+function ReportTab({
+  report,
+  runId,
+  request,
+}: {
+  report: any;
+  runId: string;
+  request?: string;
+}) {
   if (!report) return <div className="text-fg-muted text-[13px]">Nessun report ancora.</div>;
+
+  const markdown: string = report.markdown || "";
+
+  const downloadReport = () => {
+    triggerDownload(`report-${runId}.md`, markdown, "text/markdown;charset=utf-8");
+  };
+
   return (
-    <div className="prose-plain max-w-4xl">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{report.markdown || ""}</ReactMarkdown>
+    <div className="w-full">
+      <div className="flex items-center justify-end gap-2 mb-4 max-w-4xl">
+        <IconButton onClick={downloadReport} title="Scarica il report in Markdown">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Scarica .md
+        </IconButton>
+      </div>
+      <div className="prose-plain max-w-4xl">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
+      </div>
     </div>
   );
 }
