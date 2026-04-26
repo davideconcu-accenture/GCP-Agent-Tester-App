@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Infrastruttura — ETL QA Agent</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -12,7 +13,7 @@
   <div class="nav-inner">
     <div class="brand">
       <div class="brand-mark"></div>
-      <span>Team 14 · ETL QA Agent</span>
+      <span>Team 14 · ETL Agent Tester</span>
     </div>
     <div class="nav-links">
       <a href="index.html">1 · Intro</a>
@@ -26,9 +27,10 @@
 <section class="container">
   <a class="back" href="index.html">← intro</a>
   <div class="eyebrow">02 · Infrastruttura</div>
-  <h1 style="margin-top:14px">Tre blocchi.</h1>
+  <h1 style="margin-top:14px">Architettura del sistema</h1>
   <p class="lede">
-    Da una parte i dati, in mezzo l'app agentica, dall'altra il codice SQL versionato.
+    Tre componenti distinti: i dati su BigQuery, l'app agentica su Cloud Run,
+    il codice SQL versionato su GitHub.
   </p>
 
   <!-- ─── DIAGRAMMA 3 BLOCCHI ──────────────────────────────────────── -->
@@ -113,21 +115,40 @@
     </div>
   </div>
 
-  <!-- ─── SPEAKER NOTES ────────────────────────────────────────────── -->
-  <details class="speaker" open>
-    <summary>
-      <span class="left">📣 Discorso — Infrastruttura</span>
-      <span class="right">⏱ ~1.5 min</span>
-    </summary>
-    <div class="speaker-body">
-      <p>Il progetto è diviso in <b>tre blocchi</b>.</p>
-      <p>Da una parte abbiamo <b>i dati</b> — le tabelle sorgente, le tabelle di staging e quelle finali generate dagli ETL fittizi.</p>
-      <p>Al centro c'è <b>l'app agentica</b>, containerizzata e deployata su Cloud Run.</p>
-      <p>E infine <b>il codice SQL degli ETL</b>, che è versionato su GitHub per simulare un contesto professionale in cui realisticamente il codice è versionato da qualche parte.</p>
+  <!-- ─── 3 CARD CON TITOLO + BULLET ─────────────────────────── -->
+  <div class="section">
+    <div class="grid-3">
+      <div class="card">
+        <span class="tag bq">Dati</span>
+        <h3 style="margin-top:10px">BigQuery</h3>
+        <ul class="bullets bq" style="margin-top:14px">
+          <li>Tabelle sorgente, staging e finali nel data warehouse.</li>
+          <li>Accesso in <b>sola lettura</b> da parte dell'agente.</li>
+          <li>Autenticazione via service account con permessi minimi.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="tag run">Applicazione</span>
+        <h3 style="margin-top:10px">Cloud Run</h3>
+        <ul class="bullets run" style="margin-top:14px">
+          <li><b>Container unico</b> con frontend e backend integrati.</li>
+          <li>Scaling automatico, HTTPS gestito dalla piattaforma.</li>
+          <li>Integrazione con Vertex AI tramite service account.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="tag git">Codice</span>
+        <h3 style="margin-top:10px">GitHub</h3>
+        <ul class="bullets git" style="margin-top:14px">
+          <li>Repository SQL versionato, una cartella per ETL.</li>
+          <li>Token gestito tramite <b>Secret Manager</b>.</li>
+          <li>Pull Request automatica, merge sempre umano.</li>
+        </ul>
+      </div>
     </div>
-  </details>
+  </div>
 
-  <div class="footer">Team 14 · ETL QA Agent · 2/4</div>
+  <div class="footer">Team 14 · ETL Agent Tester · 2/4</div>
 </section>
 
 </body>

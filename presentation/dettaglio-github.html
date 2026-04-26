@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dettaglio · GitHub — ETL QA Agent</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -12,7 +13,7 @@
   <div class="nav-inner">
     <div class="brand">
       <div class="brand-mark"></div>
-      <span>Team 14 · ETL QA Agent</span>
+      <span>Team 14 · ETL Agent Tester</span>
     </div>
     <div class="nav-links">
       <a href="index.html">1 · Intro</a>
@@ -137,20 +138,8 @@
   </div>
 
   <!-- ─── Q&A box ───────────────────────────────────────────────── -->
-  <details class="speaker">
-    <summary>
-      <span class="left">💡 Possibili domande</span>
-      <span class="right">cheat-sheet</span>
-    </summary>
-    <div class="speaker-body">
-      <p><em class="cue">"Cosa succede se la PR esiste già?"</em> Il branch viene riutilizzato (errore 422 ignorato), il file aggiornato, e si tenta di aprire la PR. Se la PR è già aperta, l'errore viene riportato come <code>error</code> nel return.</p>
-      <p><em class="cue">"E se serve modificare più file?"</em> Oggi <code>create_github_pr</code> tocca un solo file SQL per chiamata. Per casi multi-file servirebbe un'estensione del tool — non ne abbiamo avuto bisogno nel mock.</p>
-      <p><em class="cue">"Permessi del token?"</em> <code>repo</code> (lettura/scrittura, branch, PR). Niente <code>admin</code> né <code>workflow</code>.</p>
-      <p><em class="cue">"Audit?"</em> Ogni PR è collegata al run sull'app: <code>artifacts.pr_opened</code> contiene <code>url</code> e <code>number</code>; nel <code>final_report</code> c'è anche il riepilogo.</p>
-    </div>
-  </details>
 
-  <div class="footer">Team 14 · ETL QA Agent · deep-dive GitHub</div>
+  <div class="footer">Team 14 · ETL Agent Tester · deep-dive GitHub</div>
 </section>
 
 </body>

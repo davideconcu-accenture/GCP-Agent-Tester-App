@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dettaglio · Backend — ETL QA Agent</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -12,7 +13,7 @@
   <div class="nav-inner">
     <div class="brand">
       <div class="brand-mark"></div>
-      <span>Team 14 · ETL QA Agent</span>
+      <span>Team 14 · ETL Agent Tester</span>
     </div>
     <div class="nav-links">
       <a href="index.html">1 · Intro</a>
@@ -112,20 +113,8 @@ GET    /healthz                  <span class="c">→ liveness probe</span></pre>
   </div>
 
   <!-- ─── Q&A box ───────────────────────────────────────────────── -->
-  <details class="speaker">
-    <summary>
-      <span class="left">💡 Possibili domande</span>
-      <span class="right">cheat-sheet</span>
-    </summary>
-    <div class="speaker-body">
-      <p><em class="cue">"Perché Firestore e non Postgres?"</em> Serializzazione JSON-friendly nativa, scrittura append-only via <code>ArrayUnion</code>, niente schema da gestire. Il prodotto è scriptato sui run, non relazionale.</p>
-      <p><em class="cue">"Cosa succede se Cloud Run riavvia il container durante un run?"</em> Il task asyncio viene perso (in-memory). Lo stato del run resta su Firestore con status <code>running</code> orfano: visibile dall'utente. È un trade-off accettato.</p>
-      <p><em class="cue">"Scaling?"</em> Cloud Run scala automaticamente. In modalità default un'istanza serve più richieste in concorrenza (asyncio).</p>
-      <p><em class="cue">"Auth?"</em> Service account su Cloud Run con permessi BigQuery (jobUser + dataViewer), Firestore (user), Vertex AI (user), Secret Manager (accessor).</p>
-    </div>
-  </details>
 
-  <div class="footer">Team 14 · ETL QA Agent · deep-dive Backend</div>
+  <div class="footer">Team 14 · ETL Agent Tester · deep-dive Backend</div>
 </section>
 
 </body>

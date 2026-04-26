@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ETL QA Agent — Intro</title>
+  <title>ETL Agent Tester — Intro</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -12,7 +13,7 @@
   <div class="nav-inner">
     <div class="brand">
       <div class="brand-mark"></div>
-      <span>Team 14 · ETL QA Agent</span>
+      <span>Team 14 · ETL Agent Tester</span>
     </div>
     <div class="nav-links">
       <a href="index.html" class="active">1 · Intro</a>
@@ -28,87 +29,39 @@
   <!-- ─── HERO ─────────────────────────────────────────────────────────── -->
   <div class="hero">
     <div class="eyebrow">Team 14 · presentazione progetto</div>
-    <h1>Un agente che testa<br/>gli ETL al posto nostro.</h1>
+    <h1>ETL Agent Tester</h1>
     <p class="lede">
-      Un agente autonomo che riceve una richiesta, prepara una lista di test,
-      li esegue, e quando trova un bug propone direttamente la fix con una
-      Pull Request.
+      Un agente autonomo che testa le pipeline ETL su BigQuery, individua
+      i bug nel codice SQL e propone le correzioni come Pull Request — end to end.
     </p>
   </div>
 
-  <!-- ─── IDEA + MOCK ──────────────────────────────────────────────── -->
+  <!-- ─── 2 CARD: COSA FA + VALORE ──────────────────────────────────── -->
   <div class="section">
     <div class="grid-2">
       <div class="card">
-        <div class="eyebrow" style="margin-bottom:12px">L'idea di partenza</div>
-        <h3>Tre cose, in autonomia</h3>
+        <h3>Cosa fa</h3>
         <ul class="bullets" style="margin-top:14px">
-          <li><b>Pianificare</b> una batteria di test di qualità sull'ETL.</li>
-          <li><b>Eseguire</b> ogni test sul database e leggerne il risultato.</li>
-          <li><b>Proporre la fix</b> quando rileva un bug, aprendo una Pull Request.</li>
+          <li><b>Pianifica</b> una batteria di test di qualità sull'ETL.</li>
+          <li><b>Esegue</b> ogni test su BigQuery e ne interpreta gli esiti.</li>
+          <li><b>Individua la causa</b> nel codice SQL quando un test fallisce.</li>
+          <li><b>Propone la correzione</b> aprendo una Pull Request su GitHub.</li>
         </ul>
       </div>
 
       <div class="card">
-        <div class="eyebrow" style="margin-bottom:12px">Vincolo di compliance</div>
-        <h3>Niente dati del cliente → mock</h3>
-        <p style="color:var(--fg-muted); font-size:14.5px; margin:12px 0 0">
-          Per ovvie ragioni di compliance non potevamo usare dati reali del cliente.
-          Abbiamo costruito un <b>mock completo</b>: tabelle sorgente, ETL fittizi
-          e dati popolati appositamente, in modo che l'agente potesse lavorare
-          su uno scenario realistico ma sicuro.
-        </p>
+        <h3>Caratteristiche distintive</h3>
+        <ul class="bullets" style="margin-top:14px">
+          <li><b>Autonomia operativa</b> — un solo input dell'utente, l'agente porta a termine il flusso.</li>
+          <li><b>Tracciabilità completa</b> — ogni passo è loggato e visibile in tempo reale.</li>
+          <li><b>Integrazione cloud-native</b> — Vertex AI, BigQuery, Cloud Run, GitHub.</li>
+          <li><b>Human-in-the-loop</b> — la fix è proposta, mai applicata senza review.</li>
+        </ul>
       </div>
     </div>
   </div>
 
-  <!-- ─── VISUALE INTRO ────────────────────────────────────────── -->
-  <div class="section">
-    <div class="card">
-      <svg viewBox="0 0 1100 240" style="width:100%; height:auto" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <marker id="arI" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 Z" fill="#9b6dff"/>
-          </marker>
-        </defs>
-
-        <!-- Richiesta -->
-        <rect x="20" y="80" width="200" height="80" rx="12" fill="#0e1430" stroke="#3a4880" stroke-width="1.5"/>
-        <text x="120" y="110" text-anchor="middle" fill="#9aa6cc" font-size="11" font-family="monospace" letter-spacing="2">RICHIESTA</text>
-        <text x="120" y="135" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">"Testa l'ETL X"</text>
-
-        <!-- Agente -->
-        <rect x="350" y="50" width="400" height="140" rx="14" fill="#1c1140" stroke="#9b6dff" stroke-width="2"/>
-        <text x="550" y="80" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">AGENTE</text>
-        <text x="550" y="116" text-anchor="middle" fill="#e6ecff" font-size="20" font-weight="600">Pianifica · Esegue · Fixa</text>
-        <text x="550" y="148" text-anchor="middle" fill="#9aa6cc" font-size="12">in autonomia, sui mock fittizi</text>
-
-        <!-- Output -->
-        <rect x="880" y="80" width="200" height="80" rx="12" fill="#2e1f08" stroke="#f5a623" stroke-width="1.5"/>
-        <text x="980" y="110" text-anchor="middle" fill="#ffce8a" font-size="11" font-family="monospace" letter-spacing="2">OUTPUT</text>
-        <text x="980" y="135" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">Report · PR</text>
-
-        <!-- Arrows -->
-        <path d="M 220,120 L 350,120" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arI)"/>
-        <path d="M 750,120 L 880,120" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arI)"/>
-      </svg>
-    </div>
-  </div>
-
-  <!-- ─── SPEAKER NOTES ────────────────────────────────────────────── -->
-  <details class="speaker" open>
-    <summary>
-      <span class="left">📣 Discorso — Intro</span>
-      <span class="right">⏱ ~1 min</span>
-    </summary>
-    <div class="speaker-body">
-      <p>Ciao a tutti, sono Davide e oggi presento il progetto del team 14.</p>
-      <p>La nostra idea di partenza è stata creare <b>un agente che in autonomia prepara una lista di test, li esegue lui stesso, e che propone lui stesso delle fix quando trova dei bug</b>.</p>
-      <p>Non potendo utilizzare dati del cliente per ovvie ragioni di compliance, abbiamo sviluppato come un <b>mock</b>, creando delle tabelle e ETL e popolandole con dati fittizi.</p>
-    </div>
-  </details>
-
-  <div class="footer">Team 14 · ETL QA Agent · 1/4</div>
+  <div class="footer">Team 14 · ETL Agent Tester · 1/4</div>
 </section>
 
 </body>

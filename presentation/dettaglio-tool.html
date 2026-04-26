@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dettaglio · Tool — ETL QA Agent</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -12,7 +13,7 @@
   <div class="nav-inner">
     <div class="brand">
       <div class="brand-mark"></div>
-      <span>Team 14 · ETL QA Agent</span>
+      <span>Team 14 · ETL Agent Tester</span>
     </div>
     <div class="nav-links">
       <a href="index.html">1 · Intro</a>
@@ -155,19 +156,8 @@ tool = <span class="n">FunctionTool</span>(func=execute_bigquery_query)
   </div>
 
   <!-- ─── Q&A box ───────────────────────────────────────────────── -->
-  <details class="speaker">
-    <summary>
-      <span class="left">💡 Possibili domande</span>
-      <span class="right">cheat-sheet</span>
-    </summary>
-    <div class="speaker-body">
-      <p><em class="cue">"Perché tool separati per emit?"</em> Servono come <b>checkpoint</b>: ogni emit congela uno stato (piano test, risultati, proposta) che il frontend rendera come card. Più chiaro per l'utente che un'unica risposta finale.</p>
-      <p><em class="cue">"Posso aggiungere tool nuovi?"</em> Sì, basta scrivere una funzione Python con type hint + docstring e registrarla in <code>build_agent</code>. ADK fa il resto.</p>
-      <p><em class="cue">"Tool sandboxed?"</em> No, sono codice Python che gira nel backend con le credenziali del service account. La sicurezza è data dai guardrail nei tool stessi (es. solo SELECT) e dal fatto che le PR vanno mergiate da un umano.</p>
-    </div>
-  </details>
 
-  <div class="footer">Team 14 · ETL QA Agent · deep-dive Tool</div>
+  <div class="footer">Team 14 · ETL Agent Tester · deep-dive Tool</div>
 </section>
 
 </body>

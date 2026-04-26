@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dettaglio · System Prompt — ETL QA Agent</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -12,7 +13,7 @@
   <div class="nav-inner">
     <div class="brand">
       <div class="brand-mark"></div>
-      <span>Team 14 · ETL QA Agent</span>
+      <span>Team 14 · ETL Agent Tester</span>
     </div>
     <div class="nav-links">
       <a href="index.html">1 · Intro</a>
@@ -95,20 +96,8 @@
   </div>
 
   <!-- ─── Q&A box ───────────────────────────────────────────────── -->
-  <details class="speaker">
-    <summary>
-      <span class="left">💡 Possibili domande</span>
-      <span class="right">cheat-sheet</span>
-    </summary>
-    <div class="speaker-body">
-      <p><em class="cue">"Perché un solo agente e non multi-agente?"</em> Il task è abbastanza lineare e cabinato: aggiungere sub-agent significa più parti mobili e più punti di fallimento. Un singolo loop ReAct con regole esplicite dà robustezza.</p>
-      <p><em class="cue">"Quanto è lungo il prompt?"</em> ~140 righe. Diviso in: ambiente, workflow (6 fasi), regole (7), stile.</p>
-      <p><em class="cue">"Le regole le rispetta sempre?"</em> Quasi sempre — Gemini 2.5 Pro è obbediente sui prompt strutturati. Quando sgarra, di solito è su R3 (NULL check). Le verifiche sui risultati intercettano i problemi.</p>
-      <p><em class="cue">"E se la richiesta è ambigua?"</em> L'agente sceglie l'ETL più coerente con la descrizione tramite <code>list_available_etls</code>. L'utente può anche pre-selezionarlo dalla UI.</p>
-    </div>
-  </details>
 
-  <div class="footer">Team 14 · ETL QA Agent · deep-dive Prompt</div>
+  <div class="footer">Team 14 · ETL Agent Tester · deep-dive Prompt</div>
 </section>
 
 </body>

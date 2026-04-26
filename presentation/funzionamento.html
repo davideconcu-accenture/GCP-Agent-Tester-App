@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Funzionamento — ETL QA Agent</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -12,7 +13,7 @@
   <div class="nav-inner">
     <div class="brand">
       <div class="brand-mark"></div>
-      <span>Team 14 · ETL QA Agent</span>
+      <span>Team 14 · ETL Agent Tester</span>
     </div>
     <div class="nav-links">
       <a href="index.html">1 · Intro</a>
@@ -26,10 +27,10 @@
 <section class="container">
   <a class="back" href="infrastruttura.html">← infrastruttura</a>
   <div class="eyebrow">03 · Funzionamento</div>
-  <h1 style="margin-top:14px">Cosa fa l'agente, passo per passo.</h1>
+  <h1 style="margin-top:14px">Flusso operativo dell'agente</h1>
   <p class="lede">
-    Dalla richiesta dell'utente al report finale (o alla Pull Request,
-    se trova un bug).
+    Dalla richiesta dell'utente al report finale, oppure alla Pull Request
+    quando viene rilevato un bug.
   </p>
 
   <!-- ─── DIAGRAMMA DI FLUSSO ──────────────────────────────────────── -->
@@ -139,23 +140,20 @@
     </div>
   </div>
 
-  <!-- ─── SPEAKER NOTES ────────────────────────────────────────────── -->
-  <details class="speaker" open>
-    <summary>
-      <span class="left">📣 Discorso — Funzionamento</span>
-      <span class="right">⏱ ~2 min</span>
-    </summary>
-    <div class="speaker-body">
-      <p>L'utente inserisce una richiesta su un ETL specifico.</p>
-      <p>L'agente parte prima <b>recuperandosi il codice SQL</b> dell'ETL e leggendolo.</p>
-      <p>Fa una <b>rapida verifica su BigQuery di esistenza delle tabelle</b>.</p>
-      <p>Dopodiché <b>stila un piano di test</b> ed <b>esegue uno per uno</b> questi test.</p>
-      <p>Alla fine del giro, se tutti i test sono passati, l'agente <b>chiude con un report finale</b>.</p>
-      <p>Invece, se qualcuno fallisce, <b>cerca di capire il motivo</b>, se necessario lanciando ulteriori query su BigQuery, e una volta individuata la causa <b>propone la fix e crea la Pull Request</b>.</p>
+  <!-- ─── PUNTI CHIAVE ─────────────────────────────────────── -->
+  <div class="section">
+    <div class="card">
+      <h3>Punti chiave del flusso</h3>
+      <ul class="bullets vertex" style="margin-top:14px">
+        <li><b>Esito positivo</b> — se tutti i test passano, l'agente chiude il run con un report finale.</li>
+        <li><b>Esito con bug</b> — se un test fallisce, l'agente investiga la causa, propone la correzione e apre una Pull Request.</li>
+        <li><b>Tracciabilità end-to-end</b> — ogni passo è loggato in tempo reale e ogni fix viene validato con dati reali prima di essere proposto.</li>
+      </ul>
     </div>
-  </details>
+  </div>
 
-  <div class="footer">Team 14 · ETL QA Agent · 3/4</div>
+
+  <div class="footer">Team 14 · ETL Agent Tester · 3/4</div>
 </section>
 
 </body>

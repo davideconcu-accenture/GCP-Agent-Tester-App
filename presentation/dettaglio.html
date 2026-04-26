@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dettaglio — ETL QA Agent</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -12,7 +13,7 @@
   <div class="nav-inner">
     <div class="brand">
       <div class="brand-mark"></div>
-      <span>Team 14 · ETL QA Agent</span>
+      <span>Team 14 · ETL Agent Tester</span>
     </div>
     <div class="nav-links">
       <a href="index.html">1 · Intro</a>
@@ -26,14 +27,14 @@
 <section class="container">
   <a class="back" href="funzionamento.html">← funzionamento</a>
   <div class="eyebrow">04 · Dettaglio tecnico</div>
-  <h1 style="margin-top:14px">Approfondimenti.</h1>
+  <h1 style="margin-top:14px">Approfondimenti tecnici</h1>
   <p class="lede">
-    Diagramma infrastrutturale completo. Clicca su un blocco per il
-    deep-dive — utile in caso di domande tecniche specifiche.
+    Una scheda dedicata per ciascuna componente del sistema, a supporto delle
+    domande tecniche.
   </p>
 
-  <!-- ─── DIAGRAMMA INFRASTRUTTURALE CLICCABILE ────────────────── -->
-  <div class="section">
+  <!-- ─── DIAGRAMMA INFRASTRUTTURALE CLICCABILE (NASCOSTO) ────────────────── -->
+  <div class="section" style="display:none">
     <div class="card">
       <svg class="arch-svg" viewBox="0 0 1280 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagramma infrastrutturale">
         <defs>
@@ -190,71 +191,45 @@
     </div>
   </div>
 
-  <!-- ─── TILE LIST (alternativa al diagramma per chi vuole linee) ─── -->
+  <!-- ─── TILE LIST ─── -->
   <div class="section">
-    <div class="section-head">
-      <div class="eyebrow">Sei deep-dive</div>
-      <h2>Approfondimenti per area</h2>
-    </div>
-
     <div class="grid-3">
       <a class="tile" href="dettaglio-bigquery.html">
         <span class="tag bq">BigQuery</span>
-        <h3 style="margin-top:10px">Dati &amp; query</h3>
-        <p>Dataset, INFORMATION_SCHEMA, guardrail read-only, esempi di test.</p>
+        <h3 style="margin-top:10px">Data layer</h3>
+        <p>Dataset, INFORMATION_SCHEMA, guardrail in sola lettura, query di test.</p>
       </a>
       <a class="tile" href="dettaglio-frontend.html">
         <span class="tag run">Frontend</span>
-        <h3 style="margin-top:10px">Next.js + SSE</h3>
-        <p>Pagine, streaming eventi, static export, UI in italiano.</p>
+        <h3 style="margin-top:10px">Interfaccia utente</h3>
+        <p>Next.js, streaming SSE, pagine, export statico.</p>
       </a>
       <a class="tile" href="dettaglio-backend.html">
         <span class="tag run">Backend</span>
-        <h3 style="margin-top:10px">FastAPI + Firestore</h3>
-        <p>API REST, run async, ContextVar, persistenza, bus SSE.</p>
+        <h3 style="margin-top:10px">API e orchestrazione</h3>
+        <p>FastAPI, esecuzione asincrona, persistenza su Firestore, bus eventi.</p>
       </a>
       <a class="tile" href="dettaglio-prompt.html">
         <span class="tag vertex">Prompt</span>
         <h3 style="margin-top:10px">System prompt</h3>
-        <p>Le 6 fasi del workflow e le 7 regole anti-allucinazione.</p>
+        <p>Le sei fasi del workflow e le sette regole operative dell'agente.</p>
       </a>
       <a class="tile" href="dettaglio-tool.html">
         <span class="tag vertex">Tools</span>
-        <h3 style="margin-top:10px">Gli 8 tool</h3>
-        <p>Signature, parametri, eventi emessi al frontend.</p>
+        <h3 style="margin-top:10px">Gli otto tool</h3>
+        <p>Signature, parametri, eventi pubblicati al frontend.</p>
       </a>
       <a class="tile" href="dettaglio-github.html">
         <span class="tag git">GitHub</span>
-        <h3 style="margin-top:10px">Repo &amp; PR</h3>
-        <p>PyGithub, Secret Manager, branch + commit + PR.</p>
+        <h3 style="margin-top:10px">Repository e PR</h3>
+        <p>Lettura SQL, gestione del token, creazione delle Pull Request.</p>
       </a>
     </div>
   </div>
 
   <!-- ─── SPEAKER NOTES (BOZZA) ────────────────────────────────────── -->
-  <details class="speaker">
-    <summary>
-      <span class="left">📣 Discorso — Dettaglio (BOZZA, da rivedere)</span>
-      <span class="right">⏱ ~2.5 min</span>
-    </summary>
-    <div class="speaker-body">
-      <p style="background:rgba(245,166,35,.08); border:1px solid rgba(245,166,35,.3); padding:10px 14px; border-radius:8px; color:#ffce8a; font-size:13px">
-        ⚠️ Questa è una <b>bozza</b>: riscrivila come preferisci.
-      </p>
 
-      <p>Veniamo al cuore tecnico. L'agente è costruito con <b>l'Agent Development Kit di Google</b>, una libreria che ci dà gratis il loop ReAct: il modello pensa, sceglie un tool, lo esegue, valuta il risultato e va avanti finché non ha finito.</p>
-
-      <p>Il modello che usiamo è <b>Gemini 2.5 Pro</b>, raggiunto tramite <b>Vertex AI</b>: niente chiavi API esterne, l'autenticazione è gestita dal service account di Cloud Run.</p>
-
-      <p>L'agente ha <b>8 tool</b> a disposizione, che sono semplicemente funzioni Python che ADK espone al modello. Si dividono in tre famiglie: due per leggere il codice da GitHub, uno per parlare con BigQuery (solo SELECT), e cinque per pubblicare gli artefatti al frontend e creare la Pull Request.</p>
-
-      <p>Tutto è guidato da un <b>system prompt</b> che impone le sei fasi che abbiamo visto e una serie di regole anti-allucinazione: "mai confrontare una colonna con la sua stessa formula", "NULL check sui LEFT JOIN", "mai cambiare il dataset di una tabella in un fix". Sono i sassolini su cui un LLM scivola: scolpirli nel prompt evita problemi.</p>
-
-      <p>Il diagramma qui sopra è cliccabile: <b>se nelle domande mi chiedete dettagli su una parte specifica</b> apriamo il deep-dive di quella parte. Grazie, domande?</p>
-    </div>
-  </details>
-
-  <div class="footer">Team 14 · ETL QA Agent · 4/4 · hub deep-dive</div>
+  <div class="footer">Team 14 · ETL Agent Tester · 4/4</div>
 </section>
 
 </body>

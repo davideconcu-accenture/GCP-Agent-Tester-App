@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dettaglio · Frontend — ETL QA Agent</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -12,7 +13,7 @@
   <div class="nav-inner">
     <div class="brand">
       <div class="brand-mark"></div>
-      <span>Team 14 · ETL QA Agent</span>
+      <span>Team 14 · ETL Agent Tester</span>
     </div>
     <div class="nav-links">
       <a href="index.html">1 · Intro</a>
@@ -98,19 +99,8 @@ es.<span class="n">onmessage</span> = (e) =&gt; {
   </div>
 
   <!-- ─── Q&A box ───────────────────────────────────────────────── -->
-  <details class="speaker">
-    <summary>
-      <span class="left">💡 Possibili domande</span>
-      <span class="right">cheat-sheet</span>
-    </summary>
-    <div class="speaker-body">
-      <p><em class="cue">"Perché SSE e non WebSocket?"</em> Il flusso è unidirezionale (server→client), SSE basta. È più semplice, gira su HTTP/1.1, fa reconnect automatico, attraversa tutti i proxy.</p>
-      <p><em class="cue">"Perché static export e non server-side rendering?"</em> Non serve SSR: tutta la logica è nel backend. Static export = un singolo container, niente Node runtime in produzione.</p>
-      <p><em class="cue">"Perché Next.js se è statico?"</em> App Router, routing, hot reload in dev, ottima DX. È il framework React più usato.</p>
-    </div>
-  </details>
 
-  <div class="footer">Team 14 · ETL QA Agent · deep-dive Frontend</div>
+  <div class="footer">Team 14 · ETL Agent Tester · deep-dive Frontend</div>
 </section>
 
 </body>

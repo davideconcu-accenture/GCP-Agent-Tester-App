@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dettaglio · BigQuery — ETL QA Agent</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -12,7 +13,7 @@
   <div class="nav-inner">
     <div class="brand">
       <div class="brand-mark"></div>
-      <span>Team 14 · ETL QA Agent</span>
+      <span>Team 14 · ETL Agent Tester</span>
     </div>
     <div class="nav-links">
       <a href="index.html">1 · Intro</a>
@@ -113,20 +114,8 @@
   </div>
 
   <!-- ─── Q&A box ───────────────────────────────────────────────── -->
-  <details class="speaker">
-    <summary>
-      <span class="left">💡 Possibili domande</span>
-      <span class="right">cheat-sheet</span>
-    </summary>
-    <div class="speaker-body">
-      <p><em class="cue">"Perché read-only?"</em> Per sicurezza e perché il fix non passa mai direttamente dal database: passa sempre da una PR su GitHub revisionabile.</p>
-      <p><em class="cue">"Quanti test fa?"</em> Da 3 a 10, scelti dall'agente in base alla richiesta.</p>
-      <p><em class="cue">"Costi?"</em> Una query per dataset al pre-check + N test (in media &lt;10). Il costo per run è di pochi centesimi.</p>
-      <p><em class="cue">"Dataset diversi?"</em> Sì, l'agente li estrae dal SQL. Fa una query <code>INFORMATION_SCHEMA</code> per ciascuno, non una per tabella.</p>
-    </div>
-  </details>
 
-  <div class="footer">Team 14 · ETL QA Agent · deep-dive BigQuery</div>
+  <div class="footer">Team 14 · ETL Agent Tester · deep-dive BigQuery</div>
 </section>
 
 </body>
