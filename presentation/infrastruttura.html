@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Infrastruttura — ETL QA Agent</title>
+  <title>Infrastruttura — ETL Agent Tester</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="theme.js" defer></script>
 </head>
@@ -24,19 +24,19 @@
   </div>
 </nav>
 
-<section class="container">
+<section class="container-wide">
   <a class="back" href="index.html">← intro</a>
   <div class="eyebrow">02 · Infrastruttura</div>
   <h1 style="margin-top:14px">Architettura del sistema</h1>
   <p class="lede">
-    Tre componenti distinti: i dati su BigQuery, l'app agentica su Cloud Run,
-    il codice SQL versionato su GitHub.
+    Tre componenti distinti, collegati tra loro: i dati su BigQuery, l'app
+    agentica su Cloud Run, il codice SQL versionato su GitHub.
   </p>
 
-  <!-- ─── DIAGRAMMA 3 BLOCCHI ──────────────────────────────────────── -->
+  <!-- ─── DIAGRAMMA INFRASTRUTTURALE ───────────────────────────── -->
   <div class="section">
     <div class="card">
-      <svg viewBox="0 0 1200 360" style="width:100%; height:auto" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 1280 540" style="width:100%; height:auto" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="g-bq" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stop-color="#1d3a72"/><stop offset="1" stop-color="#0f1f44"/>
@@ -47,109 +47,150 @@
           <linearGradient id="g-git" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stop-color="#5a3d10"/><stop offset="1" stop-color="#2e1f08"/>
           </linearGradient>
-          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 Z" fill="#4f8cff"/>
+          <marker id="arr-bq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#4285f4"/>
+          </marker>
+          <marker id="arr-git" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#f5a623"/>
           </marker>
         </defs>
 
-        <!-- BIGQUERY (sx) -->
-        <g transform="translate(40, 70)">
-          <rect width="320" height="220" rx="16" fill="url(#g-bq)" stroke="#4285f4" stroke-width="2"/>
-          <text x="160" y="34" text-anchor="middle" fill="#93b8ff" font-size="11" font-family="monospace" letter-spacing="3">DATI · BIGQUERY</text>
-          <!-- Cylinder icon -->
-          <g transform="translate(122, 60)">
-            <ellipse cx="38" cy="10" rx="38" ry="10" fill="#1f3d80" stroke="#4285f4"/>
-            <path d="M0 10 v50 a38 10 0 0 0 76 0 v-50" fill="#1f3d80" stroke="#4285f4"/>
-            <ellipse cx="38" cy="30" rx="38" ry="10" fill="none" stroke="#4285f4" opacity=".55"/>
-            <ellipse cx="38" cy="50" rx="38" ry="10" fill="none" stroke="#4285f4" opacity=".55"/>
+        <!-- ═══════════════════════ BLOCCO 1 · BIGQUERY ═══════════════════════ -->
+        <g class="diagram-block">
+          <g transform="translate(40, 40)">
+            <rect class="block-bg" width="320" height="460" rx="16" fill="url(#g-bq)" stroke="#4285f4" stroke-width="2"/>
+            <text x="160" y="34" text-anchor="middle" fill="#93b8ff" font-size="11" font-family="monospace" letter-spacing="3">DATI</text>
+
+            <!-- Icona cilindro database -->
+            <g transform="translate(160, 110)">
+              <ellipse cx="0" cy="-22" rx="38" ry="10" fill="#4285f4" opacity="0.85"/>
+              <path d="M-38,-22 v44 a38 10 0 0 0 76 0 v-44" fill="#4285f4" opacity="0.6"/>
+              <ellipse cx="0" cy="-22" rx="38" ry="10" fill="none" stroke="#93b8ff" stroke-width="1.5"/>
+              <ellipse cx="0" cy="0" rx="38" ry="10" fill="none" stroke="#93b8ff" stroke-width="1.5"/>
+              <ellipse cx="0" cy="22" rx="38" ry="10" fill="none" stroke="#93b8ff" stroke-width="1.5"/>
+            </g>
+
+            <text x="160" y="195" text-anchor="middle" fill="#e6ecff" font-size="22" font-weight="700">BigQuery</text>
+            <text x="160" y="220" text-anchor="middle" fill="#93b8ff" font-size="13" font-family="monospace">data warehouse</text>
+
+            <line x1="32" y1="248" x2="288" y2="248" stroke="#4285f4" stroke-width="1" opacity="0.35"/>
+
+            <!-- Bullet visibili -->
+            <circle cx="34" cy="285" r="3.5" fill="#4285f4"/>
+            <text x="48" y="290" fill="#e6ecff" font-size="13.5">Tabelle sorgente, staging, finali</text>
+
+            <circle cx="34" cy="325" r="3.5" fill="#4285f4"/>
+            <text x="48" y="330" fill="#e6ecff" font-size="13.5">Accesso in <tspan fill="#e6ecff" font-weight="700">sola lettura</tspan></text>
+
+            <circle cx="34" cy="365" r="3.5" fill="#4285f4"/>
+            <text x="48" y="370" fill="#e6ecff" font-size="13.5">Service account dedicato</text>
+
+            <circle cx="34" cy="405" r="3.5" fill="#4285f4"/>
+            <text x="48" y="410" fill="#e6ecff" font-size="13.5">Dataset multipli per ETL</text>
           </g>
-          <text x="160" y="170" text-anchor="middle" fill="#e6ecff" font-size="15" font-weight="600">Tabelle sorgente</text>
-          <text x="160" y="190" text-anchor="middle" fill="#9aa6cc" font-size="13">+ staging + finali</text>
-          <text x="160" y="208" text-anchor="middle" fill="#6b86c2" font-size="11">popolate da ETL fittizi</text>
         </g>
 
-        <!-- APP CLOUD RUN (centro) -->
-        <g transform="translate(440, 70)">
-          <rect width="320" height="220" rx="16" fill="url(#g-run)" stroke="#34a853" stroke-width="2"/>
-          <text x="160" y="34" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="3">APP · CLOUD RUN</text>
-          <!-- Container icon -->
-          <g transform="translate(110, 60)">
-            <rect x="0" y="0" width="100" height="80" rx="8" fill="#0f1f1a" stroke="#34a853" stroke-width="1.5"/>
-            <rect x="14" y="14" width="20" height="20" fill="#34a853" opacity=".45"/>
-            <rect x="40" y="14" width="20" height="20" fill="#34a853" opacity=".65"/>
-            <rect x="66" y="14" width="20" height="20" fill="#34a853" opacity=".85"/>
-            <rect x="14" y="42" width="46" height="20" fill="#34a853" opacity=".55"/>
-            <rect x="66" y="42" width="20" height="20" fill="#9b6dff" opacity=".75"/>
+        <!-- ═══════════════════════ BLOCCO 2 · CLOUD RUN ═══════════════════════ -->
+        <g class="diagram-block">
+          <g transform="translate(480, 40)">
+            <rect class="block-bg" width="320" height="460" rx="16" fill="url(#g-run)" stroke="#34a853" stroke-width="2"/>
+            <text x="160" y="34" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="3">APPLICAZIONE</text>
+
+            <!-- Icona container -->
+            <g transform="translate(160, 110)">
+              <rect x="-44" y="-32" width="88" height="64" rx="6" fill="none" stroke="#8fe0a4" stroke-width="2"/>
+              <rect x="-36" y="-22" width="22" height="20" fill="#34a853" opacity="0.85" rx="2"/>
+              <rect x="-10" y="-22" width="22" height="20" fill="#34a853" opacity="0.65" rx="2"/>
+              <rect x="16"  y="-22" width="20" height="20" fill="#34a853" opacity="0.45" rx="2"/>
+              <rect x="-36" y="4"   width="48" height="20" fill="#34a853" opacity="0.55" rx="2"/>
+              <rect x="16"  y="4"   width="20" height="20" fill="#A100FF" opacity="0.85" rx="2"/>
+            </g>
+
+            <text x="160" y="195" text-anchor="middle" fill="#e6ecff" font-size="22" font-weight="700">Cloud Run</text>
+            <text x="160" y="220" text-anchor="middle" fill="#8fe0a4" font-size="13" font-family="monospace">container serverless</text>
+
+            <line x1="32" y1="248" x2="288" y2="248" stroke="#34a853" stroke-width="1" opacity="0.35"/>
+
+            <circle cx="34" cy="285" r="3.5" fill="#34a853"/>
+            <text x="48" y="290" fill="#e6ecff" font-size="13.5">Container Docker frontend + backend</text>
+
+            <circle cx="34" cy="325" r="3.5" fill="#34a853"/>
+            <text x="48" y="330" fill="#e6ecff" font-size="13.5">Scaling automatico, HTTPS gestito</text>
+
+            <circle cx="34" cy="365" r="3.5" fill="#34a853"/>
+            <text x="48" y="370" fill="#e6ecff" font-size="13.5">Vertex AI · Gemini 2.5 Pro</text>
+
+            <circle cx="34" cy="405" r="3.5" fill="#34a853"/>
+            <text x="48" y="410" fill="#e6ecff" font-size="13.5">Persistenza eventi su Firestore</text>
           </g>
-          <text x="160" y="170" text-anchor="middle" fill="#e6ecff" font-size="15" font-weight="600">App agentica</text>
-          <text x="160" y="190" text-anchor="middle" fill="#9aa6cc" font-size="13">containerizzata</text>
-          <text x="160" y="208" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace">deploy su Cloud Run</text>
         </g>
 
-        <!-- GITHUB (dx) -->
-        <g transform="translate(840, 70)">
-          <rect width="320" height="220" rx="16" fill="url(#g-git)" stroke="#f5a623" stroke-width="2"/>
-          <text x="160" y="34" text-anchor="middle" fill="#ffce8a" font-size="11" font-family="monospace" letter-spacing="3">CODICE · GITHUB</text>
-          <!-- Branch icon -->
-          <g transform="translate(110, 70)" stroke="#f5a623" stroke-width="2.5" fill="none">
-            <circle cx="14" cy="10" r="6"/>
-            <circle cx="14" cy="58" r="6"/>
-            <circle cx="78" cy="34" r="6"/>
-            <path d="M14 16 v36"/>
-            <path d="M14 34 q32 0 58 0"/>
+        <!-- ═══════════════════════ BLOCCO 3 · GITHUB ═══════════════════════ -->
+        <g class="diagram-block">
+          <g transform="translate(920, 40)">
+            <rect class="block-bg" width="320" height="460" rx="16" fill="url(#g-git)" stroke="#f5a623" stroke-width="2"/>
+            <text x="160" y="34" text-anchor="middle" fill="#ffce8a" font-size="11" font-family="monospace" letter-spacing="3">CODICE</text>
+
+            <!-- Icona branch (Git) -->
+            <g transform="translate(160, 110)" stroke="#f5a623" stroke-width="3" fill="none">
+              <circle cx="-26" cy="-26" r="7" fill="#f5a623" opacity="0.85" stroke="none"/>
+              <circle cx="-26" cy="26"  r="7" fill="#f5a623" opacity="0.85" stroke="none"/>
+              <circle cx="26"  cy="0"   r="7" fill="#f5a623" opacity="0.85" stroke="none"/>
+              <line x1="-26" y1="-19" x2="-26" y2="19"/>
+              <path d="M-26,0 q26,0 45,0"/>
+            </g>
+
+            <text x="160" y="195" text-anchor="middle" fill="#e6ecff" font-size="22" font-weight="700">GitHub</text>
+            <text x="160" y="220" text-anchor="middle" fill="#ffce8a" font-size="13" font-family="monospace">repository SQL</text>
+
+            <line x1="32" y1="248" x2="288" y2="248" stroke="#f5a623" stroke-width="1" opacity="0.35"/>
+
+            <circle cx="34" cy="285" r="3.5" fill="#f5a623"/>
+            <text x="48" y="290" fill="#e6ecff" font-size="13.5">Una cartella per ogni ETL</text>
+
+            <circle cx="34" cy="325" r="3.5" fill="#f5a623"/>
+            <text x="48" y="330" fill="#e6ecff" font-size="13.5">Token su <tspan fill="#e6ecff" font-weight="700">Secret Manager</tspan></text>
+
+            <circle cx="34" cy="365" r="3.5" fill="#f5a623"/>
+            <text x="48" y="370" fill="#e6ecff" font-size="13.5">Pull Request automatica</text>
+
+            <circle cx="34" cy="405" r="3.5" fill="#f5a623"/>
+            <text x="48" y="410" fill="#e6ecff" font-size="13.5">Merge sempre umano</text>
           </g>
-          <text x="160" y="170" text-anchor="middle" fill="#e6ecff" font-size="15" font-weight="600">SQL degli ETL</text>
-          <text x="160" y="190" text-anchor="middle" fill="#9aa6cc" font-size="13">versionato</text>
-          <text x="160" y="208" text-anchor="middle" fill="#ffce8a" font-size="11">contesto realistico</text>
         </g>
 
-        <!-- Connettori -->
-        <path d="M 360,180 L 440,180" stroke="#4f8cff" stroke-width="2" fill="none" marker-end="url(#arr)" stroke-dasharray="6 4"/>
-        <path d="M 760,180 L 840,180" stroke="#4f8cff" stroke-width="2" fill="none" marker-end="url(#arr)" stroke-dasharray="6 4"/>
-        <path d="M 840,180 L 760,180" stroke="#4f8cff" stroke-width="2" fill="none" marker-end="url(#arr)" stroke-dasharray="6 4" opacity=".5"/>
+        <!-- ═══════════════════════ FRECCE CON ETICHETTE ═══════════════════════ -->
 
-        <text x="600" y="330" text-anchor="middle" fill="#6677a8" font-size="12" font-family="monospace" letter-spacing="3">
-          DATI ←→ AGENTE ←→ CODICE
-        </text>
+        <!-- BQ ↔ APP -->
+        <g>
+          <text x="420" y="218" text-anchor="middle" fill="#93b8ff" font-size="12" font-family="monospace" font-weight="600">query SQL</text>
+          <path d="M 360,232 L 470,232" stroke="#4285f4" stroke-width="2" marker-end="url(#arr-bq)" fill="none" stroke-dasharray="6 4"/>
+          <path d="M 470,260 L 360,260" stroke="#4285f4" stroke-width="2" marker-end="url(#arr-bq)" fill="none" stroke-dasharray="6 4" opacity="0.65"/>
+          <text x="420" y="282" text-anchor="middle" fill="#9aa6cc" font-size="12" font-family="monospace">risultati</text>
+        </g>
+
+        <!-- APP ↔ GITHUB -->
+        <g>
+          <text x="860" y="218" text-anchor="middle" fill="#ffce8a" font-size="12" font-family="monospace" font-weight="600">Pull Request</text>
+          <path d="M 800,232 L 910,232" stroke="#f5a623" stroke-width="2" marker-end="url(#arr-git)" fill="none" stroke-dasharray="6 4"/>
+          <path d="M 910,260 L 800,260" stroke="#f5a623" stroke-width="2" marker-end="url(#arr-git)" fill="none" stroke-dasharray="6 4" opacity="0.65"/>
+          <text x="860" y="282" text-anchor="middle" fill="#9aa6cc" font-size="12" font-family="monospace">lettura SQL</text>
+        </g>
+
       </svg>
-    </div>
-  </div>
-
-  <!-- ─── 3 CARD CON TITOLO + BULLET ─────────────────────────── -->
-  <div class="section">
-    <div class="grid-3">
-      <div class="card">
-        <span class="tag bq">Dati</span>
-        <h3 style="margin-top:10px">BigQuery</h3>
-        <ul class="bullets bq" style="margin-top:14px">
-          <li>Tabelle sorgente, staging e finali nel data warehouse.</li>
-          <li>Accesso in <b>sola lettura</b> da parte dell'agente.</li>
-          <li>Autenticazione via service account con permessi minimi.</li>
-        </ul>
-      </div>
-      <div class="card">
-        <span class="tag run">Applicazione</span>
-        <h3 style="margin-top:10px">Cloud Run</h3>
-        <ul class="bullets run" style="margin-top:14px">
-          <li><b>Container unico</b> con frontend e backend integrati.</li>
-          <li>Scaling automatico, HTTPS gestito dalla piattaforma.</li>
-          <li>Integrazione con Vertex AI tramite service account.</li>
-        </ul>
-      </div>
-      <div class="card">
-        <span class="tag git">Codice</span>
-        <h3 style="margin-top:10px">GitHub</h3>
-        <ul class="bullets git" style="margin-top:14px">
-          <li>Repository SQL versionato, una cartella per ETL.</li>
-          <li>Token gestito tramite <b>Secret Manager</b>.</li>
-          <li>Pull Request automatica, merge sempre umano.</li>
-        </ul>
-      </div>
     </div>
   </div>
 
   <div class="footer">Team 14 · ETL Agent Tester · 2/4</div>
 </section>
+
+<style>
+  .diagram-block .block-bg { transition: stroke .2s, filter .2s; }
+  .diagram-block:hover .block-bg {
+    stroke-width: 3;
+    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--accent) 40%, transparent));
+  }
+</style>
 
 </body>
 </html>
