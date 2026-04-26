@@ -80,7 +80,7 @@
             <text x="48" y="290" fill="#e6ecff" font-size="13.5">Tabelle sorgente, staging, finali</text>
 
             <circle cx="34" cy="325" r="3.5" fill="#4285f4"/>
-            <text x="48" y="330" fill="#e6ecff" font-size="13.5">Accesso in <tspan fill="#e6ecff" font-weight="700">sola lettura</tspan></text>
+            <text x="48" y="330" fill="#e6ecff" font-size="13.5">Accesso in <tspan font-weight="700">sola lettura</tspan></text>
 
             <circle cx="34" cy="365" r="3.5" fill="#4285f4"/>
             <text x="48" y="370" fill="#e6ecff" font-size="13.5">Service account dedicato</text>
@@ -149,7 +149,7 @@
             <text x="48" y="290" fill="#e6ecff" font-size="13.5">Una cartella per ogni ETL</text>
 
             <circle cx="34" cy="325" r="3.5" fill="#f5a623"/>
-            <text x="48" y="330" fill="#e6ecff" font-size="13.5">Token su <tspan fill="#e6ecff" font-weight="700">Secret Manager</tspan></text>
+            <text x="48" y="330" fill="#e6ecff" font-size="13.5">Token su <tspan font-weight="700">Secret Manager</tspan></text>
 
             <circle cx="34" cy="365" r="3.5" fill="#f5a623"/>
             <text x="48" y="370" fill="#e6ecff" font-size="13.5">Pull Request automatica</text>
@@ -161,20 +161,18 @@
 
         <!-- ═══════════════════════ FRECCE CON ETICHETTE ═══════════════════════ -->
 
-        <!-- BQ ↔ APP -->
+        <!-- BQ ↔ APP: solo query SQL (i risultati sono il ritorno implicito) -->
         <g>
-          <text x="420" y="218" text-anchor="middle" fill="#93b8ff" font-size="12" font-family="monospace" font-weight="600">query SQL</text>
-          <path d="M 360,232 L 470,232" stroke="#4285f4" stroke-width="2" marker-end="url(#arr-bq)" fill="none" stroke-dasharray="6 4"/>
-          <path d="M 470,260 L 360,260" stroke="#4285f4" stroke-width="2" marker-end="url(#arr-bq)" fill="none" stroke-dasharray="6 4" opacity="0.65"/>
-          <text x="420" y="282" text-anchor="middle" fill="#9aa6cc" font-size="12" font-family="monospace">risultati</text>
+          <text x="420" y="240" text-anchor="middle" fill="#93b8ff" font-size="12" font-family="monospace" font-weight="600">query SQL</text>
+          <path d="M 470,255 L 360,255" stroke="#4285f4" stroke-width="2" marker-end="url(#arr-bq)" fill="none" stroke-dasharray="6 4"/>
         </g>
 
-        <!-- APP ↔ GITHUB -->
+        <!-- APP ↔ GITHUB: due azioni distinte dell'app verso GitHub -->
         <g>
           <text x="860" y="218" text-anchor="middle" fill="#ffce8a" font-size="12" font-family="monospace" font-weight="600">Pull Request</text>
           <path d="M 800,232 L 910,232" stroke="#f5a623" stroke-width="2" marker-end="url(#arr-git)" fill="none" stroke-dasharray="6 4"/>
-          <path d="M 910,260 L 800,260" stroke="#f5a623" stroke-width="2" marker-end="url(#arr-git)" fill="none" stroke-dasharray="6 4" opacity="0.65"/>
-          <text x="860" y="282" text-anchor="middle" fill="#9aa6cc" font-size="12" font-family="monospace">lettura SQL</text>
+          <path d="M 800,278 L 910,278" stroke="#f5a623" stroke-width="2" marker-end="url(#arr-git)" fill="none" stroke-dasharray="6 4" opacity="0.85"/>
+          <text x="860" y="298" text-anchor="middle" fill="#ffce8a" font-size="12" font-family="monospace" font-weight="600">lettura SQL</text>
         </g>
 
       </svg>
