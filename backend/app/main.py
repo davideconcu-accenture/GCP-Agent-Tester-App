@@ -39,6 +39,38 @@ app.add_middleware(
 )
 
 
+@app.middleware("http")
+async def _static_cache_headers(request: Request, call_next):
+    """Policy di cache per gli asset serviti dal backend.
+
+    Evita che il browser conservi l'HTML vecchio dopo un deploy (che puntava
+    a bundle con hash ora inesistenti). I chunk hashati sotto `/_next/static/`
+    sono invece sicuri da cachare a lungo.
+    """
+    response = await call_next(request)
+    path = request.url.path
+
+    # Non toccare gli endpoint dinamici.
+    if path.startswith("/api/") or path == "/healthz":
+        return response
+
+    # Bundle Next.js con hash nel nome → immutabile.
+    if path.startswith("/_next/static/"):
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        return response
+
+    # HTML (incluse rotte con trailing slash) → sempre rivalidato.
+    if path.endswith("/") or path.endswith(".html"):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
+
+    # Altri asset statici (favicon, immagini): cache breve.
+    response.headers.setdefault("Cache-Control", "public, max-age=300")
+    return response
+
+
 # ── API ──────────────────────────────────────────────────────────────────────
 
 class CreateRunRequest(BaseModel):

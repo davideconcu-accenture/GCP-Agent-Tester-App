@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dettaglio · Frontend — ETL QA Agent</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>Team 14 · ETL QA Agent</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">1 · Intro</a>
+      <a href="infrastruttura.html">2 · Infrastruttura</a>
+      <a href="funzionamento.html">3 · Funzionamento</a>
+      <a href="dettaglio.html" class="active">4 · Dettaglio</a>
+    </div>
+  </div>
+</nav>
+
+<section class="container">
+  <a class="back" href="dettaglio.html">← hub dettaglio</a>
+  <div class="eyebrow"><span class="tag run">Deep-dive · Frontend</span></div>
+  <h1 style="margin-top:14px">Frontend Next.js</h1>
+  <p class="lede">
+    UI tematica scura in italiano. Due pagine, streaming live degli eventi
+    dell'agente via Server-Sent Events.
+  </p>
+
+  <!-- ─── Stack ───────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Stack</h2>
+    </div>
+    <div class="card">
+      <ul class="bullets run">
+        <li><b>Next.js 15</b> con <b>App Router</b>; React 19; TypeScript.</li>
+        <li><b>Tailwind CSS</b> + <b>shadcn/ui</b> per i componenti; icone <b>Lucide</b>.</li>
+        <li><b>Static export</b>: <code>npm run build</code> produce <code>out/</code>, copiato dal Dockerfile dentro il backend e servito come asset statici da FastAPI.</li>
+        <li><b>Niente CDN, niente CORS</b>: stesso processo, stesso porto del backend.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── Pagine ───────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Le due pagine</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="eyebrow" style="color:#8fe0a4">Route /</div>
+        <h3 style="margin-top:8px">Storico richieste</h3>
+        <ul class="bullets run" style="margin-top:14px">
+          <li>Tabella con tutti i run (storico).</li>
+          <li>Stato (pending / running / completed / failed / cancelled), ETL coinvolto, timestamp relativo.</li>
+          <li>Polling ogni 4s per aggiornare l'elenco.</li>
+          <li>Sheet laterale per nuova richiesta (scorciatoia <code>N</code>).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="eyebrow" style="color:#8fe0a4">Route /run?id=...</div>
+        <h3 style="margin-top:8px">Timeline live del run</h3>
+        <ul class="bullets run" style="margin-top:14px">
+          <li>Eventi in tempo reale: ragionamento, tool call, tool response.</li>
+          <li>Render delle <b>card-artefatto</b>: piano test, risultati, fix proposal, PR aperta, report finale.</li>
+          <li>Pulsante <i>Interrompi</i> che cancella il task asyncio sul backend.</li>
+          <li><b>Reconnect-friendly</b>: alla riconnessione il backend rigioca lo storico eventi dal documento Firestore.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SSE ────────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Streaming · Server-Sent Events</h2>
+    </div>
+    <div class="card">
+      <p style="color:var(--fg-muted); font-size:14.5px; margin:0">
+        La pagina <code>/run</code> apre un <code>EventSource</code> verso il backend
+        e riceve un flusso continuo di eventi JSON, ognuno con un <code>type</code>:
+        <code>agent_text</code>, <code>tool_call</code>, <code>tool_response</code>,
+        <code>artifact</code>, <code>status</code>.
+      </p>
+      <pre class="code" style="margin-top:14px"><span class="k">const</span> es = <span class="k">new</span> <span class="n">EventSource</span>(<span class="s">`/api/runs/${id}/stream`</span>);
+es.<span class="n">onmessage</span> = (e) =&gt; {
+  <span class="k">const</span> ev = <span class="n">JSON</span>.parse(e.data);
+  <span class="c">// ev.type: agent_text | tool_call | tool_response | artifact | status</span>
+  appendToTimeline(ev);
+};</pre>
+    </div>
+  </div>
+
+  <!-- ─── Q&A box ───────────────────────────────────────────────── -->
+  <details class="speaker">
+    <summary>
+      <span class="left">💡 Possibili domande</span>
+      <span class="right">cheat-sheet</span>
+    </summary>
+    <div class="speaker-body">
+      <p><em class="cue">"Perché SSE e non WebSocket?"</em> Il flusso è unidirezionale (server→client), SSE basta. È più semplice, gira su HTTP/1.1, fa reconnect automatico, attraversa tutti i proxy.</p>
+      <p><em class="cue">"Perché static export e non server-side rendering?"</em> Non serve SSR: tutta la logica è nel backend. Static export = un singolo container, niente Node runtime in produzione.</p>
+      <p><em class="cue">"Perché Next.js se è statico?"</em> App Router, routing, hot reload in dev, ottima DX. È il framework React più usato.</p>
+    </div>
+  </details>
+
+  <div class="footer">Team 14 · ETL QA Agent · deep-dive Frontend</div>
+</section>
+
+</body>
+</html>

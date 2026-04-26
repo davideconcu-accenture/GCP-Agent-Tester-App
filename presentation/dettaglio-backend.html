@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dettaglio · Backend — ETL QA Agent</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>Team 14 · ETL QA Agent</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">1 · Intro</a>
+      <a href="infrastruttura.html">2 · Infrastruttura</a>
+      <a href="funzionamento.html">3 · Funzionamento</a>
+      <a href="dettaglio.html" class="active">4 · Dettaglio</a>
+    </div>
+  </div>
+</nav>
+
+<section class="container">
+  <a class="back" href="dettaglio.html">← hub dettaglio</a>
+  <div class="eyebrow"><span class="tag run">Deep-dive · Backend</span></div>
+  <h1 style="margin-top:14px">Backend FastAPI</h1>
+  <p class="lede">
+    Espone le API REST e lo streaming SSE al frontend; per ogni richiesta
+    lancia un task asyncio che fa girare l'agente ADK; persiste tutto su Firestore.
+  </p>
+
+  <!-- ─── Stack ───────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Stack</h2>
+    </div>
+    <div class="card">
+      <ul class="bullets run">
+        <li><b>FastAPI</b> + <b>uvicorn</b> · <b>Pydantic v2</b> per i modelli.</li>
+        <li><b>Google ADK</b> (<code>google-adk</code>) per l'agente; <b>google-cloud-aiplatform</b> per Vertex AI.</li>
+        <li><b>google-cloud-bigquery</b> e <b>google-cloud-firestore</b> per i client GCP.</li>
+        <li><b>PyGithub</b> per leggere il SQL e aprire le PR.</li>
+        <li>Python <b>3.11</b>, deploy su Cloud Run.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── Endpoint ─────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Endpoint REST + SSE</h2>
+    </div>
+    <div class="card">
+      <pre class="code">POST   /api/runs                 <span class="c">→ crea un run e lo lancia in background</span>
+GET    /api/runs                 <span class="c">→ lista storico (limit 50)</span>
+GET    /api/runs/{id}            <span class="c">→ dettaglio + eventi + artefatti</span>
+DELETE /api/runs/{id}            <span class="c">→ elimina un run</span>
+DELETE /api/runs                 <span class="c">→ pulisce tutto lo storico</span>
+POST   /api/runs/{id}/stop       <span class="c">→ cancella il task asyncio</span>
+GET    /api/runs/{id}/stream     <span class="c">→ SSE: replay + eventi live</span>
+GET    /api/etls                 <span class="c">→ lista cartelle ETL nel repo</span>
+GET    /healthz                  <span class="c">→ liveness probe</span></pre>
+    </div>
+  </div>
+
+  <!-- ─── Background task ─────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Run in background</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h4>Pattern</h4>
+        <ul class="bullets run" style="margin-top:14px">
+          <li><code>asyncio.create_task</code> per ogni richiesta: il client riceve subito il <code>run_id</code>.</li>
+          <li>Un <b>ContextVar</b> propaga il <code>run_id</code> ai tool senza passarlo a mano.</li>
+          <li>Il task è registrato in un dict <code>{run_id: task}</code> per consentire la <b>cancellazione cooperativa</b>.</li>
+          <li><b>CancelledError</b> gestita: se l'utente preme "Interrompi", il run chiude pulito con stato <code>cancelled</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Persistenza · Firestore</h4>
+        <ul class="bullets run" style="margin-top:14px">
+          <li>Collection <code>etl_agent_runs</code>: un documento per run.</li>
+          <li>Eventi salvati con <code>ArrayUnion</code> sul campo <code>events</code>.</li>
+          <li>Artefatti strutturati salvati come campi nominati: <code>artifacts.test_plan</code>, <code>artifacts.test_results</code>, ecc.</li>
+          <li>Alla riconnessione SSE il backend rigioca dal documento e poi continua live.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SSE bus ───────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Bus SSE in-memory</h2>
+    </div>
+    <div class="card">
+      <p style="color:var(--fg-muted); font-size:14.5px">
+        Per ogni run è mantenuto un set di code <code>asyncio.Queue</code> (una per
+        client connesso). Quando un evento è prodotto:
+      </p>
+      <ol style="color:var(--fg); font-size:14.5px; margin:14px 0; padding-left:24px">
+        <li>scritto su Firestore (<code>append_event</code>);</li>
+        <li>messo in tutte le code dei subscriber (fan-out non bloccante);</li>
+        <li>la connessione SSE invia un keepalive ogni 15s per evitare timeout proxy.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ─── Q&A box ───────────────────────────────────────────────── -->
+  <details class="speaker">
+    <summary>
+      <span class="left">💡 Possibili domande</span>
+      <span class="right">cheat-sheet</span>
+    </summary>
+    <div class="speaker-body">
+      <p><em class="cue">"Perché Firestore e non Postgres?"</em> Serializzazione JSON-friendly nativa, scrittura append-only via <code>ArrayUnion</code>, niente schema da gestire. Il prodotto è scriptato sui run, non relazionale.</p>
+      <p><em class="cue">"Cosa succede se Cloud Run riavvia il container durante un run?"</em> Il task asyncio viene perso (in-memory). Lo stato del run resta su Firestore con status <code>running</code> orfano: visibile dall'utente. È un trade-off accettato.</p>
+      <p><em class="cue">"Scaling?"</em> Cloud Run scala automaticamente. In modalità default un'istanza serve più richieste in concorrenza (asyncio).</p>
+      <p><em class="cue">"Auth?"</em> Service account su Cloud Run con permessi BigQuery (jobUser + dataViewer), Firestore (user), Vertex AI (user), Secret Manager (accessor).</p>
+    </div>
+  </details>
+
+  <div class="footer">Team 14 · ETL QA Agent · deep-dive Backend</div>
+</section>
+
+</body>
+</html>

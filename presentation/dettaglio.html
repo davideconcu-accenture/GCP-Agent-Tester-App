@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dettaglio — ETL QA Agent</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>Team 14 · ETL QA Agent</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">1 · Intro</a>
+      <a href="infrastruttura.html">2 · Infrastruttura</a>
+      <a href="funzionamento.html">3 · Funzionamento</a>
+      <a href="dettaglio.html" class="active">4 · Dettaglio</a>
+    </div>
+  </div>
+</nav>
+
+<section class="container">
+  <a class="back" href="funzionamento.html">← funzionamento</a>
+  <div class="eyebrow">04 · Dettaglio tecnico</div>
+  <h1 style="margin-top:14px">Approfondimenti.</h1>
+  <p class="lede">
+    Diagramma infrastrutturale completo. Clicca su un blocco per il
+    deep-dive — utile in caso di domande tecniche specifiche.
+  </p>
+
+  <!-- ─── DIAGRAMMA INFRASTRUTTURALE CLICCABILE ────────────────── -->
+  <div class="section">
+    <div class="card">
+      <svg class="arch-svg" viewBox="0 0 1280 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagramma infrastrutturale">
+        <defs>
+          <linearGradient id="g-bq" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#1d3a72"/><stop offset="1" stop-color="#0f1f44"/>
+          </linearGradient>
+          <linearGradient id="g-run" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#1f4a3a"/><stop offset="1" stop-color="#0f2a1f"/>
+          </linearGradient>
+          <linearGradient id="g-git" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#5a3d10"/><stop offset="1" stop-color="#2e1f08"/>
+          </linearGradient>
+          <linearGradient id="g-vertex" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#3a2470"/><stop offset="1" stop-color="#1c1140"/>
+          </linearGradient>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#4f8cff"/>
+          </marker>
+          <marker id="arr-cy" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#00d4ff"/>
+          </marker>
+          <marker id="arr-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#f5a623"/>
+          </marker>
+        </defs>
+
+        <!-- Cloud Run container (sfondo) -->
+        <rect x="320" y="100" width="660" height="440" rx="20"
+              fill="none" stroke="#34a853" stroke-width="1.5" stroke-dasharray="6 6" opacity="0.7"/>
+        <text x="650" y="86" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="3">GOOGLE CLOUD RUN · CONTAINER</text>
+
+        <!-- FRONTEND (cliccabile) -->
+        <a href="dettaglio-frontend.html">
+          <g class="arch-card" transform="translate(360, 140)">
+            <rect class="arch-card-bg" width="240" height="140" rx="12" fill="url(#g-run)" stroke="#34a853" stroke-width="2"/>
+            <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">FRONTEND</text>
+            <g transform="translate(80, 50)">
+              <rect width="80" height="58" rx="6" fill="#0f1f1a" stroke="#8fe0a4" stroke-width="1.5"/>
+              <line x1="0" y1="14" x2="80" y2="14" stroke="#8fe0a4" stroke-width="1.5"/>
+              <circle cx="8" cy="7" r="2" fill="#8fe0a4"/>
+              <circle cx="16" cy="7" r="2" fill="#8fe0a4"/>
+              <circle cx="24" cy="7" r="2" fill="#8fe0a4"/>
+            </g>
+            <text x="120" y="130" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">Next.js 15 · SSE</text>
+          </g>
+        </a>
+
+        <!-- BACKEND (cliccabile) -->
+        <a href="dettaglio-backend.html">
+          <g class="arch-card" transform="translate(700, 140)">
+            <rect class="arch-card-bg" width="240" height="140" rx="12" fill="url(#g-run)" stroke="#34a853" stroke-width="2"/>
+            <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">BACKEND</text>
+            <g transform="translate(82, 50)">
+              <rect x="0" y="0" width="76" height="58" rx="6" fill="#0f1f1a" stroke="#8fe0a4" stroke-width="1.5"/>
+              <text x="38" y="35" text-anchor="middle" fill="#8fe0a4" font-size="22" font-family="monospace" font-weight="700">{ }</text>
+            </g>
+            <text x="120" y="130" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">FastAPI · Firestore</text>
+          </g>
+        </a>
+
+        <!-- VERTEX AI / ADK box -->
+        <rect x="360" y="320" width="580" height="200" rx="14" fill="url(#g-vertex)" stroke="#9b6dff" stroke-width="2"/>
+        <text x="650" y="350" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="3">VERTEX AI · GOOGLE ADK · GEMINI 2.5 PRO</text>
+
+        <!-- PROMPT (cliccabile) -->
+        <a href="dettaglio-prompt.html">
+          <g class="arch-card" transform="translate(380, 370)">
+            <rect class="arch-card-bg" width="260" height="130" rx="12" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
+            <text x="130" y="30" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">SYSTEM PROMPT</text>
+            <!-- Document icon -->
+            <g transform="translate(108, 44)">
+              <rect x="0" y="0" width="44" height="56" rx="4" fill="#1c1140" stroke="#c2a8ff" stroke-width="1.5"/>
+              <line x1="8" y1="14" x2="36" y2="14" stroke="#c2a8ff"/>
+              <line x1="8" y1="22" x2="36" y2="22" stroke="#c2a8ff"/>
+              <line x1="8" y1="30" x2="36" y2="30" stroke="#c2a8ff"/>
+              <line x1="8" y1="38" x2="28" y2="38" stroke="#c2a8ff"/>
+            </g>
+            <text x="130" y="120" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">6 fasi · 7 regole</text>
+          </g>
+        </a>
+
+        <!-- TOOL (cliccabile) -->
+        <a href="dettaglio-tool.html">
+          <g class="arch-card" transform="translate(660, 370)">
+            <rect class="arch-card-bg" width="260" height="130" rx="12" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
+            <text x="130" y="30" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">TOOLS</text>
+            <!-- Wrench icon -->
+            <g transform="translate(80, 44)" stroke="#c2a8ff" stroke-width="2" fill="none">
+              <circle cx="12" cy="12" r="8"/>
+              <line x1="18" y1="18" x2="46" y2="46" stroke-width="3"/>
+              <circle cx="46" cy="46" r="6" fill="#c2a8ff" opacity=".3"/>
+            </g>
+            <text x="130" y="120" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">8 funzioni Python</text>
+          </g>
+        </a>
+
+        <!-- BIGQUERY (sx, cliccabile) -->
+        <a href="dettaglio-bigquery.html">
+          <g class="arch-card" transform="translate(40, 240)">
+            <rect class="arch-card-bg" width="240" height="180" rx="14" fill="url(#g-bq)" stroke="#4285f4" stroke-width="2"/>
+            <text x="120" y="32" text-anchor="middle" fill="#93b8ff" font-size="11" font-family="monospace" letter-spacing="2">BIGQUERY</text>
+            <g transform="translate(82, 50)">
+              <ellipse cx="38" cy="10" rx="38" ry="10" fill="#1f3d80" stroke="#4285f4"/>
+              <path d="M0 10 v50 a38 10 0 0 0 76 0 v-50" fill="#1f3d80" stroke="#4285f4"/>
+              <ellipse cx="38" cy="30" rx="38" ry="10" fill="none" stroke="#4285f4" opacity=".55"/>
+              <ellipse cx="38" cy="50" rx="38" ry="10" fill="none" stroke="#4285f4" opacity=".55"/>
+            </g>
+            <text x="120" y="146" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">Dati ETL</text>
+            <text x="120" y="164" text-anchor="middle" fill="#9aa6cc" font-size="11">read-only</text>
+          </g>
+        </a>
+
+        <!-- GITHUB (dx, cliccabile) -->
+        <a href="dettaglio-github.html">
+          <g class="arch-card" transform="translate(1000, 240)">
+            <rect class="arch-card-bg" width="240" height="180" rx="14" fill="url(#g-git)" stroke="#f5a623" stroke-width="2"/>
+            <text x="120" y="32" text-anchor="middle" fill="#ffce8a" font-size="11" font-family="monospace" letter-spacing="2">GITHUB</text>
+            <g transform="translate(86, 56)" stroke="#f5a623" stroke-width="2.5" fill="none">
+              <circle cx="10" cy="8" r="5"/>
+              <circle cx="10" cy="48" r="5"/>
+              <circle cx="58" cy="28" r="5"/>
+              <path d="M10 13 v30"/>
+              <path d="M10 28 q24 0 44 0"/>
+            </g>
+            <text x="120" y="146" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">SQL + PR</text>
+            <text x="120" y="164" text-anchor="middle" fill="#9aa6cc" font-size="11">PyGithub · Secret Mgr</text>
+          </g>
+        </a>
+
+        <!-- USER -->
+        <g transform="translate(550, 560)">
+          <rect width="200" height="40" rx="8" fill="#0e1430" stroke="#3a4880" stroke-width="1.5"/>
+          <text x="100" y="26" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">Utente</text>
+        </g>
+
+        <!-- Arrows -->
+        <!-- BQ ↔ Backend (query/dati) -->
+        <path d="M 280,330 L 700,210" stroke="#00d4ff" stroke-width="2" fill="none" marker-end="url(#arr-cy)" stroke-dasharray="6 4"/>
+        <text x="380" y="270" fill="#9aa6cc" font-size="11" font-family="monospace">SELECT</text>
+
+        <!-- Backend ↔ GitHub (PR + read SQL) -->
+        <path d="M 940,210 L 1000,330" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#arr-orange)" stroke-dasharray="6 4"/>
+        <text x="930" y="280" fill="#ffce8a" font-size="11" font-family="monospace">PR / read</text>
+
+        <!-- Frontend ↔ Backend -->
+        <path d="M 600,210 L 700,210" stroke="#9b6dff" stroke-width="2" fill="none"/>
+
+        <!-- Backend ↔ Vertex/Prompt+Tools -->
+        <path d="M 820,280 L 820,320" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+
+        <!-- Utente -> Frontend -->
+        <path d="M 590,560 L 480,290" stroke="#4f8cff" stroke-width="2" fill="none" marker-end="url(#arr)" stroke-dasharray="4 4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ─── TILE LIST (alternativa al diagramma per chi vuole linee) ─── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="eyebrow">Sei deep-dive</div>
+      <h2>Approfondimenti per area</h2>
+    </div>
+
+    <div class="grid-3">
+      <a class="tile" href="dettaglio-bigquery.html">
+        <span class="tag bq">BigQuery</span>
+        <h3 style="margin-top:10px">Dati &amp; query</h3>
+        <p>Dataset, INFORMATION_SCHEMA, guardrail read-only, esempi di test.</p>
+      </a>
+      <a class="tile" href="dettaglio-frontend.html">
+        <span class="tag run">Frontend</span>
+        <h3 style="margin-top:10px">Next.js + SSE</h3>
+        <p>Pagine, streaming eventi, static export, UI in italiano.</p>
+      </a>
+      <a class="tile" href="dettaglio-backend.html">
+        <span class="tag run">Backend</span>
+        <h3 style="margin-top:10px">FastAPI + Firestore</h3>
+        <p>API REST, run async, ContextVar, persistenza, bus SSE.</p>
+      </a>
+      <a class="tile" href="dettaglio-prompt.html">
+        <span class="tag vertex">Prompt</span>
+        <h3 style="margin-top:10px">System prompt</h3>
+        <p>Le 6 fasi del workflow e le 7 regole anti-allucinazione.</p>
+      </a>
+      <a class="tile" href="dettaglio-tool.html">
+        <span class="tag vertex">Tools</span>
+        <h3 style="margin-top:10px">Gli 8 tool</h3>
+        <p>Signature, parametri, eventi emessi al frontend.</p>
+      </a>
+      <a class="tile" href="dettaglio-github.html">
+        <span class="tag git">GitHub</span>
+        <h3 style="margin-top:10px">Repo &amp; PR</h3>
+        <p>PyGithub, Secret Manager, branch + commit + PR.</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- ─── SPEAKER NOTES (BOZZA) ────────────────────────────────────── -->
+  <details class="speaker">
+    <summary>
+      <span class="left">📣 Discorso — Dettaglio (BOZZA, da rivedere)</span>
+      <span class="right">⏱ ~2.5 min</span>
+    </summary>
+    <div class="speaker-body">
+      <p style="background:rgba(245,166,35,.08); border:1px solid rgba(245,166,35,.3); padding:10px 14px; border-radius:8px; color:#ffce8a; font-size:13px">
+        ⚠️ Questa è una <b>bozza</b>: riscrivila come preferisci.
+      </p>
+
+      <p>Veniamo al cuore tecnico. L'agente è costruito con <b>l'Agent Development Kit di Google</b>, una libreria che ci dà gratis il loop ReAct: il modello pensa, sceglie un tool, lo esegue, valuta il risultato e va avanti finché non ha finito.</p>
+
+      <p>Il modello che usiamo è <b>Gemini 2.5 Pro</b>, raggiunto tramite <b>Vertex AI</b>: niente chiavi API esterne, l'autenticazione è gestita dal service account di Cloud Run.</p>
+
+      <p>L'agente ha <b>8 tool</b> a disposizione, che sono semplicemente funzioni Python che ADK espone al modello. Si dividono in tre famiglie: due per leggere il codice da GitHub, uno per parlare con BigQuery (solo SELECT), e cinque per pubblicare gli artefatti al frontend e creare la Pull Request.</p>
+
+      <p>Tutto è guidato da un <b>system prompt</b> che impone le sei fasi che abbiamo visto e una serie di regole anti-allucinazione: "mai confrontare una colonna con la sua stessa formula", "NULL check sui LEFT JOIN", "mai cambiare il dataset di una tabella in un fix". Sono i sassolini su cui un LLM scivola: scolpirli nel prompt evita problemi.</p>
+
+      <p>Il diagramma qui sopra è cliccabile: <b>se nelle domande mi chiedete dettagli su una parte specifica</b> apriamo il deep-dive di quella parte. Grazie, domande?</p>
+    </div>
+  </details>
+
+  <div class="footer">Team 14 · ETL QA Agent · 4/4 · hub deep-dive</div>
+</section>
+
+</body>
+</html>

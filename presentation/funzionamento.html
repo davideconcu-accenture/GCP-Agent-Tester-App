@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Funzionamento — ETL QA Agent</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>Team 14 · ETL QA Agent</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">1 · Intro</a>
+      <a href="infrastruttura.html">2 · Infrastruttura</a>
+      <a href="funzionamento.html" class="active">3 · Funzionamento</a>
+      <a href="dettaglio.html">4 · Dettaglio</a>
+    </div>
+  </div>
+</nav>
+
+<section class="container">
+  <a class="back" href="infrastruttura.html">← infrastruttura</a>
+  <div class="eyebrow">03 · Funzionamento</div>
+  <h1 style="margin-top:14px">Cosa fa l'agente, passo per passo.</h1>
+  <p class="lede">
+    Dalla richiesta dell'utente al report finale (o alla Pull Request,
+    se trova un bug).
+  </p>
+
+  <!-- ─── DIAGRAMMA DI FLUSSO ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="card">
+      <svg viewBox="0 0 1200 540" style="width:100%; height:auto" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#9b6dff"/>
+          </marker>
+          <marker id="arOK" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#34a853"/>
+          </marker>
+          <marker id="arKO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#ff5c7c"/>
+          </marker>
+        </defs>
+
+        <!-- Step 1: utente richiede -->
+        <g transform="translate(40, 30)">
+          <rect width="240" height="80" rx="12" fill="#0e1430" stroke="#3a4880" stroke-width="1.5"/>
+          <text x="20" y="28" fill="#9aa6cc" font-size="11" font-family="monospace" letter-spacing="2">1 · UTENTE</text>
+          <text x="20" y="54" fill="#e6ecff" font-size="14" font-weight="600">richiesta su un ETL</text>
+          <text x="20" y="72" fill="#9aa6cc" font-size="11">"testa l'ETL X"</text>
+        </g>
+
+        <!-- Step 2: legge SQL -->
+        <g transform="translate(330, 30)">
+          <rect width="240" height="80" rx="12" fill="#2e1f08" stroke="#f5a623" stroke-width="1.5"/>
+          <text x="20" y="28" fill="#ffce8a" font-size="11" font-family="monospace" letter-spacing="2">2 · GITHUB</text>
+          <text x="20" y="54" fill="#e6ecff" font-size="14" font-weight="600">recupera il SQL</text>
+          <text x="20" y="72" fill="#9aa6cc" font-size="11">e lo legge</text>
+        </g>
+
+        <!-- Step 3: check tabelle -->
+        <g transform="translate(620, 30)">
+          <rect width="240" height="80" rx="12" fill="#0f1f44" stroke="#4285f4" stroke-width="1.5"/>
+          <text x="20" y="28" fill="#93b8ff" font-size="11" font-family="monospace" letter-spacing="2">3 · BIGQUERY</text>
+          <text x="20" y="54" fill="#e6ecff" font-size="14" font-weight="600">esistenza tabelle</text>
+          <text x="20" y="72" fill="#9aa6cc" font-size="11">verifica rapida</text>
+        </g>
+
+        <!-- Step 4: piano test -->
+        <g transform="translate(910, 30)">
+          <rect width="240" height="80" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="20" y="28" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">4 · AGENTE</text>
+          <text x="20" y="54" fill="#e6ecff" font-size="14" font-weight="600">stila piano di test</text>
+          <text x="20" y="72" fill="#9aa6cc" font-size="11">test mirati alla richiesta</text>
+        </g>
+
+        <!-- Down arrow -->
+        <path d="M 1030,110 v 60" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arF)"/>
+
+        <!-- Step 5: esegue test -->
+        <g transform="translate(910, 180)">
+          <rect width="240" height="80" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="20" y="28" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">5 · ESECUZIONE</text>
+          <text x="20" y="54" fill="#e6ecff" font-size="14" font-weight="600">esegue i test</text>
+          <text x="20" y="72" fill="#9aa6cc" font-size="11">uno per uno su BigQuery</text>
+        </g>
+
+        <!-- Decision diamond -->
+        <g transform="translate(960, 290)">
+          <polygon points="70,0 140,40 70,80 0,40" fill="#11172a" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="70" y="38" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">tutti</text>
+          <text x="70" y="56" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">passati?</text>
+        </g>
+        <path d="M 1030,260 v 30" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arF)"/>
+
+        <!-- Branch SI -->
+        <text x="1110" y="335" fill="#34a853" font-size="13" font-weight="700" font-family="monospace">SÌ</text>
+        <path d="M 1100,330 q 30,30 -30,80" stroke="#34a853" stroke-width="2" fill="none" marker-end="url(#arOK)"/>
+
+        <g transform="translate(910, 420)">
+          <rect width="240" height="80" rx="12" fill="#0f2a1f" stroke="#34a853" stroke-width="1.5"/>
+          <text x="20" y="28" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">6a · REPORT</text>
+          <text x="20" y="54" fill="#e6ecff" font-size="14" font-weight="600">chiude con il report</text>
+          <text x="20" y="72" fill="#9aa6cc" font-size="11">tutto a posto, fine</text>
+        </g>
+
+        <!-- Branch NO -->
+        <text x="900" y="335" fill="#ff5c7c" font-size="13" font-weight="700" font-family="monospace">NO</text>
+        <path d="M 960,330 q -130,40 -380,80" stroke="#ff5c7c" stroke-width="2" fill="none" marker-end="url(#arKO)"/>
+
+        <!-- Step 6b: investiga -->
+        <g transform="translate(310, 420)">
+          <rect width="270" height="80" rx="12" fill="#3a1722" stroke="#ff5c7c" stroke-width="1.5"/>
+          <text x="20" y="28" fill="#ff8fa3" font-size="11" font-family="monospace" letter-spacing="2">6b · INVESTIGA</text>
+          <text x="20" y="54" fill="#e6ecff" font-size="14" font-weight="600">capisce il motivo</text>
+          <text x="20" y="72" fill="#9aa6cc" font-size="11">se serve, query in più su BQ</text>
+        </g>
+
+        <!-- Step 7: fix + PR -->
+        <g transform="translate(20, 420)">
+          <rect width="270" height="80" rx="12" fill="#2e1f08" stroke="#f5a623" stroke-width="1.5"/>
+          <text x="20" y="28" fill="#ffce8a" font-size="11" font-family="monospace" letter-spacing="2">7 · FIX + PR</text>
+          <text x="20" y="54" fill="#e6ecff" font-size="14" font-weight="600">propone la fix</text>
+          <text x="20" y="72" fill="#9aa6cc" font-size="11">apre la Pull Request</text>
+        </g>
+        <path d="M 310,460 L 290,460" stroke="#ff5c7c" stroke-width="2" fill="none" marker-end="url(#arKO)"/>
+
+        <!-- Top arrows -->
+        <path d="M 280,70 L 330,70" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arF)"/>
+        <path d="M 570,70 L 620,70" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arF)"/>
+        <path d="M 860,70 L 910,70" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arF)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ─── SPEAKER NOTES ────────────────────────────────────────────── -->
+  <details class="speaker" open>
+    <summary>
+      <span class="left">📣 Discorso — Funzionamento</span>
+      <span class="right">⏱ ~2 min</span>
+    </summary>
+    <div class="speaker-body">
+      <p>L'utente inserisce una richiesta su un ETL specifico.</p>
+      <p>L'agente parte prima <b>recuperandosi il codice SQL</b> dell'ETL e leggendolo.</p>
+      <p>Fa una <b>rapida verifica su BigQuery di esistenza delle tabelle</b>.</p>
+      <p>Dopodiché <b>stila un piano di test</b> ed <b>esegue uno per uno</b> questi test.</p>
+      <p>Alla fine del giro, se tutti i test sono passati, l'agente <b>chiude con un report finale</b>.</p>
+      <p>Invece, se qualcuno fallisce, <b>cerca di capire il motivo</b>, se necessario lanciando ulteriori query su BigQuery, e una volta individuata la causa <b>propone la fix e crea la Pull Request</b>.</p>
+    </div>
+  </details>
+
+  <div class="footer">Team 14 · ETL QA Agent · 3/4</div>
+</section>
+
+</body>
+</html>

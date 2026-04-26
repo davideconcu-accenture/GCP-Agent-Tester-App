@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dettaglio · BigQuery — ETL QA Agent</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>Team 14 · ETL QA Agent</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">1 · Intro</a>
+      <a href="infrastruttura.html">2 · Infrastruttura</a>
+      <a href="funzionamento.html">3 · Funzionamento</a>
+      <a href="dettaglio.html" class="active">4 · Dettaglio</a>
+    </div>
+  </div>
+</nav>
+
+<section class="container">
+  <a class="back" href="dettaglio.html">← hub dettaglio</a>
+  <div class="eyebrow"><span class="tag bq">Deep-dive · BigQuery</span></div>
+  <h1 style="margin-top:14px">Dati &amp; query</h1>
+  <p class="lede">
+    Il warehouse contiene tabelle sorgente, di staging e finali popolate dagli
+    ETL fittizi. L'agente le interroga sempre in <b>sola lettura</b>.
+  </p>
+
+  <!-- ─── Setup ───────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Setup</h2>
+    </div>
+    <div class="card">
+      <ul class="bullets bq">
+        <li><b>Progetto GCP</b>: <code>phrasal-method-484415-g7</code>, region <code>us-west1</code>.</li>
+        <li><b>Dataset multipli</b>: ogni ETL può leggere/scrivere su dataset diversi. La fonte di verità è il SQL, non una convenzione.</li>
+        <li><b>Tabelle fully-qualified</b> nel codice: <code>project.dataset.tabella</code>. L'agente non inventa nomi, li estrae dal SQL.</li>
+        <li><b>Client</b>: <code>google-cloud-bigquery</code> con autenticazione ADC tramite service account su Cloud Run.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── Pre-check ─────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Pre-check di esistenza</h2>
+      <p class="lede" style="margin-top:8px">
+        Prima di qualsiasi test, l'agente verifica che tutte le tabelle citate dal SQL esistano.
+        <b>Una sola query per dataset</b>, contro <code>INFORMATION_SCHEMA.TABLES</code>.
+      </p>
+    </div>
+    <div class="card">
+<pre class="code"><span class="k">SELECT</span> table_name
+<span class="k">FROM</span> <span class="s">`phrasal-method-484415-g7.banca_raw.INFORMATION_SCHEMA.TABLES`</span>
+<span class="k">WHERE</span> table_name <span class="k">IN</span> (<span class="s">'clienti'</span>,<span class="s">'movimenti'</span>,<span class="s">'saldi'</span>)</pre>
+      <p style="color:var(--fg-muted); font-size:13.5px; margin-top:14px">
+        Se anche una sola tabella manca, l'agente <b>chiude il run</b> con un report di
+        ambiente incompleto: non genera test, non propone fix, non apre PR.
+      </p>
+    </div>
+  </div>
+
+  <!-- ─── Test query ──────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Le query di test</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h4>Categorie</h4>
+        <ul class="bullets bq" style="margin-top:14px">
+          <li><b>business_rule</b> — regole funzionali sul dato.</li>
+          <li><b>data_integrity</b> — duplicati, NULL, referential.</li>
+          <li><b>join_correctness</b> — verifica dei JOIN.</li>
+          <li><b>brb_compliance</b> — regole specifiche del cliente.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Convenzione</h4>
+        <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+          Predilezione per <code>pass_condition: zero_rows</code>.
+          Una query che torna 0 righe quando va tutto bene è la più
+          robusta e leggibile da implementare.
+        </p>
+        <pre class="code" style="margin-top:12px"><span class="c">-- saldo arrotondato male?</span>
+<span class="k">SELECT</span> id_conto, saldo, saldo_ref
+<span class="k">FROM</span> <span class="s">`...saldi`</span>
+<span class="k">WHERE</span> <span class="n">ABS</span>(saldo - saldo_ref) > 0.01</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Guardrail ────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Guardrail tecnici</h2>
+    </div>
+    <div class="card">
+      <ul class="bullets bq">
+        <li><b>Solo SELECT / WITH</b>: il tool rifiuta tutto il resto, anche se l'LLM lo prova.</li>
+        <li><b>Max 200 righe</b> tornate, max 50 mostrate al modello (controllo costi e contesto).</li>
+        <li><b>Retry intelligenti</b>: se la query fallisce per colonna inesistente, l'agente la riscrive fino a 3 volte. Oltre, marca il test <code>IGNORED</code>.</li>
+        <li><b>Validazione del fix</b> sempre via SELECT: la formula corretta viene simulata <i>inline</i> per dimostrare che il bug sparisce.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── Q&A box ───────────────────────────────────────────────── -->
+  <details class="speaker">
+    <summary>
+      <span class="left">💡 Possibili domande</span>
+      <span class="right">cheat-sheet</span>
+    </summary>
+    <div class="speaker-body">
+      <p><em class="cue">"Perché read-only?"</em> Per sicurezza e perché il fix non passa mai direttamente dal database: passa sempre da una PR su GitHub revisionabile.</p>
+      <p><em class="cue">"Quanti test fa?"</em> Da 3 a 10, scelti dall'agente in base alla richiesta.</p>
+      <p><em class="cue">"Costi?"</em> Una query per dataset al pre-check + N test (in media &lt;10). Il costo per run è di pochi centesimi.</p>
+      <p><em class="cue">"Dataset diversi?"</em> Sì, l'agente li estrae dal SQL. Fa una query <code>INFORMATION_SCHEMA</code> per ciascuno, non una per tabella.</p>
+    </div>
+  </details>
+
+  <div class="footer">Team 14 · ETL QA Agent · deep-dive BigQuery</div>
+</section>
+
+</body>
+</html>

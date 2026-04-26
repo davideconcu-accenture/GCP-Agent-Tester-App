@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dettaglio · System Prompt — ETL QA Agent</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>Team 14 · ETL QA Agent</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">1 · Intro</a>
+      <a href="infrastruttura.html">2 · Infrastruttura</a>
+      <a href="funzionamento.html">3 · Funzionamento</a>
+      <a href="dettaglio.html" class="active">4 · Dettaglio</a>
+    </div>
+  </div>
+</nav>
+
+<section class="container">
+  <a class="back" href="dettaglio.html">← hub dettaglio</a>
+  <div class="eyebrow"><span class="tag vertex">Deep-dive · System Prompt</span></div>
+  <h1 style="margin-top:14px">Il prompt dell'agente</h1>
+  <p class="lede">
+    Un singolo <code>LlmAgent</code> guidato da un system prompt strutturato.
+    Sei fasi obbligatorie, sette regole anti-allucinazione.
+  </p>
+
+  <!-- ─── Le 6 fasi ─────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Le 6 fasi del workflow</h2>
+    </div>
+
+    <div class="phases">
+      <div class="phase"><div class="num">FASE 1</div><div class="name">Comprensione</div>
+        <div class="desc"><code>list_available_etls</code> &middot; <code>read_sql_code</code></div></div>
+      <div class="phase"><div class="num">FASE 2</div><div class="name">Pre-check</div>
+        <div class="desc">una sola query per dataset su <code>INFORMATION_SCHEMA</code></div></div>
+      <div class="phase"><div class="num">FASE 3</div><div class="name">Pianificazione</div>
+        <div class="desc">3-10 test &middot; <code>emit_test_plan</code></div></div>
+      <div class="phase"><div class="num">FASE 4</div><div class="name">Esecuzione</div>
+        <div class="desc">retry x3 &middot; <code>emit_test_results</code></div></div>
+      <div class="phase"><div class="num">FASE 5</div><div class="name">Fix &amp; PR</div>
+        <div class="desc">solo se FAIL/ERROR &middot; <code>create_github_pr</code></div></div>
+      <div class="phase"><div class="num">FASE 6</div><div class="name">Report</div>
+        <div class="desc"><code>save_final_report</code> &middot; sempre</div></div>
+    </div>
+  </div>
+
+  <!-- ─── Le 7 regole ─────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Le 7 regole critiche</h2>
+      <p class="lede" style="margin-top:8px">
+        Sono i sassolini su cui un LLM scivola: scolpirli nel prompt evita problemi.
+      </p>
+    </div>
+    <div class="grid-2">
+      <div class="card compact">
+        <code style="color:#c2a8ff; font-weight:700">R1</code> &nbsp; <b>No auto-confronto</b>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">Mai confrontare una colonna con la sua stessa formula del codice in test. Riferimenti indipendenti.</p>
+      </div>
+      <div class="card compact">
+        <code style="color:#c2a8ff; font-weight:700">R2</code> &nbsp; <b>Solo SELECT finale</b>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">Usa solo colonne del SELECT finale del CREATE TABLE, non quelle delle CTE intermedie.</p>
+      </div>
+      <div class="card compact">
+        <code style="color:#c2a8ff; font-weight:700">R3</code> &nbsp; <b>NULL check su LEFT JOIN</b>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">I campi che arrivano da LEFT JOIN possono essere NULL: vanno sempre filtrati.</p>
+      </div>
+      <div class="card compact">
+        <code style="color:#c2a8ff; font-weight:700">R4</code> &nbsp; <b>Niente invenzioni</b>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">Si valuta solo ciò che torna da <code>execute_bigquery_query</code>. No numeri inventati.</p>
+      </div>
+      <div class="card compact">
+        <code style="color:#c2a8ff; font-weight:700">R5</code> &nbsp; <b>Italiano</b>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">UI, report e PR in italiano. Inglese solo nel SQL.</p>
+      </div>
+      <div class="card compact">
+        <code style="color:#c2a8ff; font-weight:700">R6</code> &nbsp; <b>Mai cambiare dataset nel fix</b>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">Se una tabella manca dove il SQL la cerca, è un problema di ambiente, non un bug del codice.</p>
+      </div>
+      <div class="card compact" style="grid-column: span 2">
+        <code style="color:#c2a8ff; font-weight:700">R7</code> &nbsp; <b>Stop in Fase 2 = stop totale</b>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">Se il pre-check rileva tabelle mancanti l'agente termina con il solo report finale: niente test, niente fix, niente PR.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Q&A box ───────────────────────────────────────────────── -->
+  <details class="speaker">
+    <summary>
+      <span class="left">💡 Possibili domande</span>
+      <span class="right">cheat-sheet</span>
+    </summary>
+    <div class="speaker-body">
+      <p><em class="cue">"Perché un solo agente e non multi-agente?"</em> Il task è abbastanza lineare e cabinato: aggiungere sub-agent significa più parti mobili e più punti di fallimento. Un singolo loop ReAct con regole esplicite dà robustezza.</p>
+      <p><em class="cue">"Quanto è lungo il prompt?"</em> ~140 righe. Diviso in: ambiente, workflow (6 fasi), regole (7), stile.</p>
+      <p><em class="cue">"Le regole le rispetta sempre?"</em> Quasi sempre — Gemini 2.5 Pro è obbediente sui prompt strutturati. Quando sgarra, di solito è su R3 (NULL check). Le verifiche sui risultati intercettano i problemi.</p>
+      <p><em class="cue">"E se la richiesta è ambigua?"</em> L'agente sceglie l'ETL più coerente con la descrizione tramite <code>list_available_etls</code>. L'utente può anche pre-selezionarlo dalla UI.</p>
+    </div>
+  </details>
+
+  <div class="footer">Team 14 · ETL QA Agent · deep-dive Prompt</div>
+</section>
+
+</body>
+</html>

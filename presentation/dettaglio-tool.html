@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dettaglio · Tool — ETL QA Agent</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>Team 14 · ETL QA Agent</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">1 · Intro</a>
+      <a href="infrastruttura.html">2 · Infrastruttura</a>
+      <a href="funzionamento.html">3 · Funzionamento</a>
+      <a href="dettaglio.html" class="active">4 · Dettaglio</a>
+    </div>
+  </div>
+</nav>
+
+<section class="container">
+  <a class="back" href="dettaglio.html">← hub dettaglio</a>
+  <div class="eyebrow"><span class="tag vertex">Deep-dive · Tool</span></div>
+  <h1 style="margin-top:14px">Gli 8 tool</h1>
+  <p class="lede">
+    Sono normali funzioni Python con type hint e docstring. ADK le wrappa in
+    <code>FunctionTool</code> e le espone al modello come capacità.
+  </p>
+
+  <!-- ─── Come funziona ─────────────────────────────────────── -->
+  <div class="section">
+    <div class="card">
+      <h4>Come funziona la registrazione di un tool ADK</h4>
+      <pre class="code" style="margin-top:14px"><span class="k">from</span> google.adk.tools <span class="k">import</span> FunctionTool
+
+<span class="k">def</span> <span class="n">execute_bigquery_query</span>(query: str, purpose: str) -&gt; <span class="n">dict</span>:
+    <span class="s">"""Esegue una query SELECT su BigQuery. ..."""</span>
+    ...
+
+tool = <span class="n">FunctionTool</span>(func=execute_bigquery_query)
+<span class="c"># ADK genera lo schema dai type hint + docstring,</span>
+<span class="c"># lo passa al modello e gli permette di chiamarlo.</span></pre>
+    </div>
+  </div>
+
+  <!-- ─── Famiglia 1 ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="eyebrow" style="color:#ffce8a">Famiglia 1 · GitHub (lettura codice)</div>
+      <h2>Esplorazione del repo</h2>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <code style="color:#ffce8a; font-size:14px; font-weight:700">list_available_etls()  →  { etls: [...], repo, branch }</code>
+      <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+        Elenca le cartelle al primo livello del repo SQL su GitHub (un ETL = una cartella).
+        Usato in Fase 1 quando l'utente non ha specificato l'ETL.
+      </p>
+    </div>
+
+    <div class="card">
+      <code style="color:#ffce8a; font-size:14px; font-weight:700">read_sql_code(etl_name)  →  { etl, files: [{path, content}, ...] }</code>
+      <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+        Scende ricorsivamente nella cartella dell'ETL e ritorna tutti i file <code>.sql</code>
+        con il loro contenuto. È il punto da cui l'agente estrae le tabelle fully-qualified.
+      </p>
+    </div>
+  </div>
+
+  <!-- ─── Famiglia 2 ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="eyebrow" style="color:#93b8ff">Famiglia 2 · BigQuery</div>
+      <h2>L'unico tool che parla col DB</h2>
+    </div>
+
+    <div class="card">
+      <code style="color:#93b8ff; font-size:14px; font-weight:700">execute_bigquery_query(query, purpose)  →  { columns, rows, row_count }</code>
+      <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+        Esegue una query <b>read-only</b> (solo SELECT/WITH). Limita a 200 righe in fetch
+        e ne mostra al modello al massimo 50. Il parametro <code>purpose</code> è una
+        breve descrizione del test che si sta eseguendo, ed è loggato nella timeline.
+      </p>
+      <p style="color:var(--fg-muted); font-size:13.5px; margin-top:14px">
+        <b>Stesso tool</b>, tre usi: pre-check tabelle, esecuzione test, validazione fix.
+      </p>
+    </div>
+  </div>
+
+  <!-- ─── Famiglia 3 ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="eyebrow" style="color:#c2a8ff">Famiglia 3 · Comunicazione &amp; azione</div>
+      <h2>Cinque tool</h2>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <code style="color:#c2a8ff; font-size:14px; font-weight:700">emit_test_plan(tests, rationale)</code>
+      <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+        Pubblica il piano dei test al frontend. Ogni test ha <code>id</code>, <code>name</code>,
+        <code>category</code>, <code>priority</code>, <code>description</code>, <code>query</code>,
+        <code>pass_condition</code>. Salvato come artefatto su Firestore.
+      </p>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <code style="color:#c2a8ff; font-size:14px; font-weight:700">emit_test_results(results)</code>
+      <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+        Pubblica gli esiti. Ogni risultato ha <code>id</code>, <code>name</code>, <code>status</code>
+        (<code>PASS</code> | <code>FAIL</code> | <code>ERROR</code> | <code>IGNORED</code>),
+        <code>evidence</code>, <code>row_count</code>.
+      </p>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <code style="color:#c2a8ff; font-size:14px; font-weight:700">emit_fix_proposal(root_cause, file_path, original_sql, fixed_sql, fixes_tests, validation_passed, validation_notes)</code>
+      <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+        Pubblica la proposta di fix. Include la <b>causa radice</b>, il SQL originale e quello corretto, gli id dei test che il fix risolve, e — punto chiave — un flag <code>validation_passed</code> che è <code>true</code> solo se l'agente ha già <i>provato</i> la formula corretta su BigQuery.
+      </p>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <code style="color:#ffce8a; font-size:14px; font-weight:700">create_github_pr(branch_name, file_path, new_content, pr_title, pr_body, commit_message)</code>
+      <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+        L'unico tool che <b>esce dal sistema</b>: crea un branch da <code>main</code>, committa il file SQL corretto, apre la Pull Request. Una sola transazione logica. Ritorna <code>url</code>, <code>number</code>, <code>branch</code> (o <code>error</code>).
+      </p>
+    </div>
+
+    <div class="card">
+      <code style="color:#c2a8ff; font-size:14px; font-weight:700">save_final_report(markdown)</code>
+      <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+        Salva il report finale Markdown del run. Ultimo step di ogni Fase 6, sempre eseguito.
+      </p>
+    </div>
+  </div>
+
+  <!-- ─── Pattern eventi ─────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Cosa accade a ogni chiamata di tool</h2>
+    </div>
+    <div class="card">
+      <ol style="color:var(--fg); font-size:14.5px; margin:0; padding-left:24px">
+        <li>L'ADK Runner emette un evento <code>function_call</code> &rarr; il backend lo inoltra come <code>tool_call</code> sul bus SSE.</li>
+        <li>Il tool esegue, scrive eventi (<code>tool_start</code>, <code>tool_end</code>) e — se è un <code>emit_*</code> o <code>save_*</code> — un artefatto strutturato su Firestore.</li>
+        <li>L'ADK Runner emette un evento <code>function_response</code> &rarr; il backend lo inoltra come <code>tool_response</code>.</li>
+        <li>Il modello vede il risultato e decide il prossimo passo.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ─── Q&A box ───────────────────────────────────────────────── -->
+  <details class="speaker">
+    <summary>
+      <span class="left">💡 Possibili domande</span>
+      <span class="right">cheat-sheet</span>
+    </summary>
+    <div class="speaker-body">
+      <p><em class="cue">"Perché tool separati per emit?"</em> Servono come <b>checkpoint</b>: ogni emit congela uno stato (piano test, risultati, proposta) che il frontend rendera come card. Più chiaro per l'utente che un'unica risposta finale.</p>
+      <p><em class="cue">"Posso aggiungere tool nuovi?"</em> Sì, basta scrivere una funzione Python con type hint + docstring e registrarla in <code>build_agent</code>. ADK fa il resto.</p>
+      <p><em class="cue">"Tool sandboxed?"</em> No, sono codice Python che gira nel backend con le credenziali del service account. La sicurezza è data dai guardrail nei tool stessi (es. solo SELECT) e dal fatto che le PR vanno mergiate da un umano.</p>
+    </div>
+  </details>
+
+  <div class="footer">Team 14 · ETL QA Agent · deep-dive Tool</div>
+</section>
+
+</body>
+</html>
