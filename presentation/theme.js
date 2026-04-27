@@ -42,4 +42,18 @@
   } else {
     injectToggle();
   }
+
+  // Nav: effetto "lifted" (shadow + saturation) durante lo scroll
+  function setupScroll() {
+    const nav = document.querySelector(".nav");
+    if (!nav) return;
+    const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupScroll);
+  } else {
+    setupScroll();
+  }
 })();

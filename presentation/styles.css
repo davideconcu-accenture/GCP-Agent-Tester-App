@@ -40,10 +40,19 @@
   --danger:       #ff5c7c;
   --ok:           #30d158;
 
-  /* Shadows */
-  --shadow-1: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
-  --shadow-2: 0 4px 12px rgba(0,0,0,.4), 0 16px 48px rgba(0,0,0,.35);
-  --shadow-glow: 0 0 0 1px rgba(161,0,255,.35), 0 8px 32px rgba(161,0,255,.20);
+  /* Shadows · sistema multi-livello con depth */
+  --shadow-sm:    0 1px 2px rgba(0,0,0,.25), 0 1px 3px rgba(0,0,0,.18);
+  --shadow-md:    0 4px 6px -1px rgba(0,0,0,.32), 0 12px 24px -8px rgba(0,0,0,.30);
+  --shadow-lg:    0 10px 20px rgba(0,0,0,.38), 0 25px 50px -12px rgba(0,0,0,.40);
+  --shadow-xl:    0 20px 40px rgba(0,0,0,.45), 0 40px 80px -20px rgba(0,0,0,.50);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,.05);
+  --shadow-1:     var(--shadow-md);
+  --shadow-2:     var(--shadow-lg);
+  --shadow-glow:  0 0 0 1px rgba(161,0,255,.40), 0 14px 42px rgba(161,0,255,.28);
+
+  /* Easing curves */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Body backdrop gradients (dark) */
   --backdrop:
@@ -77,9 +86,14 @@
   --accent-2:     var(--acn-purple);
   --accent-3:     #6a4ae0;
 
-  --shadow-1: 0 1px 2px rgba(20,10,60,.06), 0 4px 16px rgba(20,10,60,.06);
-  --shadow-2: 0 4px 12px rgba(20,10,60,.08), 0 16px 48px rgba(20,10,60,.10);
-  --shadow-glow: 0 0 0 1px rgba(161,0,255,.30), 0 8px 32px rgba(161,0,255,.18);
+  --shadow-sm:    0 1px 2px rgba(20,10,60,.05), 0 1px 3px rgba(20,10,60,.04);
+  --shadow-md:    0 2px 4px rgba(20,10,60,.06), 0 8px 24px -4px rgba(20,10,60,.10);
+  --shadow-lg:    0 8px 16px rgba(20,10,60,.08), 0 24px 56px -12px rgba(20,10,60,.16);
+  --shadow-xl:    0 14px 28px rgba(20,10,60,.10), 0 32px 80px -16px rgba(20,10,60,.20);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,.6);
+  --shadow-1:     var(--shadow-md);
+  --shadow-2:     var(--shadow-lg);
+  --shadow-glow:  0 0 0 1px rgba(161,0,255,.32), 0 10px 36px rgba(161,0,255,.22);
 
   --backdrop:
     radial-gradient(1200px 600px at 80% -10%, rgba(161,0,255,.06), transparent 60%),
@@ -112,9 +126,19 @@ a:hover { color: var(--accent); }
   position: sticky;
   top: 0;
   z-index: 50;
-  backdrop-filter: blur(12px);
-  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
   border-bottom: 1px solid var(--border-soft);
+  transition: box-shadow .3s var(--ease-out), border-color .3s var(--ease-out), background .3s var(--ease-out);
+}
+.nav.scrolled {
+  box-shadow: 0 8px 24px -8px rgba(0,0,0,.35);
+  border-bottom-color: var(--border);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+}
+[data-theme="light"] .nav.scrolled {
+  box-shadow: 0 8px 24px -8px rgba(20,10,60,.10);
 }
 .nav-inner {
   max-width: 1280px;
@@ -254,7 +278,16 @@ h3 { font-size: 19px; font-weight: 600; letter-spacing: -0.015em; }
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 24px;
-  box-shadow: var(--shadow-1);
+  box-shadow: var(--shadow-md), var(--shadow-inset);
+  transition: transform .35s var(--ease-out),
+              box-shadow .35s var(--ease-out),
+              border-color .25s var(--ease-out);
+  position: relative;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg), var(--shadow-inset);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
 }
 .card.compact { padding: 18px; }
 
@@ -493,12 +526,13 @@ pre.code .n { color: #066b9a; }
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 22px;
-  transition: all .2s ease;
+  box-shadow: var(--shadow-sm), var(--shadow-inset);
+  transition: box-shadow .25s var(--ease-out),
+              border-color .25s var(--ease-out);
 }
 .tile:hover {
-  transform: translateY(-2px);
   border-color: var(--accent);
-  box-shadow: var(--shadow-glow);
+  box-shadow: var(--shadow-md);
   color: var(--fg);
 }
 .tile .icon { width: 40px; height: 40px; margin-bottom: 14px; }
@@ -580,3 +614,91 @@ pre.code .n { color: #066b9a; }
 
 /* tspan dentro text con fill nidificati */
 [data-theme="light"] svg tspan[fill="#9aa6cc"]    { fill: #4a4566; }
+
+/* ─── Entrata pagina · solo fade, niente translate ──────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.hero { animation: fadeIn .5s var(--ease-out) both; }
+.nav  { animation: fadeIn .4s var(--ease-out) both; }
+
+/* ─── Profondità nei diagrammi SVG (ombra statica, niente lift) ─────────── */
+.arch-card .arch-card-bg {
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,.30));
+}
+[data-theme="light"] .arch-card .arch-card-bg {
+  filter: drop-shadow(0 6px 14px rgba(20,10,60,.12));
+}
+
+.diagram-block .block-bg {
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,.32));
+}
+[data-theme="light"] .diagram-block .block-bg {
+  filter: drop-shadow(0 8px 18px rgba(20,10,60,.14));
+}
+
+/* ─── Phases pills · stagger e lift ──────────────────────────────────── */
+.phase {
+  box-shadow: var(--shadow-sm);
+  transition: transform .3s var(--ease-out),
+              box-shadow .3s var(--ease-out),
+              border-color .25s var(--ease-out);
+}
+.phase:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+}
+
+/* ─── Buttons · micro-interazioni ─────────────────────────────────────── */
+.btn {
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s var(--ease-out),
+              box-shadow .25s var(--ease-out),
+              background .2s var(--ease-out),
+              border-color .2s var(--ease-out),
+              color .2s var(--ease-out);
+}
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
+.btn-primary:hover { box-shadow: var(--shadow-md), 0 6px 20px rgba(161,0,255,.35); }
+
+/* ─── Brand-mark · subtle pulse al hover ─────────────────────────────── */
+.brand-mark {
+  transition: transform .3s var(--ease-out), filter .3s var(--ease-out);
+}
+.brand:hover .brand-mark {
+  transform: scale(1.08) rotate(-3deg);
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 60%, transparent));
+}
+
+/* ─── Speaker notes · profondità ──────────────────────────────────────── */
+.speaker { box-shadow: var(--shadow-sm); }
+
+/* ─── Bullet list · transizione hover ────────────────────────────────── */
+.bullets li {
+  transition: padding-left .25s var(--ease-out), color .25s var(--ease-out);
+}
+.bullets li:hover { padding-left: 28px; }
+
+/* ─── Smooth scroll globale ───────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+
+/* ─── Selection ───────────────────────────────────────────────────────── */
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--fg);
+}
+
+/* ─── Reduced motion (accessibilità) ──────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
