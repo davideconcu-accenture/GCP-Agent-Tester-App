@@ -119,8 +119,14 @@ function RunView() {
   return (
     <div className="w-full">
       {/* Hero */}
-      <div className="px-6 pt-8 pb-6 border-b border-border">
-        <a href="/" className="text-2xs font-mono text-fg-subtle hover:text-fg inline-flex items-center gap-1 mb-3">
+      <div className="px-6 pt-8 pb-6 border-b border-border relative overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none opacity-50"
+          style={{ background: "radial-gradient(900px 360px at 90% -20%, var(--accent-soft), transparent 70%)" }}
+        />
+        <div className="relative">
+        <a href="/" className="text-2xs font-mono text-fg-subtle hover:text-accent inline-flex items-center gap-1 mb-3 transition-colors">
           ← dashboard
         </a>
         <div className="flex items-start justify-between gap-6 flex-wrap">
@@ -138,9 +144,9 @@ function RunView() {
                 disabled={stopping}
                 title="Interrompi l'esecuzione del run"
                 className={cn(
-                  "h-8 px-3 text-[13px] inline-flex items-center gap-1.5 border rounded transition-colors",
-                  "border-danger/40 text-danger hover:bg-danger/5 hover:border-danger/70",
-                  stopping && "opacity-50 cursor-not-allowed",
+                  "h-8 px-3 text-[13px] inline-flex items-center gap-1.5 border rounded-md btn-press shadow-elev-sm",
+                  "bg-bg-elev border-danger/40 text-danger hover:bg-danger/5 hover:border-danger/70 hover:shadow-elev-md",
+                  stopping && "opacity-50 cursor-not-allowed pointer-events-none",
                 )}
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -161,14 +167,15 @@ function RunView() {
         </div>
 
         {summary && (
-          <div className="mt-5 text-[13px] leading-relaxed text-fg border-l-2 border-fg pl-3 max-w-3xl">
+          <div className="mt-5 text-[13px] leading-relaxed text-fg border-l-2 border-accent pl-3 max-w-3xl bg-accent-soft/40 rounded-r-md py-2 pr-3">
             {summary}
           </div>
         )}
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="px-6 border-b border-border sticky top-12 bg-bg z-[5]">
+      <div className="px-6 border-b border-border sticky top-14 bg-bg/80 backdrop-blur-xl backdrop-saturate-150 z-[5] shadow-elev-sm">
         <div className="flex items-center gap-1 -mb-px">
           <Tab active={tab === "stream"} onClick={() => setTab("stream")} label="Stream" count={events.filter(e => e.type === "tool_call").length || undefined} />
           <Tab active={tab === "results"} onClick={() => setTab("results")} label="Risultati test" count={Object.values(counts).reduce((a: number, b: any) => a + b, 0) || undefined} disabled={!artifacts.test_plan && !artifacts.test_results} />
@@ -216,14 +223,23 @@ function Tab({ active, onClick, label, count, disabled }: { active: boolean; onC
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "h-10 px-3 text-[13px] tracking-tight border-b-2 transition-colors inline-flex items-center gap-2",
-        active ? "border-fg text-fg" : "border-transparent text-fg-muted hover:text-fg",
-        disabled && "opacity-30 cursor-not-allowed hover:text-fg-muted",
+        "h-11 px-3.5 text-[13px] tracking-tight border-b-2 transition-all duration-200 ease-out-soft inline-flex items-center gap-2 relative",
+        active
+          ? "border-accent text-accent font-medium"
+          : "border-transparent text-fg-muted hover:text-fg hover:border-border-strong",
+        disabled && "opacity-30 cursor-not-allowed hover:text-fg-muted hover:border-transparent",
       )}
     >
       {label}
       {count !== undefined && (
-        <span className="text-2xs font-mono text-fg-subtle">{count}</span>
+        <span
+          className={cn(
+            "text-2xs font-mono px-1.5 py-0.5 rounded transition-colors",
+            active ? "bg-accent-soft text-accent" : "bg-bg-subtle text-fg-subtle",
+          )}
+        >
+          {count}
+        </span>
       )}
     </button>
   );

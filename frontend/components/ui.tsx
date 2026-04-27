@@ -14,13 +14,13 @@ export const Button = React.forwardRef<
   <button
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center gap-1.5 font-medium tracking-tight transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap",
-      size === "sm" && "h-7 px-2.5 text-[12px] rounded",
-      size === "md" && "h-8 px-3 text-[13px] rounded",
+      "inline-flex items-center justify-center gap-1.5 font-medium tracking-tight whitespace-nowrap btn-press disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none",
+      size === "sm" && "h-7 px-2.5 text-[12px] rounded-md",
+      size === "md" && "h-8 px-3 text-[13px] rounded-md",
       variant === "primary" &&
-        "bg-accent text-accent-fg hover:bg-fg-muted",
+        "bg-accent text-accent-fg shadow-elev-sm hover:shadow-elev-md hover:brightness-110 active:brightness-95",
       variant === "secondary" &&
-        "bg-bg-subtle text-fg border border-border hover:bg-bg hover:border-border-strong",
+        "bg-bg-elev text-fg border border-border shadow-elev-sm hover:border-border-strong hover:shadow-elev-md",
       variant === "ghost" &&
         "text-fg-muted hover:text-fg hover:bg-bg-subtle",
       className,
@@ -32,7 +32,7 @@ Button.displayName = "Button";
 
 // ═══ Input / Textarea / Select ══════════════════════════════════════════════
 const fieldBase =
-  "w-full bg-bg border border-border rounded px-2.5 py-1.5 text-[13px] text-fg placeholder:text-fg-subtle transition-colors hover:border-border-strong focus:outline-none focus:border-fg focus:ring-0";
+  "w-full bg-bg-elev border border-border rounded-md px-2.5 py-1.5 text-[13px] text-fg placeholder:text-fg-subtle transition-all duration-200 hover:border-border-strong field-focus shadow-elev-sm";
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...p }, ref) => <input ref={ref} className={cn(fieldBase, className)} {...p} />,
@@ -69,12 +69,12 @@ export const Badge = ({
 }: React.HTMLAttributes<HTMLSpanElement> & { variant?: "neutral" | "success" | "danger" | "warning" | "accent" }) => (
   <span
     className={cn(
-      "inline-flex items-center gap-1 text-2xs font-medium px-1.5 py-0.5 rounded font-mono uppercase tracking-wider",
+      "inline-flex items-center gap-1 text-2xs font-medium px-1.5 py-0.5 rounded-md font-mono uppercase tracking-wider shadow-elev-sm",
       variant === "neutral" && "bg-bg-subtle text-fg-muted border border-border",
       variant === "success" && "bg-bg-subtle text-success border border-success/30",
       variant === "danger" && "bg-bg-subtle text-danger border border-danger/30",
       variant === "warning" && "bg-bg-subtle text-warning border border-warning/30",
-      variant === "accent" && "bg-accent text-accent-fg",
+      variant === "accent" && "bg-accent text-accent-fg shadow-elev-sm",
       className,
     )}
     {...p}
@@ -84,7 +84,7 @@ export const Badge = ({
 );
 
 // ═══ Section (al posto di Card) ═════════════════════════════════════════════
-// Invece di card con bordi spessi usiamo sezioni con un singolo divider top + header.
+// Sezioni elevate con shadow + transizione su hover.
 export const Section = ({
   title,
   action,
@@ -96,9 +96,15 @@ export const Section = ({
   children: React.ReactNode;
   className?: string;
 }) => (
-  <section className={cn("border border-border rounded bg-bg overflow-hidden", className)}>
-    <header className="h-9 px-3 flex items-center justify-between border-b border-border bg-bg-subtle">
-      <h2 className="text-[12px] font-medium tracking-tight text-fg">{title}</h2>
+  <section
+    className={cn(
+      "border border-border rounded-lg bg-bg-elev overflow-hidden shadow-elev-md",
+      "transition-all duration-300 ease-out-soft hover:shadow-elev-lg hover:border-border-strong",
+      className,
+    )}
+  >
+    <header className="h-10 px-3.5 flex items-center justify-between border-b border-border bg-bg-subtle/60 backdrop-blur-sm">
+      <h2 className="text-[12px] font-semibold tracking-tight text-fg">{title}</h2>
       {action}
     </header>
     <div>{children}</div>

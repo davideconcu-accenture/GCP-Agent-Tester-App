@@ -108,9 +108,9 @@ export default function HomePage() {
               disabled={wipingAll}
               title="Cancella tutto lo storico dei run"
               className={cn(
-                "h-9 px-3 text-[13px] inline-flex items-center gap-1.5 border rounded transition-colors",
-                "border-border text-fg-muted hover:border-danger/50 hover:text-danger hover:bg-danger/5",
-                wipingAll && "opacity-50 cursor-not-allowed",
+                "h-9 px-3 text-[13px] inline-flex items-center gap-1.5 border rounded-md btn-press shadow-elev-sm",
+                "bg-bg-elev border-border text-fg-muted hover:border-danger/50 hover:text-danger hover:bg-danger/5 hover:shadow-elev-md",
+                wipingAll && "opacity-50 cursor-not-allowed pointer-events-none",
               )}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -164,7 +164,7 @@ function RunsTable({
 }) {
   if (runs === null) {
     return (
-      <div className="border border-border rounded overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden bg-bg-elev shadow-elev-md">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="h-[52px] border-b border-border last:border-b-0 bg-bg-subtle animate-pulse" />
         ))}
@@ -174,7 +174,7 @@ function RunsTable({
 
   if (runs.length === 0) {
     return (
-      <div className="border border-border rounded py-16 text-center">
+      <div className="border border-border rounded-lg py-16 text-center bg-bg-elev shadow-elev-md">
         <div className="text-[14px] font-medium text-fg">Nessuna richiesta ancora</div>
         <div className="text-[13px] text-fg-muted mt-1">Premi N o clicca "Nuova Richiesta" per iniziare.</div>
       </div>
@@ -182,15 +182,15 @@ function RunsTable({
   }
 
   return (
-    <div className="border border-border rounded overflow-hidden">
+    <div className="border border-border rounded-lg overflow-hidden bg-bg-elev shadow-elev-md transition-shadow duration-300 hover:shadow-elev-lg">
       <table className="w-full text-[13px]">
         <thead>
-          <tr className="bg-bg-subtle border-b border-border text-2xs font-mono uppercase tracking-wider text-fg-subtle">
-            <th className="text-left font-normal px-4 py-2 w-[110px]">Stato</th>
-            <th className="text-left font-normal px-4 py-2">Richiesta</th>
-            <th className="text-left font-normal px-4 py-2 w-[180px]">ETL</th>
-            <th className="text-left font-normal px-4 py-2 w-[120px]">Quando</th>
-            <th className="text-right font-normal px-4 py-2 w-[56px]"></th>
+          <tr className="bg-bg-subtle/60 backdrop-blur-sm border-b border-border text-2xs font-mono uppercase tracking-wider text-fg-subtle">
+            <th className="text-left font-normal px-4 py-2.5 w-[110px]">Stato</th>
+            <th className="text-left font-normal px-4 py-2.5">Richiesta</th>
+            <th className="text-left font-normal px-4 py-2.5 w-[180px]">ETL</th>
+            <th className="text-left font-normal px-4 py-2.5 w-[120px]">Quando</th>
+            <th className="text-right font-normal px-4 py-2.5 w-[56px]"></th>
           </tr>
         </thead>
         <tbody>
@@ -198,7 +198,7 @@ function RunsTable({
             <tr
               key={r.id}
               className={cn(
-                "border-b border-border last:border-b-0 hover:bg-bg-subtle cursor-pointer transition-colors group",
+                "border-b border-border last:border-b-0 hover:bg-accent-soft cursor-pointer transition-colors duration-200 group",
                 deleting.has(r.id) && "opacity-40",
               )}
               onClick={() => (window.location.href = `/run?id=${r.id}`)}
@@ -291,11 +291,10 @@ function NewRunSheet({
   return (
     <>
       <div
-        className="fixed inset-0 bg-black/55 backdrop-blur-[2px] z-40 animate-rise"
+        className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 animate-fade"
         onClick={onClose}
-        style={{ animationDuration: "120ms" }}
       />
-      <div className="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-bg border-l border-border z-50 flex flex-col animate-rise shadow-2xl">
+      <div className="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-bg-elev border-l border-border z-50 flex flex-col animate-rise shadow-elev-xl">
         <div className="h-12 px-5 flex items-center justify-between border-b border-border">
           <h2 className="text-[14px] font-semibold tracking-tight">Nuova Richiesta</h2>
           <button
@@ -346,13 +345,13 @@ function NewRunSheet({
           </div>
 
           {error && (
-            <div className="text-[12px] text-danger border border-danger/30 bg-danger/5 rounded px-2.5 py-2">
+            <div className="text-[12px] text-danger border border-danger/30 bg-danger/5 rounded-md px-2.5 py-2 shadow-elev-sm">
               {error}
             </div>
           )}
         </div>
 
-        <div className="h-14 px-5 border-t border-border flex items-center justify-between bg-bg-subtle">
+        <div className="h-14 px-5 border-t border-border flex items-center justify-between bg-bg-subtle/60 backdrop-blur-sm">
           <div className="text-2xs font-mono text-fg-subtle">
             <kbd className="px-1 py-0.5 border border-border rounded">Esc</kbd>
             <span className="mx-1">chiudi</span>

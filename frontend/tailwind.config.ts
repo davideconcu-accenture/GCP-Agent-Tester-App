@@ -11,6 +11,7 @@ const config: Config = {
       colors: {
         bg: "var(--bg)",
         "bg-subtle": "var(--bg-subtle)",
+        "bg-elev": "var(--bg-elev)",
         border: "var(--border)",
         "border-strong": "var(--border-strong)",
         fg: "var(--fg)",
@@ -18,6 +19,8 @@ const config: Config = {
         "fg-subtle": "var(--fg-subtle)",
         accent: "var(--accent)",
         "accent-fg": "var(--accent-fg)",
+        "accent-soft": "var(--accent-soft)",
+        "accent-ring": "var(--accent-ring)",
         success: "var(--success)",
         danger: "var(--danger)",
         warning: "var(--warning)",
@@ -31,6 +34,16 @@ const config: Config = {
       },
       borderRadius: {
         DEFAULT: "6px",
+      },
+      boxShadow: {
+        "elev-sm":   "var(--shadow-sm)",
+        "elev-md":   "var(--shadow-md)",
+        "elev-lg":   "var(--shadow-lg)",
+        "elev-xl":   "var(--shadow-xl)",
+        "elev-glow": "var(--shadow-glow)",
+      },
+      transitionTimingFunction: {
+        "out-soft": "cubic-bezier(0.16, 1, 0.3, 1)",
       },
     },
   },
