@@ -343,7 +343,7 @@ function IconButton({
     <button
       onClick={onClick}
       title={title}
-      className="h-7 px-2.5 text-2xs font-mono inline-flex items-center gap-1.5 border border-border rounded text-fg-muted hover:text-fg hover:border-border-strong hover:bg-bg-subtle transition-colors"
+      className="h-7 px-2.5 text-2xs font-mono inline-flex items-center gap-1.5 border border-border rounded-md bg-bg-elev shadow-elev-sm text-fg-muted btn-press hover:text-fg hover:border-border-strong hover:shadow-elev-md"
     >
       {children}
     </button>
@@ -430,21 +430,21 @@ function StreamTab({ events, status, meta }: { events: RunEvent[]; status: strin
             </div>
           )}
           {it.kind === "tool_call" && (
-            <div className="border border-border rounded overflow-hidden">
-              <div className="h-8 px-3 bg-bg-subtle border-b border-border flex items-center gap-2 text-2xs font-mono">
-                <span className="text-fg-subtle">→ tool</span>
+            <div className="border border-border rounded-lg overflow-hidden bg-bg-elev shadow-elev-sm transition-all duration-300 ease-out-soft hover:shadow-elev-md hover:border-border-strong">
+              <div className="h-9 px-3 bg-bg-subtle/60 backdrop-blur-sm border-b border-border flex items-center gap-2 text-2xs font-mono">
+                <span className="text-accent">→ tool</span>
                 <span className="font-semibold text-fg">{it.name}</span>
               </div>
               <ToolArgs args={it.args} />
             </div>
           )}
           {it.kind === "tool_response" && (
-            <div className="border border-border rounded overflow-hidden">
-              <div className="h-8 px-3 bg-bg-subtle border-b border-border flex items-center gap-2 text-2xs font-mono">
+            <div className="border border-border rounded-lg overflow-hidden bg-bg-elev shadow-elev-sm transition-all duration-300 ease-out-soft hover:shadow-elev-md hover:border-border-strong">
+              <div className="h-9 px-3 bg-bg-subtle/60 backdrop-blur-sm border-b border-border flex items-center gap-2 text-2xs font-mono">
                 <span className="text-success">← risultato</span>
                 <span className="text-fg-muted">{it.name}</span>
               </div>
-              <pre className="px-3 py-2 text-2xs font-mono text-fg-muted overflow-x-auto whitespace-pre-wrap break-all">
+              <pre className="px-3 py-2.5 text-2xs font-mono text-fg-muted overflow-x-auto whitespace-pre-wrap break-all">
                 {it.preview}
               </pre>
             </div>
