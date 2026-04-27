@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dettaglio · Agente — ETL Agent Tester</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>Team 14 · ETL Agent Tester</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">1 · Intro</a>
+      <a href="infrastruttura.html">2 · Infrastruttura</a>
+      <a href="funzionamento.html">3 · Funzionamento</a>
+      <a href="dettaglio.html" class="active">4 · Dettaglio</a>
+    </div>
+  </div>
+</nav>
+
+<section class="container">
+  <a class="back" href="dettaglio.html">← hub dettaglio</a>
+  <div class="eyebrow"><span class="tag vertex">Deep-dive · Agente</span></div>
+  <h1 style="margin-top:14px">L'agente</h1>
+  <p class="lede">
+    Il cuore del sistema: un singolo <code>LlmAgent</code> dell'Agent Development Kit
+    di Google, eseguito su Vertex AI con un modello configurabile.
+  </p>
+
+  <!-- ─── Stack ───────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Stack</h2>
+    </div>
+    <div class="card">
+      <ul class="bullets vertex">
+        <li><b>Google Agent Development Kit</b> — orchestrazione del loop ReAct e registrazione dei tool come <code>FunctionTool</code>.</li>
+        <li><b>Vertex AI</b> — endpoint del modello LLM, autenticazione via service account su Cloud Run.</li>
+        <li><b>Modello configurabile</b> — Gemini 2.5 Pro (default), Gemini 2.5 Flash, o altri modelli supportati da Vertex AI.</li>
+        <li><b>Persistenza degli eventi</b> — ogni passo dell'agente è salvato su Firestore e replicato in tempo reale al frontend via SSE.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── Loop ReAct ──────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Loop ReAct</h2>
+      <p class="lede" style="margin-top:8px">
+        L'agente lavora a iterazioni: a ogni passo ragiona, sceglie un tool, lo
+        esegue e osserva il risultato. Continua finché non termina il workflow.
+      </p>
+    </div>
+    <div class="card">
+      <svg viewBox="0 0 1100 200" style="width:100%; height:auto" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#9b6dff"/>
+          </marker>
+        </defs>
+        <g transform="translate(20, 60)">
+          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">1 · PENSA</text>
+          <text x="120" y="60" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">ragionamento</text>
+          <text x="120" y="82" text-anchor="middle" fill="#9aa6cc" font-size="12">decide il prossimo passo</text>
+        </g>
+        <g transform="translate(290, 60)">
+          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">2 · AGISCE</text>
+          <text x="120" y="60" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">tool call</text>
+          <text x="120" y="82" text-anchor="middle" fill="#9aa6cc" font-size="12">invoca una funzione Python</text>
+        </g>
+        <g transform="translate(560, 60)">
+          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">3 · OSSERVA</text>
+          <text x="120" y="60" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">tool response</text>
+          <text x="120" y="82" text-anchor="middle" fill="#9aa6cc" font-size="12">valuta il risultato</text>
+        </g>
+        <g transform="translate(830, 60)">
+          <rect width="240" height="100" rx="12" fill="#0f2a1f" stroke="#34a853" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">FINE</text>
+          <text x="120" y="60" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">report finale</text>
+          <text x="120" y="82" text-anchor="middle" fill="#9aa6cc" font-size="12">workflow completato</text>
+        </g>
+        <path d="M 260,110 L 290,110" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
+        <path d="M 530,110 L 560,110" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
+        <path d="M 800,110 L 830,110" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
+        <path d="M 680,160 C 680,190 410,190 410,160" stroke="#9b6dff" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#arA)"/>
+        <text x="545" y="195" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace">se non ha finito, riparte</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ─── Configurazione runtime ─────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Configurazione runtime</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h4>Modello</h4>
+        <ul class="bullets vertex" style="margin-top:14px">
+          <li>Default: <code>gemini-2.5-pro</code> (più accurato sul ragionamento SQL).</li>
+          <li>Alternative: <code>gemini-2.5-flash</code> (più rapido, costi inferiori).</li>
+          <li>Selezionabile dall'utente al momento della richiesta.</li>
+          <li>Vertex AI gestisce la chiamata; il backend fa solo da orchestratore.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Limiti</h4>
+        <ul class="bullets vertex" style="margin-top:14px">
+          <li><code>max_iterations = 40</code>: massimo numero di passi del loop ReAct.</li>
+          <li><code>max_output_tokens = 8192</code>: limite per la risposta del modello.</li>
+          <li>Cancellazione cooperativa: l'utente può interrompere il run in qualsiasi momento.</li>
+          <li>Region <code>us-west1</code>, autenticazione via service account Cloud Run.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Snippet di codice ──────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>L'agente in poche righe</h2>
+    </div>
+    <div class="card">
+<pre class="code"><span class="k">from</span> google.adk.agents <span class="k">import</span> LlmAgent
+<span class="k">from</span> google.adk.tools  <span class="k">import</span> FunctionTool
+
+agent = <span class="n">LlmAgent</span>(
+    name=<span class="s">"etl_qa_agent"</span>,
+    model=<span class="s">"gemini-2.5-pro"</span>,        <span class="c"># o gemini-2.5-flash, configurabile</span>
+    instruction=SYSTEM_PROMPT,     <span class="c"># 6 fasi + 7 regole critiche</span>
+    tools=[
+        <span class="n">FunctionTool</span>(func=list_available_etls),
+        <span class="n">FunctionTool</span>(func=read_sql_code),
+        <span class="n">FunctionTool</span>(func=execute_bigquery_query),
+        <span class="n">FunctionTool</span>(func=emit_test_plan),
+        <span class="n">FunctionTool</span>(func=emit_test_results),
+        <span class="n">FunctionTool</span>(func=emit_fix_proposal),
+        <span class="n">FunctionTool</span>(func=create_github_pr),
+        <span class="n">FunctionTool</span>(func=save_final_report),
+    ],
+)</pre>
+    </div>
+  </div>
+
+  <!-- ─── Singolo agente ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Perché un solo agente</h2>
+    </div>
+    <div class="card">
+      <ul class="bullets vertex">
+        <li><b>Niente multi-agente, niente sub-agent</b>: un singolo loop ReAct con accesso diretto a tutti gli 8 tool.</li>
+        <li><b>Workflow lineare e cabinato</b>: aggiungere sub-agenti significa più parti mobili e più punti di fallimento.</li>
+        <li><b>Robustezza</b>: il system prompt strutturato in 6 fasi e 7 regole è sufficiente a guidare il comportamento dell'agente in modo deterministico.</li>
+        <li><b>Tracciabilità</b>: tutti gli eventi appartengono a un solo run; debugging e audit più semplici.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">Team 14 · ETL Agent Tester · deep-dive Agente</div>
+</section>
+
+</body>
+</html>

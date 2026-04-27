@@ -36,7 +36,7 @@
   <!-- ─── DIAGRAMMA CLICCABILE ──────────────────────────────────────── -->
   <div class="section">
     <div class="card">
-      <svg class="arch-svg" viewBox="0 0 1280 780" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagramma infrastrutturale completo">
+      <svg class="arch-svg" viewBox="0 0 1280 760" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagramma infrastrutturale completo">
         <defs>
           <linearGradient id="g-bq" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stop-color="#1d3a72"/><stop offset="1" stop-color="#0f1f44"/>
@@ -64,17 +64,22 @@
           </marker>
         </defs>
 
-        <!-- ═══════ Cloud Run container (sfondo) ═══════ -->
-        <rect x="320" y="100" width="660" height="560" rx="20"
+        <!-- ═══════ UTENTE (alto-sx, fuori dal container) ═══════ -->
+        <g transform="translate(40, 40)">
+          <rect width="200" height="44" rx="10" fill="#0e1430" stroke="#3a4880" stroke-width="1.5"/>
+          <text x="100" y="28" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">Utente</text>
+        </g>
+
+        <!-- ═══════ Cloud Run container ═══════ -->
+        <rect x="320" y="100" width="620" height="560" rx="20"
               fill="none" stroke="#34a853" stroke-width="1.5" stroke-dasharray="6 6" opacity="0.7"/>
-        <text x="650" y="86" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="3">GOOGLE CLOUD RUN · CONTAINER</text>
+        <text x="630" y="86" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="3">GOOGLE CLOUD RUN · CONTAINER</text>
 
         <!-- ═══════ FRONTEND ═══════ -->
         <a href="dettaglio-frontend.html">
-          <g class="arch-card" transform="translate(360, 140)">
+          <g class="arch-card" transform="translate(350, 140)">
             <rect class="arch-card-bg" width="240" height="150" rx="12" fill="url(#g-run)" stroke="#34a853" stroke-width="2"/>
             <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">FRONTEND</text>
-
             <g transform="translate(80, 50)">
               <rect width="80" height="58" rx="6" fill="none" stroke="#8fe0a4" stroke-width="2"/>
               <line x1="0" y1="14" x2="80" y2="14" stroke="#8fe0a4" stroke-width="2"/>
@@ -85,17 +90,15 @@
               <rect x="10" y="32" width="50" height="4" fill="#34a853" opacity="0.45"/>
               <rect x="10" y="42" width="30" height="4" fill="#34a853" opacity="0.45"/>
             </g>
-
             <text x="120" y="135" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="700">Next.js · SSE</text>
           </g>
         </a>
 
         <!-- ═══════ BACKEND ═══════ -->
         <a href="dettaglio-backend.html">
-          <g class="arch-card" transform="translate(700, 140)">
+          <g class="arch-card" transform="translate(670, 140)">
             <rect class="arch-card-bg" width="240" height="150" rx="12" fill="url(#g-run)" stroke="#34a853" stroke-width="2"/>
             <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">BACKEND</text>
-
             <g transform="translate(80, 50)">
               <rect x="0"  y="0"  width="80" height="18" rx="3" fill="none" stroke="#8fe0a4" stroke-width="2"/>
               <rect x="0"  y="22" width="80" height="18" rx="3" fill="none" stroke="#8fe0a4" stroke-width="2"/>
@@ -107,73 +110,69 @@
               <rect x="18" y="28" width="48" height="6" fill="#34a853" opacity="0.55"/>
               <rect x="18" y="50" width="36" height="6" fill="#34a853" opacity="0.55"/>
             </g>
-
             <text x="120" y="135" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="700">FastAPI · Firestore</text>
           </g>
         </a>
 
         <!-- ═══════ VERTEX AI / ADK box ═══════ -->
-        <rect x="360" y="320" width="580" height="320" rx="14" fill="url(#g-vertex)" stroke="#9b6dff" stroke-width="2"/>
-        <text x="650" y="350" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="3">VERTEX AI · GOOGLE ADK</text>
+        <rect x="350" y="320" width="560" height="320" rx="14" fill="url(#g-vertex)" stroke="#9b6dff" stroke-width="2"/>
+        <text x="630" y="350" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="3">VERTEX AI · GOOGLE ADK</text>
 
-        <!-- ═══════ AGENTE (descrizione cuore del progetto) ═══════ -->
-        <g transform="translate(380, 370)">
-          <rect width="540" height="100" rx="10" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
-          <text x="22" y="28" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">AGENTE</text>
+        <!-- ═══════ AGENTE (cliccabile) ═══════ -->
+        <a href="dettaglio-agente.html">
+          <g class="arch-card" transform="translate(370, 370)">
+            <rect class="arch-card-bg" width="520" height="100" rx="10" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
+            <text x="22" y="28" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">AGENTE</text>
 
-          <!-- Brain/spark icon -->
-          <g transform="translate(38, 56)" stroke="#c2a8ff" stroke-width="2" fill="none">
-            <circle cx="14" cy="14" r="13"/>
-            <path d="M14,4 v20 M4,14 h20"/>
-            <path d="M7,7 l14,14 M21,7 l-14,14" stroke-width="1" opacity="0.6"/>
+            <!-- Brain icon -->
+            <g transform="translate(38, 56)" stroke="#c2a8ff" stroke-width="2" fill="none">
+              <circle cx="14" cy="14" r="13"/>
+              <path d="M14,4 v20 M4,14 h20"/>
+              <path d="M7,7 l14,14 M21,7 l-14,14" stroke-width="1" opacity="0.6"/>
+            </g>
+
+            <text x="84" y="64" fill="#e6ecff" font-size="14" font-weight="700">LlmAgent (Google ADK) · loop ReAct</text>
+            <text x="84" y="84" fill="#c2a8ff" font-size="12" font-family="monospace">modello configurabile · Gemini 2.5 Pro / Flash</text>
           </g>
-
-          <text x="84" y="64" fill="#e6ecff" font-size="14" font-weight="700">LlmAgent (Google ADK) · loop ReAct</text>
-          <text x="84" y="84" fill="#c2a8ff" font-size="12" font-family="monospace">modello configurabile · Gemini 2.5 Pro / Flash</text>
-        </g>
+        </a>
 
         <!-- ═══════ SYSTEM PROMPT ═══════ -->
         <a href="dettaglio-prompt.html">
-          <g class="arch-card" transform="translate(380, 490)">
-            <rect class="arch-card-bg" width="260" height="130" rx="12" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
-            <text x="130" y="28" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">SYSTEM PROMPT</text>
-
-            <g transform="translate(108, 42)">
+          <g class="arch-card" transform="translate(370, 490)">
+            <rect class="arch-card-bg" width="250" height="130" rx="12" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
+            <text x="125" y="28" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">SYSTEM PROMPT</text>
+            <g transform="translate(103, 42)">
               <rect width="44" height="56" rx="4" fill="#1c1140" stroke="#c2a8ff" stroke-width="1.5"/>
               <line x1="8" y1="14" x2="36" y2="14" stroke="#c2a8ff" stroke-width="1.5"/>
               <line x1="8" y1="22" x2="36" y2="22" stroke="#c2a8ff" stroke-width="1.5"/>
               <line x1="8" y1="30" x2="36" y2="30" stroke="#c2a8ff" stroke-width="1.5"/>
               <line x1="8" y1="38" x2="28" y2="38" stroke="#c2a8ff" stroke-width="1.5"/>
             </g>
-
-            <text x="130" y="118" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">6 fasi · 7 regole</text>
+            <text x="125" y="118" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">6 fasi · 7 regole</text>
           </g>
         </a>
 
         <!-- ═══════ TOOLS ═══════ -->
         <a href="dettaglio-tool.html">
-          <g class="arch-card" transform="translate(660, 490)">
-            <rect class="arch-card-bg" width="260" height="130" rx="12" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
-            <text x="130" y="28" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">TOOLS</text>
-
-            <g transform="translate(95, 42)" stroke="#c2a8ff" stroke-width="2.5" fill="none">
+          <g class="arch-card" transform="translate(640, 490)">
+            <rect class="arch-card-bg" width="250" height="130" rx="12" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
+            <text x="125" y="28" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">TOOLS</text>
+            <g transform="translate(90, 42)" stroke="#c2a8ff" stroke-width="2.5" fill="none">
               <circle cx="14" cy="14" r="9"/>
               <circle cx="14" cy="14" r="3" fill="#c2a8ff" stroke="none"/>
               <line x1="22" y1="22" x2="50" y2="50" stroke-width="3"/>
               <line x1="46" y1="46" x2="62" y2="48" stroke-width="3"/>
               <line x1="50" y1="42" x2="62" y2="50" stroke-width="3" opacity="0.7"/>
             </g>
-
-            <text x="130" y="118" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">8 funzioni Python</text>
+            <text x="125" y="118" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">8 funzioni Python</text>
           </g>
         </a>
 
-        <!-- ═══════ BIGQUERY (sx) ═══════ -->
+        <!-- ═══════ BIGQUERY (in basso-sx, fuori dal container) ═══════ -->
         <a href="dettaglio-bigquery.html">
-          <g class="arch-card" transform="translate(40, 320)">
+          <g class="arch-card" transform="translate(40, 460)">
             <rect class="arch-card-bg" width="240" height="200" rx="14" fill="url(#g-bq)" stroke="#4285f4" stroke-width="2"/>
             <text x="120" y="32" text-anchor="middle" fill="#93b8ff" font-size="11" font-family="monospace" letter-spacing="2">DATI</text>
-
             <g transform="translate(120, 92)">
               <ellipse cx="0" cy="-22" rx="34" ry="9" fill="#4285f4" opacity="0.85"/>
               <path d="M-34,-22 v44 a34 9 0 0 0 68 0 v-44" fill="#4285f4" opacity="0.6"/>
@@ -181,18 +180,16 @@
               <ellipse cx="0" cy="0" rx="34" ry="9" fill="none" stroke="#93b8ff" stroke-width="1.5"/>
               <ellipse cx="0" cy="22" rx="34" ry="9" fill="none" stroke="#93b8ff" stroke-width="1.5"/>
             </g>
-
             <text x="120" y="170" text-anchor="middle" fill="#e6ecff" font-size="16" font-weight="700">BigQuery</text>
             <text x="120" y="188" text-anchor="middle" fill="#93b8ff" font-size="11" font-family="monospace">read-only</text>
           </g>
         </a>
 
-        <!-- ═══════ GITHUB (dx) ═══════ -->
+        <!-- ═══════ GITHUB (dx, fuori dal container) ═══════ -->
         <a href="dettaglio-github.html">
-          <g class="arch-card" transform="translate(1000, 320)">
+          <g class="arch-card" transform="translate(1000, 180)">
             <rect class="arch-card-bg" width="240" height="200" rx="14" fill="url(#g-git)" stroke="#f5a623" stroke-width="2"/>
             <text x="120" y="32" text-anchor="middle" fill="#ffce8a" font-size="11" font-family="monospace" letter-spacing="2">CODICE</text>
-
             <g transform="translate(120, 92)" stroke="#f5a623" stroke-width="3" fill="none">
               <circle cx="-22" cy="-22" r="6" fill="#f5a623" opacity="0.85" stroke="none"/>
               <circle cx="-22" cy="22"  r="6" fill="#f5a623" opacity="0.85" stroke="none"/>
@@ -200,42 +197,36 @@
               <line x1="-22" y1="-16" x2="-22" y2="16"/>
               <path d="M-22,0 q22,0 38,0"/>
             </g>
-
             <text x="120" y="170" text-anchor="middle" fill="#e6ecff" font-size="16" font-weight="700">GitHub</text>
             <text x="120" y="188" text-anchor="middle" fill="#ffce8a" font-size="11" font-family="monospace">PyGithub · PR</text>
           </g>
         </a>
 
-        <!-- ═══════ UTENTE ═══════ -->
-        <g transform="translate(40, 700)">
-          <rect width="200" height="44" rx="10" fill="#0e1430" stroke="#3a4880" stroke-width="1.5"/>
-          <text x="100" y="28" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">Utente</text>
-        </g>
+        <!-- ═══════════════════════ FRECCE ═══════════════════════ -->
 
-        <!-- ═══════ FRECCE ═══════ -->
+        <!-- Utente → Frontend (corta, diagonale) -->
+        <text x="260" y="80" fill="#9aa6cc" font-size="12" font-family="monospace" font-weight="600">richiesta</text>
+        <path d="M 240,75 L 350,180" stroke="#4f8cff" stroke-width="2" fill="none" marker-end="url(#arr-blue)" stroke-dasharray="5 4"/>
 
-        <!-- Utente → Frontend (curva da basso-sinistra a frontend in alto) -->
-        <path d="M 240,710 C 360,710 480,500 480,290" stroke="#4f8cff" stroke-width="2" fill="none" marker-end="url(#arr-blue)" stroke-dasharray="5 4"/>
-        <text x="270" y="690" fill="#9aa6cc" font-size="12" font-family="monospace" font-weight="600">richiesta</text>
+        <!-- Frontend ↔ Backend (orizzontale) -->
+        <text x="630" y="208" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace">HTTP / SSE</text>
+        <path d="M 590,215 L 670,215" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arr-purple)"/>
 
-        <!-- Frontend ↔ Backend (orizzontale, dentro container) -->
-        <path d="M 600,215 L 700,215" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arr-purple)"/>
-        <text x="650" y="208" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace">HTTP / SSE</text>
+        <!-- Backend → Vertex AI box (verticale) -->
+        <text x="808" y="310" fill="#c2a8ff" font-size="11" font-family="monospace">ADK runner</text>
+        <path d="M 790,290 L 790,320" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arr-purple)"/>
 
-        <!-- Backend → Vertex AI box (verticale, label a destra fuori traiettoria) -->
-        <path d="M 820,290 L 820,320" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arr-purple)"/>
-        <text x="838" y="308" fill="#c2a8ff" font-size="11" font-family="monospace">ADK runner</text>
+        <!-- Backend → BigQuery (a "L" esterna al container, label sopra la linea orizzontale) -->
+        <text x="450" y="282" fill="#93b8ff" font-size="12" font-family="monospace" font-weight="600">query SQL</text>
+        <path d="M 670,250 L 305,290 L 305,560 L 280,560" stroke="#4285f4" stroke-width="2" fill="none" marker-end="url(#arr-bq)" stroke-dasharray="6 4"/>
 
-        <!-- Backend → BigQuery (label posizionata sopra la linea, fuori dai blocchi) -->
-        <text x="500" y="280" fill="#93b8ff" font-size="12" font-family="monospace" font-weight="600">query SQL</text>
-        <path d="M 700,260 L 280,360" stroke="#4285f4" stroke-width="2" fill="none" marker-end="url(#arr-bq)" stroke-dasharray="6 4"/>
+        <!-- Backend → GitHub: lettura SQL -->
+        <text x="945" y="208" fill="#ffce8a" font-size="12" font-family="monospace" font-weight="600">lettura SQL</text>
+        <path d="M 910,215 L 1000,250" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#arr-git)" stroke-dasharray="6 4"/>
 
-        <!-- Backend → GitHub: due frecce con label SOPRA la linea, ben fuori dai blocchi -->
-        <text x="945" y="295" fill="#ffce8a" font-size="12" font-family="monospace" font-weight="600">lettura SQL</text>
-        <path d="M 940,310 L 1000,360" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#arr-git)" stroke-dasharray="6 4"/>
-
-        <text x="945" y="450" fill="#ffce8a" font-size="12" font-family="monospace" font-weight="600">Pull Request</text>
-        <path d="M 940,432 L 1000,470" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#arr-git)" stroke-dasharray="6 4" opacity="0.85"/>
+        <!-- Backend → GitHub: Pull Request -->
+        <text x="945" y="282" fill="#ffce8a" font-size="12" font-family="monospace" font-weight="600">Pull Request</text>
+        <path d="M 910,260 L 1000,310" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#arr-git)" stroke-dasharray="6 4" opacity="0.85"/>
 
       </svg>
     </div>
@@ -258,6 +249,11 @@
         <span class="tag run">Backend</span>
         <h3 style="margin-top:10px">API e orchestrazione</h3>
         <p>FastAPI, esecuzione asincrona, persistenza su Firestore, bus eventi.</p>
+      </a>
+      <a class="tile" href="dettaglio-agente.html">
+        <span class="tag vertex">Agente</span>
+        <h3 style="margin-top:10px">LlmAgent · loop ReAct</h3>
+        <p>Google ADK su Vertex AI, modello configurabile (Gemini 2.5 Pro / Flash).</p>
       </a>
       <a class="tile" href="dettaglio-prompt.html">
         <span class="tag vertex">Prompt</span>
