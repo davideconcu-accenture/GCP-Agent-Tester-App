@@ -583,15 +583,15 @@ function ResultsTab({
         </div>
       )}
 
-      <div className="border border-border rounded overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden bg-bg-elev shadow-elev-md transition-shadow duration-300 hover:shadow-elev-lg">
         <table className="w-full text-[13px] table-fixed">
           <thead>
-            <tr className="bg-bg-subtle border-b border-border text-2xs font-mono uppercase tracking-wider text-fg-subtle">
-              <th className="text-left font-normal px-3 py-2 w-[110px]">Esito</th>
-              <th className="text-left font-normal px-3 py-2">Test</th>
-              <th className="text-left font-normal px-3 py-2 w-[160px]">Categoria</th>
-              <th className="text-left font-normal px-3 py-2 w-[90px]">Priorità</th>
-              <th className="text-right font-normal px-3 py-2 w-[100px]">Query</th>
+            <tr className="bg-bg-subtle/60 backdrop-blur-sm border-b border-border text-2xs font-mono uppercase tracking-wider text-fg-subtle">
+              <th className="text-left font-normal px-3 py-2.5 w-[110px]">Esito</th>
+              <th className="text-left font-normal px-3 py-2.5">Test</th>
+              <th className="text-left font-normal px-3 py-2.5 w-[160px]">Categoria</th>
+              <th className="text-left font-normal px-3 py-2.5 w-[90px]">Priorità</th>
+              <th className="text-right font-normal px-3 py-2.5 w-[100px]">Query</th>
             </tr>
           </thead>
           <tbody>
@@ -605,7 +605,7 @@ function ResultsTab({
               const isOpen = expanded.has(t.id);
               return (
                 <Fragment key={t.id}>
-                  <tr className="border-b border-border last:border-b-0 align-top">
+                  <tr className="border-b border-border last:border-b-0 align-top hover:bg-accent-soft/40 transition-colors duration-200">
                     <td className="px-3 py-3 whitespace-nowrap">
                       {testStatusBadge(status)}
                     </td>
@@ -634,7 +634,7 @@ function ResultsTab({
                     </td>
                   </tr>
                   {hasQuery && isOpen && (
-                    <tr className="border-b border-border last:border-b-0 bg-bg-subtle">
+                    <tr className="border-b border-border last:border-b-0 bg-bg-subtle/50">
                       <td colSpan={5} className="px-3 py-3">
                         <div className="text-2xs font-mono uppercase tracking-wider text-fg-subtle mb-2">
                           Query SQL
@@ -644,7 +644,7 @@ function ResultsTab({
                             </span>
                           )}
                         </div>
-                        <pre className="text-2xs font-mono text-fg px-3 py-2 bg-bg border border-border rounded overflow-auto max-h-[360px] whitespace-pre leading-relaxed">
+                        <pre className="text-2xs font-mono text-fg px-3 py-2.5 bg-bg border border-border rounded-md overflow-auto max-h-[360px] whitespace-pre leading-relaxed shadow-elev-sm">
                           {t.query}
                         </pre>
                       </td>

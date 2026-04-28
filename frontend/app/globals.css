@@ -43,49 +43,55 @@
   --shadow-glow: 0 0 0 1px rgba(161,0,255,.30), 0 10px 30px rgba(161,0,255,.18);
   --shadow-inset: inset 0 1px 0 rgba(255,255,255,.6);
 
-  /* Backdrop gradients */
+  /* Backdrop gradients · viola tenue per non distrarre */
   --backdrop:
-    radial-gradient(1200px 600px at 80% -10%, rgba(161,0,255,.08), transparent 60%),
-    radial-gradient(900px 500px at -10% 20%, rgba(117,0,192,.05), transparent 60%);
+    radial-gradient(1100px 520px at 88% -18%, rgba(161,0,255,.022), transparent 65%),
+    radial-gradient(900px 460px at -10% 22%, rgba(117,0,192,.018), transparent 65%);
 
   /* Easing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg:           #0a0a14;
-    --bg-subtle:    #131322;
-    --bg-elev:      #16162b;
-    --border:       #2a2a4a;
-    --border-strong: #3a3a5e;
+[data-theme="dark"] {
+  --bg:           #0a0a14;
+  --bg-subtle:    #131322;
+  --bg-elev:      #16162b;
+  --border:       #2a2a4a;
+  --border-strong: #3a3a5e;
 
-    --fg:           #f1f0fa;
-    --fg-muted:     #a8a4c8;
-    --fg-subtle:    #6f6a92;
+  --fg:           #f1f0fa;
+  --fg-muted:     #a8a4c8;
+  --fg-subtle:    #6f6a92;
 
-    --accent:       var(--acn-purple);
-    --accent-fg:    #ffffff;
-    --accent-soft:  rgba(161,0,255,.12);
-    --accent-ring:  rgba(161,0,255,.30);
+  --accent:       var(--acn-purple);
+  --accent-fg:    #ffffff;
+  --accent-soft:  rgba(161,0,255,.12);
+  --accent-ring:  rgba(161,0,255,.30);
 
-    --success: #4ade80;
-    --danger:  #f87171;
-    --warning: #facc15;
+  --success: #4ade80;
+  --danger:  #f87171;
+  --warning: #facc15;
 
-    --shadow-sm:  0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.22);
-    --shadow-md:  0 4px 6px -1px rgba(0,0,0,.32), 0 12px 24px -8px rgba(0,0,0,.30);
-    --shadow-lg:  0 10px 20px rgba(0,0,0,.38), 0 25px 50px -12px rgba(0,0,0,.40);
-    --shadow-xl:  0 20px 40px rgba(0,0,0,.45), 0 40px 80px -20px rgba(0,0,0,.50);
-    --shadow-glow: 0 0 0 1px rgba(161,0,255,.40), 0 14px 42px rgba(161,0,255,.28);
-    --shadow-inset: inset 0 1px 0 rgba(255,255,255,.05);
+  --shadow-sm:  0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.22);
+  --shadow-md:  0 4px 6px -1px rgba(0,0,0,.32), 0 12px 24px -8px rgba(0,0,0,.30);
+  --shadow-lg:  0 10px 20px rgba(0,0,0,.38), 0 25px 50px -12px rgba(0,0,0,.40);
+  --shadow-xl:  0 20px 40px rgba(0,0,0,.45), 0 40px 80px -20px rgba(0,0,0,.50);
+  --shadow-glow: 0 0 0 1px rgba(161,0,255,.40), 0 14px 42px rgba(161,0,255,.28);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,.05);
 
-    --backdrop:
-      radial-gradient(1200px 600px at 80% -10%, rgba(161,0,255,.14), transparent 60%),
-      radial-gradient(900px 500px at -10% 20%, rgba(123,91,255,.10), transparent 60%),
-      radial-gradient(800px 400px at 50% 110%, rgba(161,0,255,.10), transparent 60%);
-  }
+  --backdrop:
+    radial-gradient(1100px 520px at 88% -18%, rgba(161,0,255,.05), transparent 65%),
+    radial-gradient(900px 460px at -10% 22%, rgba(123,91,255,.035), transparent 65%),
+    radial-gradient(800px 400px at 50% 110%, rgba(161,0,255,.035), transparent 65%);
+}
+
+/* Transizione fluida sui cambi di tema (esclude proprietà di trasformazione) */
+html[data-theme] body,
+html[data-theme] .surface,
+html[data-theme] [class*="bg-bg"],
+html[data-theme] [class*="border-"] {
+  transition: background-color .25s var(--ease-out), border-color .25s var(--ease-out), color .25s var(--ease-out);
 }
 
 * { box-sizing: border-box; }
