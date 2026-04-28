@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ETL Agent Tester — Intro</title>
+  <title>VEA — Intro</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="theme.js" defer></script>
 </head>
@@ -13,7 +13,7 @@
   <div class="nav-inner">
     <div class="brand">
       <div class="brand-mark"></div>
-      <span>Team 14 · ETL Agent Tester</span>
+      <span>Team 14 · VEA</span>
     </div>
     <div class="nav-links">
       <a href="index.html" class="active">1 · Intro</a>
@@ -29,9 +29,11 @@
   <!-- ─── HERO ─────────────────────────────────────────────────────────── -->
   <div class="hero">
     <div class="eyebrow">Team 14 · presentazione progetto</div>
-    <h1>ETL Agent Tester</h1>
+    <h1>VEA</h1>
+    <div class="vea-payoff">Verifica ETL Agentica</div>
     <p class="lede">
-      Un agente autonomo che pianifica, esegue e interpreta test su pipeline ETL BigQuery,
+      Un'<b>app agentica</b> per il testing autonomo di pipeline ETL su BigQuery:
+      pianifica i test, li esegue, individua i bug nel codice SQL
       e propone le correzioni come Pull Request.
     </p>
   </div>
@@ -81,7 +83,7 @@
     </div>
   </div>
 
-  <div class="footer">Team 14 · ETL Agent Tester · 1/4</div>
+  <div class="footer">Team 14 · VEA · 1/4</div>
 </section>
 
 <style>
@@ -128,6 +130,18 @@
     line-height: 1.65;
   }
   .intro-card p b { color: var(--fg); font-weight: 600; }
+
+  .vea-payoff {
+    margin-top: 2px;
+    margin-bottom: 18px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--acn-purple);
+  }
+  [data-theme="light"] .vea-payoff { color: var(--acn-purple-deep); }
 </style>
 
 </body>

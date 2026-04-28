@@ -1,4 +1,4 @@
-# ETL Agent Tester — Speaker Script
+# VEA · Verifica ETL Agentica — Speaker Script
 
 > **Tempo target**: ~10 minuti totali · ~2-3 minuti per slide · velocità ~150 parole/min.
 >
@@ -14,11 +14,11 @@
 ## SLIDE 1 · INTRO ~2 min
 
 ### Cosa hai sulla slide
-Titolo + sottotitolo. Quattro card numerate (01-04) in griglia 2x2: Use case, Idea, Implementazione, Limitazione dei dati.
+Logo "VEA" in grande, payoff "Verifica ETL Agentica" sotto, lede descrittiva. Quattro card numerate (01-04) in griglia 2x2: Use case, Idea, Implementazione, Limitazione dei dati.
 
 ### Discorso
 
-Buongiorno a tutti. Sono **[Davide]** del Team 14, oggi vi presento **ETL Agent Tester**.
+Buongiorno a tutti. Sono **[Davide]** del Team 14, oggi vi presento **VEA — Verifica ETL Agentica**.
 
 Vi racconto il progetto in **quattro punti**.
 
