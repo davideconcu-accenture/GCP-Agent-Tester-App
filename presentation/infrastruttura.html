@@ -27,10 +27,10 @@
 <section class="container-wide">
   <a class="back" href="index.html">← intro</a>
   <div class="eyebrow">02 · Infrastruttura</div>
-  <h1 style="margin-top:14px">Architettura del sistema</h1>
+  <h1 style="margin-top:14px">L'infrastruttura in tre blocchi</h1>
   <p class="lede">
-    Tre componenti distinti, collegati tra loro: i dati su BigQuery, l'app
-    agentica su Cloud Run, il codice SQL versionato su GitHub.
+    Tre componenti distinti, collegati tra loro: i dati su BigQuery,
+    l'app agentica su Cloud Run, il codice SQL versionato su GitHub.
   </p>
 
   <!-- ─── DIAGRAMMA INFRASTRUTTURALE ───────────────────────────── -->
@@ -179,6 +179,57 @@
     </div>
   </div>
 
+  <!-- ─── PUNTI CHIAVE · TILE STILE INTRO ─────────────────────────────── -->
+  <div class="section">
+    <div class="grid-2 intro-grid">
+
+      <div class="intro-card">
+        <span class="intro-num">01</span>
+        <h3>BigQuery · il data layer</h3>
+        <p>
+          Tre livelli di tabelle organizzati in dataset: <b>tabelle sorgente</b> lette
+          dagli ETL, <b>tabelle di staging</b> intermedie prodotte durante l'elaborazione,
+          <b>tabelle finali</b> create dagli ETL come output. L'agente le interroga
+          sempre via service account dedicato, in sola lettura.
+        </p>
+      </div>
+
+      <div class="intro-card">
+        <span class="intro-num">02</span>
+        <h3>Cloud Run · l'app agentica</h3>
+        <p>
+          Frontend e backend deployati come container su <b>Cloud Run</b>, il servizio
+          serverless di Google. Il backend orchestra l'agente sfruttando due servizi
+          gestiti: <b>Vertex AI</b> per il modello Gemini e <b>Google Agent Development
+          Kit (ADK)</b> per il loop ReAct e la registrazione dei tool.
+        </p>
+      </div>
+
+      <div class="intro-card">
+        <span class="intro-num">03</span>
+        <h3>GitHub · il codice ETL</h3>
+        <p>
+          Il repository contiene il <b>codice SQL degli ETL</b>, una cartella per pipeline.
+          Per la demo abbiamo iniettato volutamente alcuni bug nei file —
+          formule sbagliate, join errati, valori inattesi — così l'agente ha
+          qualcosa di concreto da individuare e correggere.
+        </p>
+      </div>
+
+      <div class="intro-card">
+        <span class="intro-num">04</span>
+        <h3>Bus eventi · tracciabilità in tempo reale</h3>
+        <p>
+          Ogni passo dell'agente — ragionamento, tool call, risultato — è
+          persistito su <b>Firestore</b> e replicato in tempo reale al frontend via SSE.
+          L'utente vede l'esecuzione passo-passo; gli eventi restano disponibili
+          per audit e replay anche dopo la chiusura del run.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
   <div class="footer">Team 14 · VEA · 2/4</div>
 </section>
 
@@ -187,6 +238,60 @@
   .diagram-block:hover .block-bg {
     stroke-width: 3;
     filter: drop-shadow(0 0 14px color-mix(in srgb, var(--accent) 40%, transparent));
+  }
+
+  /* Tile stile Intro · coerenti con la slide 1 */
+  .intro-grid { gap: 24px; }
+  .intro-card {
+    position: relative;
+    padding: 28px 26px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-md), var(--shadow-inset);
+    transition: box-shadow .3s var(--ease-out), border-color .25s var(--ease-out);
+  }
+  .intro-card:hover {
+    box-shadow: var(--shadow-lg), var(--shadow-inset);
+    border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  }
+  .intro-num {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--acn-purple);
+    background: rgba(161, 0, 255, 0.10);
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  [data-theme="light"] .intro-num {
+    color: var(--acn-purple-deep);
+    background: rgba(161, 0, 255, 0.08);
+  }
+  .intro-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .intro-card p {
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: 14.5px;
+    line-height: 1.65;
+  }
+  .intro-card p b { color: var(--fg); font-weight: 600; }
+  .intro-card p code {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--fg);
   }
 </style>
 

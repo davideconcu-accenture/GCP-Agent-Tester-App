@@ -49,7 +49,7 @@ Nei prossimi minuti vediamo l'**architettura del sistema**, il **flusso operativ
 ## SLIDE 2 · INFRASTRUTTURA ~2 min
 
 ### Cosa hai sulla slide
-Titolo, lede, e un grosso diagramma SVG con tre blocchi affiancati: BigQuery a sinistra (blu), Cloud Run al centro (verde), GitHub a destra (arancione). Frecce etichettate che li collegano.
+Titolo "L'infrastruttura in tre blocchi" + lede, e un grosso diagramma SVG con tre blocchi affiancati: BigQuery a sinistra (blu), Cloud Run al centro (verde), GitHub a destra (arancione). Frecce etichettate che li collegano. Sotto il diagramma, **4 tile numerate (01-04)** in stile slide 1 che descrivono i componenti: BigQuery (data layer), Cloud Run (app agentica), GitHub (codice ETL), Bus eventi (tracciabilità in tempo reale).
 
 ### Discorso
 
@@ -72,6 +72,12 @@ A destra c'è **GitHub**, dove vive il codice SQL degli ETL — una cartella per
 👉 *Indica le frecce tra i blocchi*
 
 Le frecce mostrano le interazioni: l'app interroga BigQuery in lettura, legge il SQL da GitHub, propone Pull Request a GitHub. Tre componenti, tre responsabilità, una **separation of concerns netta** che rende il sistema facile da capire, da auditare e da estendere.
+
+⏸
+
+👉 *Scorri verso le 4 tile sotto il diagramma — puoi puntarle solo se hai tempo, altrimenti cita oralmente i 4 takeaway*
+
+I quattro takeaway architetturali, riassunti: **sola lettura su BigQuery**, **cloud-native gestito** senza infrastruttura custom, **tracciabilità end-to-end** degli eventi via Firestore e SSE, e **merge sempre umano** — l'agente apre la PR, ma non tocca il branch principale.
 
 ▶ *passa a slide 3*
 
