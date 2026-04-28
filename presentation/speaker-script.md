@@ -137,11 +137,10 @@ Tutto il flusso è **tracciato in tempo reale** sul frontend, e ogni fix viene *
 ## SLIDE 4 · DETTAGLIO ~2.5 - 3 min
 
 ### Cosa hai sulla slide
-La slide è strutturata in 4 parti chiare:
+La slide è strutturata in 3 parti chiare:
 - **Parte 1** · I tre ingredienti dell'agente (3 card: Cervello / Manuale / Mani)
 - **Parte 2** · Il loop ReAct (diagramma + esempio passo-passo)
 - **Parte 3** · Architettura completa (diagramma generale del sistema)
-- **Parte 4** · Scelte chiave (4 bullet)
 - In fondo: tile di approfondimento per Q&A.
 
 ### Discorso
@@ -205,20 +204,6 @@ Il vantaggio architetturale di questo schema è che **ogni passo è esplicito e 
 👉 *Scorri verso il diagramma grande*
 
 A questo punto il quadro completo. L'agente è qui al centro, dentro Vertex AI, gestito dal runtime di Google ADK. Il backend FastAPI lo orchestra, espone le API verso il frontend e mantiene il bus eventi. Il frontend Next.js mostra in tempo reale ogni passo via Server-Sent Events. BigQuery è la sorgente dei dati; GitHub è il repository del codice. Sono le stesse interazioni della slide 2, viste dall'interno del container.
-
-#### Parte 4 — Scelte chiave
-
-👉 *Scorri verso i 4 bullet*
-
-Concludo con quattro decisioni progettuali che voglio sottolineare.
-
-**Singolo agente, non multi-agente**: un solo loop ReAct con accesso diretto a tutti gli otto tool. In un workflow lineare e ben definito come il nostro, un'architettura multi-agente avrebbe aggiunto complessità senza beneficio. Single-agent significa meno parti mobili, meno punti di fallimento, e una tracciabilità più semplice.
-
-**Modello configurabile**: Pro per accuratezza, Flash per velocità. La scelta passa dall'utente al momento della richiesta. Non c'è dipendenza forte dal modello specifico.
-
-**Limite di 40 iterazioni del loop ReAct**: è un safety net contro eventuali loop infiniti. Nei run reali il numero di iterazioni si attesta tra 15 e 25.
-
-**Cancellazione cooperativa**: l'utente può interrompere il run in qualsiasi momento dal frontend. Il task asincrono riceve il segnale di cancellazione e termina pulitamente, salvando lo stato parziale.
 
 ⏸
 

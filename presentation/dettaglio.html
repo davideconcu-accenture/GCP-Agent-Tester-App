@@ -37,9 +37,10 @@
   <div class="section">
     <div class="section-head">
       <div class="eyebrow">parte 1</div>
-      <h2 style="margin-top:8px">Cos'è l'agente — tre ingredienti</h2>
+      <h2 style="margin-top:8px">Da cosa è composto l'agente</h2>
       <p class="lede" style="margin-top:8px">
-        "Agente IA" è un termine vago. Concretamente, il nostro agente è la combinazione di tre cose distinte e sostituibili.
+        L'agente è l'integrazione di tre componenti distinti, ciascuno sostituibile in modo indipendente:
+        un modello di linguaggio, un set di istruzioni operative e una libreria di funzioni Python.
       </p>
     </div>
 
@@ -52,16 +53,18 @@
             <path d="M28 24h8M28 32h8M28 40h8"/>
           </svg>
         </div>
-        <span class="tag vertex">il cervello</span>
+        <span class="tag vertex">modello LLM</span>
         <h3 style="margin-top:10px">Modello Gemini</h3>
         <p style="color:var(--fg-muted); font-size:14px; line-height:1.6">
-          Un Large Language Model di Google ospitato su Vertex AI.
-          È la parte che <b>ragiona</b>: legge la richiesta, decide cosa fare, formula la risposta finale.
+          Large Language Model multimodale di Google, ospitato su Vertex AI.
+          A ogni iterazione interpreta la richiesta, valuta il contesto accumulato e decide
+          se invocare un tool o produrre la risposta finale. Espone la capability di
+          <b>function calling</b>, base operativa del loop ReAct.
         </p>
         <ul class="bullets vertex" style="margin-top:14px">
           <li>Default: <code>gemini-2.5-pro</code></li>
           <li>Alternativa: <code>gemini-2.5-flash</code></li>
-          <li>Selezionabile dall'utente</li>
+          <li>Selezionabile dall'utente al momento della richiesta</li>
         </ul>
       </div>
 
@@ -75,16 +78,18 @@
             <line x1="20" y1="44" x2="36" y2="44"/>
           </svg>
         </div>
-        <span class="tag vertex">il manuale</span>
+        <span class="tag vertex">istruzioni</span>
         <h3 style="margin-top:10px">System prompt</h3>
         <p style="color:var(--fg-muted); font-size:14px; line-height:1.6">
-          Le <b>istruzioni operative</b> che diamo al modello, scritte in italiano.
-          È come una procedura aziendale: definisce cosa fare, in che ordine, e cosa non fare mai.
+          Testo in italiano che vincola il comportamento dell'agente al dominio specifico.
+          Definisce le <b>sei fasi sequenziali</b> del workflow — dalla lettura del codice
+          alla creazione della Pull Request — e <b>sette regole non negoziabili</b>
+          (es. niente DDL su BigQuery, validazione obbligatoria della fix sui dati reali).
         </p>
         <ul class="bullets vertex" style="margin-top:14px">
-          <li><b>6 fasi</b> di workflow</li>
-          <li><b>7 regole</b> critiche di sicurezza</li>
+          <li>Vive nel codice del backend</li>
           <li>Modificabile senza riaddestrare il modello</li>
+          <li>Versionato come il resto del codice</li>
         </ul>
       </div>
 
@@ -99,17 +104,19 @@
             <path d="M12 26 L20 22 L20 42 L12 38 Z" fill="currentColor" stroke="none" opacity=".25"/>
           </svg>
         </div>
-        <span class="tag vertex">le mani</span>
-        <h3 style="margin-top:10px">Otto tool Python</h3>
+        <span class="tag vertex">tool</span>
+        <h3 style="margin-top:10px">Otto funzioni Python</h3>
         <p style="color:var(--fg-muted); font-size:14px; line-height:1.6">
-          Le <b>funzioni</b> che il modello può invocare per agire sul mondo.
-          Senza tool il modello solo "parla"; con i tool può leggere file, eseguire query, aprire PR.
+          Funzioni Python registrate nell'ADK come <code>FunctionTool</code>.
+          Le loro signature tipizzate vengono convertite in JSON Schema e passate al modello,
+          che le invoca quando ha bisogno di leggere o agire sul mondo esterno —
+          BigQuery, GitHub, bus eventi del backend.
         </p>
         <ul class="bullets vertex" style="margin-top:14px">
           <li>Lettura SQL da GitHub</li>
           <li>Esecuzione query BigQuery</li>
           <li>Apertura Pull Request</li>
-          <li>+ 5 funzioni di workflow</li>
+          <li>+ 5 funzioni di workflow (piano, risultati, fix, report)</li>
         </ul>
       </div>
     </div>
@@ -400,25 +407,6 @@
     </div>
   </div>
 
-  <!-- ─── PARTE 4 · SCELTE CHIAVE ──────────────────────────────────────── -->
-  <div class="section">
-    <div class="section-head">
-      <div class="eyebrow">parte 4</div>
-      <h2 style="margin-top:8px">Scelte chiave</h2>
-      <p class="lede" style="margin-top:8px">
-        Quattro decisioni progettuali che definiscono il perimetro del sistema.
-      </p>
-    </div>
-    <div class="card">
-      <ul class="bullets vertex">
-        <li><b>Singolo agente, non multi-agente</b> — un solo loop ReAct con accesso diretto a tutti gli 8 tool. Più semplice da debuggare, più tracciabile, meno parti mobili.</li>
-        <li><b>Modello configurabile</b> — Gemini 2.5 Pro per accuratezza, Flash per velocità. Scelta dell'utente, nessun lock-in.</li>
-        <li><b>Limite di 40 iterazioni</b> — safety net contro loop infiniti; il workflow reale ne usa 15-25.</li>
-        <li><b>Cancellazione cooperativa</b> — l'utente può interrompere il run in qualsiasi momento dal frontend.</li>
-      </ul>
-    </div>
-  </div>
-
   <!-- ─── APPROFONDIMENTI ──────────────────────────────────────────────── -->
   <div class="section">
     <div class="section-head" style="margin-bottom:16px">
@@ -461,6 +449,33 @@
         <h3 style="margin-top:10px">Repository e PR</h3>
         <p>Token, branch, gestione delle PR.</p>
       </a>
+    </div>
+  </div>
+
+  <!-- ─── TEAM ──────────────────────────────────────────────────────────── -->
+  <div class="section team-section">
+    <div class="team-eyebrow">Team 14</div>
+    <div class="team-list">
+      <div class="team-member">
+        <div class="team-name">Carmelo Catalano</div>
+        <a class="team-email" href="mailto:c.catalano.puma@accenture.com">c.catalano.puma@accenture.com</a>
+      </div>
+      <div class="team-member">
+        <div class="team-name">Davide Concu</div>
+        <a class="team-email" href="mailto:davide.concu@accenture.com">davide.concu@accenture.com</a>
+      </div>
+      <div class="team-member">
+        <div class="team-name">Fulvio Collura</div>
+        <a class="team-email" href="mailto:fulvio.collura@accenture.com">fulvio.collura@accenture.com</a>
+      </div>
+      <div class="team-member">
+        <div class="team-name">Luca Codecasa</div>
+        <a class="team-email" href="mailto:luca.codecasa@accenture.com">luca.codecasa@accenture.com</a>
+      </div>
+      <div class="team-member">
+        <div class="team-name">Shelly Kurera</div>
+        <a class="team-email" href="mailto:s.warnakulasooriya@accenture.com">s.warnakulasooriya@accenture.com</a>
+      </div>
     </div>
   </div>
 
