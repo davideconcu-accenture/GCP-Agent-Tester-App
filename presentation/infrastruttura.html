@@ -187,10 +187,9 @@
         <span class="intro-num">01</span>
         <h3>BigQuery · il data layer</h3>
         <p>
-          Tre livelli di tabelle organizzati in dataset: <b>tabelle sorgente</b> lette
-          dagli ETL, <b>tabelle di staging</b> intermedie prodotte durante l'elaborazione,
-          <b>tabelle finali</b> create dagli ETL come output. L'agente le interroga
-          sempre via service account dedicato, in sola lettura.
+          Tre livelli di tabelle: <b>sorgente</b> lette dagli ETL,
+          <b>staging</b> intermedie, <b>finali</b> prodotte come output.
+          L'agente le interroga via service account dedicato, in sola lettura.
         </p>
       </div>
 
@@ -198,10 +197,9 @@
         <span class="intro-num">02</span>
         <h3>Cloud Run · l'app agentica</h3>
         <p>
-          Frontend e backend deployati come container su <b>Cloud Run</b>, il servizio
-          serverless di Google. Il backend orchestra l'agente sfruttando due servizi
-          gestiti: <b>Vertex AI</b> per il modello Gemini e <b>Google Agent Development
-          Kit (ADK)</b> per il loop ReAct e la registrazione dei tool.
+          Frontend e backend deployati come container su <b>Cloud Run</b>.
+          Il backend orchestra l'agente sfruttando <b>Vertex AI</b> per il modello Gemini
+          e <b>Google Agent Development Kit (ADK)</b> per il loop ReAct.
         </p>
       </div>
 
@@ -209,10 +207,9 @@
         <span class="intro-num">03</span>
         <h3>GitHub · il codice ETL</h3>
         <p>
-          Il repository contiene il <b>codice SQL degli ETL</b>, una cartella per pipeline.
-          Per la demo abbiamo iniettato volutamente alcuni bug nei file —
-          formule sbagliate, join errati, valori inattesi — così l'agente ha
-          qualcosa di concreto da individuare e correggere.
+          Il repository ospita il <b>codice SQL degli ETL</b>, una cartella per pipeline.
+          Per la demo abbiamo iniettato volutamente alcuni bug — formule errate,
+          join sbagliati — così l'agente ha qualcosa di concreto da trovare.
         </p>
       </div>
 
@@ -220,10 +217,8 @@
         <span class="intro-num">04</span>
         <h3>Bus eventi · tracciabilità in tempo reale</h3>
         <p>
-          Ogni passo dell'agente — ragionamento, tool call, risultato — è
-          persistito su <b>Firestore</b> e replicato in tempo reale al frontend via SSE.
-          L'utente vede l'esecuzione passo-passo; gli eventi restano disponibili
-          per audit e replay anche dopo la chiusura del run.
+          Ogni passo dell'agente è persistito su <b>Firestore</b> e replicato al frontend via SSE.
+          L'utente vede l'esecuzione passo-passo; gli eventi restano disponibili per audit anche dopo il run.
         </p>
       </div>
 
