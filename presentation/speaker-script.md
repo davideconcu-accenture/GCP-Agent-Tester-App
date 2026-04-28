@@ -86,7 +86,7 @@ I quattro takeaway architetturali, riassunti: **sola lettura su BigQuery**, **cl
 ## SLIDE 3 · FUNZIONAMENTO ~2 min
 
 ### Cosa hai sulla slide
-Diagramma di flusso con 7 step numerati: utente → recupera SQL → check tabelle → piano test → esecuzione → bivio decisionale → report (verde) o investiga + fix + PR (rosso/arancione).
+Diagramma di flusso con 7 step numerati: utente → recupera SQL → check tabelle → piano test → esecuzione → bivio decisionale → report (verde) o investiga + fix + PR (rosso/arancione). In ogni blocco è visibile in monospace il **tool dell'agente** invocato in quella fase (es. `read_sql_code`, `execute_bigquery_query`).
 
 ### Discorso
 
