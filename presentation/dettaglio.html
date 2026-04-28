@@ -24,19 +24,211 @@
   </div>
 </nav>
 
-<section class="container-wide">
+<section class="container">
   <a class="back" href="funzionamento.html">← funzionamento</a>
-  <div class="eyebrow">04 · Dettaglio tecnico</div>
-  <h1 style="margin-top:14px">Approfondimenti tecnici</h1>
+  <div class="eyebrow">04 · Dettaglio</div>
+  <h1 style="margin-top:14px">L'agente in dettaglio</h1>
   <p class="lede">
-    Diagramma infrastrutturale completo. Clicca su un blocco per accedere al
-    deep-dive corrispondente.
+    Un singolo agente IA. Tre ingredienti. Un loop di ragionamento.
+    Vediamo, con parole semplici, cos'è davvero e come funziona.
   </p>
 
-  <!-- ─── DIAGRAMMA CLICCABILE ──────────────────────────────────────── -->
+  <!-- ─── PARTE 1 · I TRE INGREDIENTI ─────────────────────────────────── -->
   <div class="section">
+    <div class="section-head">
+      <div class="eyebrow">parte 1</div>
+      <h2 style="margin-top:8px">Cos'è l'agente — tre ingredienti</h2>
+      <p class="lede" style="margin-top:8px">
+        "Agente IA" è un termine vago. Concretamente, il nostro agente è la combinazione di tre cose distinte e sostituibili.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="ingredient-icon">
+          <svg viewBox="0 0 64 64" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 14a8 8 0 0 0-8 8v2a8 8 0 0 0-4 7 8 8 0 0 0 4 7v2a8 8 0 0 0 8 8h6V14h-6z"/>
+            <path d="M42 14a8 8 0 0 1 8 8v2a8 8 0 0 1 4 7 8 8 0 0 1-4 7v2a8 8 0 0 1-8 8h-6V14h6z"/>
+            <path d="M28 24h8M28 32h8M28 40h8"/>
+          </svg>
+        </div>
+        <span class="tag vertex">il cervello</span>
+        <h3 style="margin-top:10px">Modello Gemini</h3>
+        <p style="color:var(--fg-muted); font-size:14px; line-height:1.6">
+          Un Large Language Model di Google ospitato su Vertex AI.
+          È la parte che <b>ragiona</b>: legge la richiesta, decide cosa fare, formula la risposta finale.
+        </p>
+        <ul class="bullets vertex" style="margin-top:14px">
+          <li>Default: <code>gemini-2.5-pro</code></li>
+          <li>Alternativa: <code>gemini-2.5-flash</code></li>
+          <li>Selezionabile dall'utente</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="ingredient-icon">
+          <svg viewBox="0 0 64 64" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="14" y="10" width="36" height="44" rx="3"/>
+            <line x1="20" y1="20" x2="44" y2="20"/>
+            <line x1="20" y1="28" x2="44" y2="28"/>
+            <line x1="20" y1="36" x2="44" y2="36"/>
+            <line x1="20" y1="44" x2="36" y2="44"/>
+          </svg>
+        </div>
+        <span class="tag vertex">il manuale</span>
+        <h3 style="margin-top:10px">System prompt</h3>
+        <p style="color:var(--fg-muted); font-size:14px; line-height:1.6">
+          Le <b>istruzioni operative</b> che diamo al modello, scritte in italiano.
+          È come una procedura aziendale: definisce cosa fare, in che ordine, e cosa non fare mai.
+        </p>
+        <ul class="bullets vertex" style="margin-top:14px">
+          <li><b>6 fasi</b> di workflow</li>
+          <li><b>7 regole</b> critiche di sicurezza</li>
+          <li>Modificabile senza riaddestrare il modello</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="ingredient-icon">
+          <svg viewBox="0 0 64 64" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 32 L26 32"/>
+            <circle cx="32" cy="32" r="6"/>
+            <circle cx="32" cy="32" r="2" fill="currentColor"/>
+            <path d="M38 32 L50 32"/>
+            <path d="M44 26 L52 22 L52 42 L44 38 Z" fill="currentColor" stroke="none" opacity=".25"/>
+            <path d="M12 26 L20 22 L20 42 L12 38 Z" fill="currentColor" stroke="none" opacity=".25"/>
+          </svg>
+        </div>
+        <span class="tag vertex">le mani</span>
+        <h3 style="margin-top:10px">Otto tool Python</h3>
+        <p style="color:var(--fg-muted); font-size:14px; line-height:1.6">
+          Le <b>funzioni</b> che il modello può invocare per agire sul mondo.
+          Senza tool il modello solo "parla"; con i tool può leggere file, eseguire query, aprire PR.
+        </p>
+        <ul class="bullets vertex" style="margin-top:14px">
+          <li>Lettura SQL da GitHub</li>
+          <li>Esecuzione query BigQuery</li>
+          <li>Apertura Pull Request</li>
+          <li>+ 5 funzioni di workflow</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── PARTE 2 · LOOP REACT ─────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="eyebrow">parte 2</div>
+      <h2 style="margin-top:8px">Come ragiona — il loop ReAct</h2>
+      <p class="lede" style="margin-top:8px">
+        L'agente non risponde in un colpo solo. Pensa a voce alta, sceglie uno strumento,
+        osserva il risultato, e ripete. Esattamente come uno sviluppatore davanti a un bug.
+      </p>
+    </div>
+
     <div class="card">
-      <svg class="arch-svg" viewBox="0 0 1280 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagramma infrastrutturale completo">
+      <svg viewBox="0 0 1100 220" style="width:100%; height:auto" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#9b6dff"/>
+          </marker>
+        </defs>
+
+        <!-- 1 PENSA -->
+        <g transform="translate(20, 70)">
+          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">1 · PENSA</text>
+          <text x="120" y="62" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">ragionamento</text>
+          <text x="120" y="84" text-anchor="middle" fill="#9aa6cc" font-size="12">decide il prossimo passo</text>
+        </g>
+
+        <!-- 2 AGISCE -->
+        <g transform="translate(290, 70)">
+          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">2 · AGISCE</text>
+          <text x="120" y="62" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">tool call</text>
+          <text x="120" y="84" text-anchor="middle" fill="#9aa6cc" font-size="12">invoca una funzione</text>
+        </g>
+
+        <!-- 3 OSSERVA -->
+        <g transform="translate(560, 70)">
+          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">3 · OSSERVA</text>
+          <text x="120" y="62" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">tool response</text>
+          <text x="120" y="84" text-anchor="middle" fill="#9aa6cc" font-size="12">valuta il risultato</text>
+        </g>
+
+        <!-- FINE -->
+        <g transform="translate(830, 70)">
+          <rect width="240" height="100" rx="12" fill="#0f2a1f" stroke="#34a853" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">FINE</text>
+          <text x="120" y="62" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">report finale</text>
+          <text x="120" y="84" text-anchor="middle" fill="#9aa6cc" font-size="12">workflow completato</text>
+        </g>
+
+        <!-- frecce orizzontali -->
+        <path d="M 260,120 L 290,120" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
+        <path d="M 530,120 L 560,120" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
+        <path d="M 800,120 L 830,120" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
+
+        <!-- ricircolo -->
+        <path d="M 680,170 C 680,210 410,210 410,170" stroke="#9b6dff" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#arA)"/>
+        <text x="545" y="215" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace">se non ha finito, riparte</text>
+      </svg>
+    </div>
+
+    <!-- Esempio concreto -->
+    <div class="card" style="margin-top:20px">
+      <h3 style="margin-bottom:14px">Esempio concreto · "verifica i saldi correnti"</h3>
+      <div class="react-example">
+        <div class="react-step">
+          <span class="react-label">PENSA</span>
+          <span class="react-text">"per partire devo prima leggere il SQL dell'ETL"</span>
+        </div>
+        <div class="react-step">
+          <span class="react-label">AGISCE</span>
+          <span class="react-text"><code>read_sql_code("saldi_correnti")</code></span>
+        </div>
+        <div class="react-step">
+          <span class="react-label">OSSERVA</span>
+          <span class="react-text">riceve il testo del file SQL</span>
+        </div>
+        <div class="react-step">
+          <span class="react-label">PENSA</span>
+          <span class="react-text">"il SQL fa join tra <code>movimenti</code> e <code>conti</code> — verifico che esistano"</span>
+        </div>
+        <div class="react-step">
+          <span class="react-label">AGISCE</span>
+          <span class="react-text"><code>execute_bigquery_query("SELECT ... INFORMATION_SCHEMA.TABLES")</code></span>
+        </div>
+        <div class="react-step">
+          <span class="react-label">OSSERVA</span>
+          <span class="react-text">tabelle presenti</span>
+        </div>
+        <div class="react-step">
+          <span class="react-label">PENSA</span>
+          <span class="react-text">"ora pianifico i test mirati ai totali"</span>
+        </div>
+        <div class="react-step react-step-more">
+          <span class="react-text" style="color:var(--fg-subtle); font-style:italic">… e così via, fino al report finale o alla Pull Request.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PARTE 3 · ARCHITETTURA COMPLETA ──────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="eyebrow">parte 3</div>
+      <h2 style="margin-top:8px">L'architettura completa</h2>
+      <p class="lede" style="margin-top:8px">
+        Tutto il sistema in un colpo d'occhio: l'agente al centro, dati e codice ai lati, l'utente che parla con il frontend.
+      </p>
+    </div>
+
+    <div class="card">
+      <svg class="arch-svg" viewBox="0 0 1280 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Architettura completa del sistema">
         <defs>
           <linearGradient id="g-bq" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stop-color="#1d3a72"/><stop offset="1" stop-color="#0f1f44"/>
@@ -64,167 +256,143 @@
           </marker>
         </defs>
 
-        <!-- ═══════ UTENTE (alto-sx, fuori dal container) ═══════ -->
+        <!-- UTENTE -->
         <g transform="translate(40, 40)">
           <rect width="200" height="44" rx="10" fill="#0e1430" stroke="#3a4880" stroke-width="1.5"/>
           <text x="100" y="28" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">Utente</text>
         </g>
 
-        <!-- ═══════ Cloud Run container ═══════ -->
+        <!-- Cloud Run container -->
         <rect x="320" y="100" width="620" height="560" rx="20"
               fill="none" stroke="#34a853" stroke-width="1.5" stroke-dasharray="6 6" opacity="0.7"/>
         <text x="630" y="86" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="3">GOOGLE CLOUD RUN · CONTAINER</text>
 
-        <!-- ═══════ FRONTEND ═══════ -->
-        <a href="dettaglio-frontend.html">
-          <g class="arch-card" transform="translate(350, 140)">
-            <rect class="arch-card-bg" width="240" height="150" rx="12" fill="url(#g-run)" stroke="#34a853" stroke-width="2"/>
-            <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">FRONTEND</text>
-            <g transform="translate(80, 50)">
-              <rect width="80" height="58" rx="6" fill="none" stroke="#8fe0a4" stroke-width="2"/>
-              <line x1="0" y1="14" x2="80" y2="14" stroke="#8fe0a4" stroke-width="2"/>
-              <circle cx="8"  cy="7" r="2" fill="#8fe0a4"/>
-              <circle cx="16" cy="7" r="2" fill="#8fe0a4"/>
-              <circle cx="24" cy="7" r="2" fill="#8fe0a4"/>
-              <rect x="10" y="22" width="36" height="4" fill="#34a853" opacity="0.6"/>
-              <rect x="10" y="32" width="50" height="4" fill="#34a853" opacity="0.45"/>
-              <rect x="10" y="42" width="30" height="4" fill="#34a853" opacity="0.45"/>
-            </g>
-            <text x="120" y="135" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="700">Next.js · SSE</text>
+        <!-- FRONTEND -->
+        <g class="arch-card" transform="translate(350, 140)">
+          <rect class="arch-card-bg" width="240" height="150" rx="12" fill="url(#g-run)" stroke="#34a853" stroke-width="2"/>
+          <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">FRONTEND</text>
+          <g transform="translate(80, 50)">
+            <rect width="80" height="58" rx="6" fill="none" stroke="#8fe0a4" stroke-width="2"/>
+            <line x1="0" y1="14" x2="80" y2="14" stroke="#8fe0a4" stroke-width="2"/>
+            <circle cx="8"  cy="7" r="2" fill="#8fe0a4"/>
+            <circle cx="16" cy="7" r="2" fill="#8fe0a4"/>
+            <circle cx="24" cy="7" r="2" fill="#8fe0a4"/>
+            <rect x="10" y="22" width="36" height="4" fill="#34a853" opacity="0.6"/>
+            <rect x="10" y="32" width="50" height="4" fill="#34a853" opacity="0.45"/>
+            <rect x="10" y="42" width="30" height="4" fill="#34a853" opacity="0.45"/>
           </g>
-        </a>
+          <text x="120" y="135" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="700">Next.js · SSE</text>
+        </g>
 
-        <!-- ═══════ BACKEND ═══════ -->
-        <a href="dettaglio-backend.html">
-          <g class="arch-card" transform="translate(670, 140)">
-            <rect class="arch-card-bg" width="240" height="150" rx="12" fill="url(#g-run)" stroke="#34a853" stroke-width="2"/>
-            <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">BACKEND</text>
-            <g transform="translate(80, 50)">
-              <rect x="0"  y="0"  width="80" height="18" rx="3" fill="none" stroke="#8fe0a4" stroke-width="2"/>
-              <rect x="0"  y="22" width="80" height="18" rx="3" fill="none" stroke="#8fe0a4" stroke-width="2"/>
-              <rect x="0"  y="44" width="80" height="18" rx="3" fill="none" stroke="#8fe0a4" stroke-width="2"/>
-              <circle cx="8" cy="9"  r="2" fill="#34a853"/>
-              <circle cx="8" cy="31" r="2" fill="#34a853"/>
-              <circle cx="8" cy="53" r="2" fill="#34a853"/>
-              <rect x="18" y="6"  width="40" height="6" fill="#34a853" opacity="0.55"/>
-              <rect x="18" y="28" width="48" height="6" fill="#34a853" opacity="0.55"/>
-              <rect x="18" y="50" width="36" height="6" fill="#34a853" opacity="0.55"/>
-            </g>
-            <text x="120" y="135" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="700">FastAPI · Firestore</text>
+        <!-- BACKEND -->
+        <g class="arch-card" transform="translate(670, 140)">
+          <rect class="arch-card-bg" width="240" height="150" rx="12" fill="url(#g-run)" stroke="#34a853" stroke-width="2"/>
+          <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">BACKEND</text>
+          <g transform="translate(80, 50)">
+            <rect x="0"  y="0"  width="80" height="18" rx="3" fill="none" stroke="#8fe0a4" stroke-width="2"/>
+            <rect x="0"  y="22" width="80" height="18" rx="3" fill="none" stroke="#8fe0a4" stroke-width="2"/>
+            <rect x="0"  y="44" width="80" height="18" rx="3" fill="none" stroke="#8fe0a4" stroke-width="2"/>
+            <circle cx="8" cy="9"  r="2" fill="#34a853"/>
+            <circle cx="8" cy="31" r="2" fill="#34a853"/>
+            <circle cx="8" cy="53" r="2" fill="#34a853"/>
+            <rect x="18" y="6"  width="40" height="6" fill="#34a853" opacity="0.55"/>
+            <rect x="18" y="28" width="48" height="6" fill="#34a853" opacity="0.55"/>
+            <rect x="18" y="50" width="36" height="6" fill="#34a853" opacity="0.55"/>
           </g>
-        </a>
+          <text x="120" y="135" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="700">FastAPI · Firestore</text>
+        </g>
 
-        <!-- ═══════ VERTEX AI / ADK box ═══════ -->
+        <!-- VERTEX AI / ADK box -->
         <rect x="350" y="320" width="560" height="320" rx="14" fill="url(#g-vertex)" stroke="#9b6dff" stroke-width="2"/>
         <text x="630" y="350" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="3">VERTEX AI · GOOGLE ADK</text>
 
-        <!-- ═══════ AGENTE (cliccabile) ═══════ -->
-        <a href="dettaglio-agente.html">
-          <g class="arch-card" transform="translate(370, 370)">
-            <rect class="arch-card-bg" width="520" height="100" rx="10" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
-            <text x="22" y="28" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">AGENTE</text>
-
-            <!-- Brain icon -->
-            <g transform="translate(38, 56)" stroke="#c2a8ff" stroke-width="2" fill="none">
-              <circle cx="14" cy="14" r="13"/>
-              <path d="M14,4 v20 M4,14 h20"/>
-              <path d="M7,7 l14,14 M21,7 l-14,14" stroke-width="1" opacity="0.6"/>
-            </g>
-
-            <text x="84" y="64" fill="#e6ecff" font-size="14" font-weight="700">LlmAgent (Google ADK) · loop ReAct</text>
-            <text x="84" y="84" fill="#c2a8ff" font-size="12" font-family="monospace">modello configurabile · Gemini 2.5 Pro / Flash</text>
+        <!-- AGENTE -->
+        <g class="arch-card" transform="translate(370, 370)">
+          <rect class="arch-card-bg" width="520" height="100" rx="10" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="22" y="28" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">AGENTE</text>
+          <g transform="translate(38, 56)" stroke="#c2a8ff" stroke-width="2" fill="none">
+            <circle cx="14" cy="14" r="13"/>
+            <path d="M14,4 v20 M4,14 h20"/>
+            <path d="M7,7 l14,14 M21,7 l-14,14" stroke-width="1" opacity="0.6"/>
           </g>
-        </a>
+          <text x="84" y="64" fill="#e6ecff" font-size="14" font-weight="700">LlmAgent (Google ADK) · loop ReAct</text>
+          <text x="84" y="84" fill="#c2a8ff" font-size="12" font-family="monospace">modello configurabile · Gemini 2.5 Pro / Flash</text>
+        </g>
 
-        <!-- ═══════ SYSTEM PROMPT ═══════ -->
-        <a href="dettaglio-prompt.html">
-          <g class="arch-card" transform="translate(370, 490)">
-            <rect class="arch-card-bg" width="250" height="130" rx="12" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
-            <text x="125" y="28" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">SYSTEM PROMPT</text>
-            <g transform="translate(103, 42)">
-              <rect width="44" height="56" rx="4" fill="#1c1140" stroke="#c2a8ff" stroke-width="1.5"/>
-              <line x1="8" y1="14" x2="36" y2="14" stroke="#c2a8ff" stroke-width="1.5"/>
-              <line x1="8" y1="22" x2="36" y2="22" stroke="#c2a8ff" stroke-width="1.5"/>
-              <line x1="8" y1="30" x2="36" y2="30" stroke="#c2a8ff" stroke-width="1.5"/>
-              <line x1="8" y1="38" x2="28" y2="38" stroke="#c2a8ff" stroke-width="1.5"/>
-            </g>
-            <text x="125" y="118" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">6 fasi · 7 regole</text>
+        <!-- SYSTEM PROMPT -->
+        <g class="arch-card" transform="translate(370, 490)">
+          <rect class="arch-card-bg" width="250" height="130" rx="12" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="125" y="28" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">SYSTEM PROMPT</text>
+          <g transform="translate(103, 42)">
+            <rect width="44" height="56" rx="4" fill="#1c1140" stroke="#c2a8ff" stroke-width="1.5"/>
+            <line x1="8" y1="14" x2="36" y2="14" stroke="#c2a8ff" stroke-width="1.5"/>
+            <line x1="8" y1="22" x2="36" y2="22" stroke="#c2a8ff" stroke-width="1.5"/>
+            <line x1="8" y1="30" x2="36" y2="30" stroke="#c2a8ff" stroke-width="1.5"/>
+            <line x1="8" y1="38" x2="28" y2="38" stroke="#c2a8ff" stroke-width="1.5"/>
           </g>
-        </a>
+          <text x="125" y="118" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">6 fasi · 7 regole</text>
+        </g>
 
-        <!-- ═══════ TOOLS ═══════ -->
-        <a href="dettaglio-tool.html">
-          <g class="arch-card" transform="translate(640, 490)">
-            <rect class="arch-card-bg" width="250" height="130" rx="12" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
-            <text x="125" y="28" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">TOOLS</text>
-            <g transform="translate(90, 42)" stroke="#c2a8ff" stroke-width="2.5" fill="none">
-              <circle cx="14" cy="14" r="9"/>
-              <circle cx="14" cy="14" r="3" fill="#c2a8ff" stroke="none"/>
-              <line x1="22" y1="22" x2="50" y2="50" stroke-width="3"/>
-              <line x1="46" y1="46" x2="62" y2="48" stroke-width="3"/>
-              <line x1="50" y1="42" x2="62" y2="50" stroke-width="3" opacity="0.7"/>
-            </g>
-            <text x="125" y="118" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">8 funzioni Python</text>
+        <!-- TOOLS -->
+        <g class="arch-card" transform="translate(640, 490)">
+          <rect class="arch-card-bg" width="250" height="130" rx="12" fill="#0e0925" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="125" y="28" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">TOOLS</text>
+          <g transform="translate(90, 42)" stroke="#c2a8ff" stroke-width="2.5" fill="none">
+            <circle cx="14" cy="14" r="9"/>
+            <circle cx="14" cy="14" r="3" fill="#c2a8ff" stroke="none"/>
+            <line x1="22" y1="22" x2="50" y2="50" stroke-width="3"/>
+            <line x1="46" y1="46" x2="62" y2="48" stroke-width="3"/>
+            <line x1="50" y1="42" x2="62" y2="50" stroke-width="3" opacity="0.7"/>
           </g>
-        </a>
+          <text x="125" y="118" text-anchor="middle" fill="#e6ecff" font-size="13" font-weight="600">8 funzioni Python</text>
+        </g>
 
-        <!-- ═══════ BIGQUERY (in alto-sx, all'altezza tra FE/BE e Vertex) ═══════ -->
-        <a href="dettaglio-bigquery.html">
-          <g class="arch-card" transform="translate(40, 250)">
-            <rect class="arch-card-bg" width="240" height="180" rx="14" fill="url(#g-bq)" stroke="#4285f4" stroke-width="2"/>
-            <text x="120" y="32" text-anchor="middle" fill="#93b8ff" font-size="11" font-family="monospace" letter-spacing="2">DATI</text>
-            <g transform="translate(120, 86)">
-              <ellipse cx="0" cy="-22" rx="34" ry="9" fill="#4285f4" opacity="0.85"/>
-              <path d="M-34,-22 v44 a34 9 0 0 0 68 0 v-44" fill="#4285f4" opacity="0.6"/>
-              <ellipse cx="0" cy="-22" rx="34" ry="9" fill="none" stroke="#93b8ff" stroke-width="1.5"/>
-              <ellipse cx="0" cy="0" rx="34" ry="9" fill="none" stroke="#93b8ff" stroke-width="1.5"/>
-              <ellipse cx="0" cy="22" rx="34" ry="9" fill="none" stroke="#93b8ff" stroke-width="1.5"/>
-            </g>
-            <text x="120" y="150" text-anchor="middle" fill="#e6ecff" font-size="16" font-weight="700">BigQuery</text>
-            <text x="120" y="168" text-anchor="middle" fill="#93b8ff" font-size="11" font-family="monospace">read-only</text>
+        <!-- BIGQUERY -->
+        <g class="arch-card" transform="translate(40, 250)">
+          <rect class="arch-card-bg" width="240" height="180" rx="14" fill="url(#g-bq)" stroke="#4285f4" stroke-width="2"/>
+          <text x="120" y="32" text-anchor="middle" fill="#93b8ff" font-size="11" font-family="monospace" letter-spacing="2">DATI</text>
+          <g transform="translate(120, 86)">
+            <ellipse cx="0" cy="-22" rx="34" ry="9" fill="#4285f4" opacity="0.85"/>
+            <path d="M-34,-22 v44 a34 9 0 0 0 68 0 v-44" fill="#4285f4" opacity="0.6"/>
+            <ellipse cx="0" cy="-22" rx="34" ry="9" fill="none" stroke="#93b8ff" stroke-width="1.5"/>
+            <ellipse cx="0" cy="0" rx="34" ry="9" fill="none" stroke="#93b8ff" stroke-width="1.5"/>
+            <ellipse cx="0" cy="22" rx="34" ry="9" fill="none" stroke="#93b8ff" stroke-width="1.5"/>
           </g>
-        </a>
+          <text x="120" y="150" text-anchor="middle" fill="#e6ecff" font-size="16" font-weight="700">BigQuery</text>
+          <text x="120" y="168" text-anchor="middle" fill="#93b8ff" font-size="11" font-family="monospace">read-only</text>
+        </g>
 
-        <!-- ═══════ GITHUB (dx, fuori dal container) ═══════ -->
-        <a href="dettaglio-github.html">
-          <g class="arch-card" transform="translate(1000, 180)">
-            <rect class="arch-card-bg" width="240" height="200" rx="14" fill="url(#g-git)" stroke="#f5a623" stroke-width="2"/>
-            <text x="120" y="32" text-anchor="middle" fill="#ffce8a" font-size="11" font-family="monospace" letter-spacing="2">CODICE</text>
-            <g transform="translate(120, 92)" stroke="#f5a623" stroke-width="3" fill="none">
-              <circle cx="-22" cy="-22" r="6" fill="#f5a623" opacity="0.85" stroke="none"/>
-              <circle cx="-22" cy="22"  r="6" fill="#f5a623" opacity="0.85" stroke="none"/>
-              <circle cx="22"  cy="0"   r="6" fill="#f5a623" opacity="0.85" stroke="none"/>
-              <line x1="-22" y1="-16" x2="-22" y2="16"/>
-              <path d="M-22,0 q22,0 38,0"/>
-            </g>
-            <text x="120" y="170" text-anchor="middle" fill="#e6ecff" font-size="16" font-weight="700">GitHub</text>
-            <text x="120" y="188" text-anchor="middle" fill="#ffce8a" font-size="11" font-family="monospace">PyGithub · PR</text>
+        <!-- GITHUB -->
+        <g class="arch-card" transform="translate(1000, 180)">
+          <rect class="arch-card-bg" width="240" height="200" rx="14" fill="url(#g-git)" stroke="#f5a623" stroke-width="2"/>
+          <text x="120" y="32" text-anchor="middle" fill="#ffce8a" font-size="11" font-family="monospace" letter-spacing="2">CODICE</text>
+          <g transform="translate(120, 92)" stroke="#f5a623" stroke-width="3" fill="none">
+            <circle cx="-22" cy="-22" r="6" fill="#f5a623" opacity="0.85" stroke="none"/>
+            <circle cx="-22" cy="22"  r="6" fill="#f5a623" opacity="0.85" stroke="none"/>
+            <circle cx="22"  cy="0"   r="6" fill="#f5a623" opacity="0.85" stroke="none"/>
+            <line x1="-22" y1="-16" x2="-22" y2="16"/>
+            <path d="M-22,0 q22,0 38,0"/>
           </g>
-        </a>
+          <text x="120" y="170" text-anchor="middle" fill="#e6ecff" font-size="16" font-weight="700">GitHub</text>
+          <text x="120" y="188" text-anchor="middle" fill="#ffce8a" font-size="11" font-family="monospace">PyGithub · PR</text>
+        </g>
 
-        <!-- ═══════════════════════ FRECCE ═══════════════════════ -->
-
-        <!-- Utente → Frontend (corta, diagonale) -->
+        <!-- frecce -->
         <text x="260" y="80" fill="#9aa6cc" font-size="12" font-family="monospace" font-weight="600">richiesta</text>
         <path d="M 240,75 L 350,180" stroke="#4f8cff" stroke-width="2" fill="none" marker-end="url(#arr-blue)" stroke-dasharray="5 4"/>
 
-        <!-- Frontend ↔ Backend (orizzontale) -->
         <text x="630" y="208" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace">HTTP / SSE</text>
         <path d="M 590,215 L 670,215" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arr-purple)"/>
 
-        <!-- Backend → Vertex AI box (verticale) -->
         <text x="808" y="310" fill="#c2a8ff" font-size="11" font-family="monospace">ADK runner</text>
         <path d="M 790,290 L 790,320" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arr-purple)"/>
 
-        <!-- Backend → BigQuery (a "L" esterna al container; label sopra il box BigQuery) -->
         <text x="160" y="240" text-anchor="middle" fill="#93b8ff" font-size="12" font-family="monospace" font-weight="600">query SQL</text>
         <path d="M 670,290 L 305,290 L 305,340 L 280,340" stroke="#4285f4" stroke-width="2" fill="none" marker-end="url(#arr-bq)" stroke-dasharray="6 4"/>
 
-        <!-- Backend → GitHub: lettura SQL -->
         <text x="945" y="208" fill="#ffce8a" font-size="12" font-family="monospace" font-weight="600">lettura SQL</text>
         <path d="M 910,215 L 1000,250" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#arr-git)" stroke-dasharray="6 4"/>
 
-        <!-- Backend → GitHub: Pull Request -->
         <text x="945" y="282" fill="#ffce8a" font-size="12" font-family="monospace" font-weight="600">Pull Request</text>
         <path d="M 910,260 L 1000,310" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#arr-git)" stroke-dasharray="6 4" opacity="0.85"/>
 
@@ -232,49 +400,125 @@
     </div>
   </div>
 
-  <!-- ─── TILE LIST ─── -->
+  <!-- ─── PARTE 4 · SCELTE CHIAVE ──────────────────────────────────────── -->
   <div class="section">
+    <div class="section-head">
+      <div class="eyebrow">parte 4</div>
+      <h2 style="margin-top:8px">Scelte chiave</h2>
+      <p class="lede" style="margin-top:8px">
+        Quattro decisioni progettuali che definiscono il perimetro del sistema.
+      </p>
+    </div>
+    <div class="card">
+      <ul class="bullets vertex">
+        <li><b>Singolo agente, non multi-agente</b> — un solo loop ReAct con accesso diretto a tutti gli 8 tool. Più semplice da debuggare, più tracciabile, meno parti mobili.</li>
+        <li><b>Modello configurabile</b> — Gemini 2.5 Pro per accuratezza, Flash per velocità. Scelta dell'utente, nessun lock-in.</li>
+        <li><b>Limite di 40 iterazioni</b> — safety net contro loop infiniti; il workflow reale ne usa 15-25.</li>
+        <li><b>Cancellazione cooperativa</b> — l'utente può interrompere il run in qualsiasi momento dal frontend.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── APPROFONDIMENTI ──────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head" style="margin-bottom:16px">
+      <div class="eyebrow">approfondimenti · per Q&amp;A</div>
+      <h3 style="margin-top:6px; font-size:16px">Sotto-pagine dedicate a ogni componente</h3>
+    </div>
     <div class="grid-3">
       <a class="tile" href="dettaglio-bigquery.html">
         <span class="tag bq">BigQuery</span>
         <h3 style="margin-top:10px">Data layer</h3>
-        <p>Dataset, INFORMATION_SCHEMA, guardrail in sola lettura, query di test.</p>
+        <p>Dataset, INFORMATION_SCHEMA, guardrail in sola lettura.</p>
       </a>
       <a class="tile" href="dettaglio-frontend.html">
         <span class="tag run">Frontend</span>
         <h3 style="margin-top:10px">Interfaccia utente</h3>
-        <p>Next.js, streaming SSE, pagine, export statico.</p>
+        <p>Next.js, streaming SSE.</p>
       </a>
       <a class="tile" href="dettaglio-backend.html">
         <span class="tag run">Backend</span>
         <h3 style="margin-top:10px">API e orchestrazione</h3>
-        <p>FastAPI, esecuzione asincrona, persistenza su Firestore, bus eventi.</p>
+        <p>FastAPI, persistenza Firestore.</p>
       </a>
       <a class="tile" href="dettaglio-agente.html">
         <span class="tag vertex">Agente</span>
-        <h3 style="margin-top:10px">LlmAgent · loop ReAct</h3>
-        <p>Google ADK su Vertex AI, modello configurabile (Gemini 2.5 Pro / Flash).</p>
+        <h3 style="margin-top:10px">LlmAgent (codice)</h3>
+        <p>Snippet Python, runtime, configurazione.</p>
       </a>
       <a class="tile" href="dettaglio-prompt.html">
         <span class="tag vertex">Prompt</span>
         <h3 style="margin-top:10px">System prompt</h3>
-        <p>Le sei fasi del workflow e le sette regole operative dell'agente.</p>
+        <p>Le 6 fasi e le 7 regole nel dettaglio.</p>
       </a>
       <a class="tile" href="dettaglio-tool.html">
         <span class="tag vertex">Tools</span>
-        <h3 style="margin-top:10px">Gli otto tool</h3>
-        <p>Signature, parametri, eventi pubblicati al frontend.</p>
+        <h3 style="margin-top:10px">Gli 8 tool</h3>
+        <p>Signature ed eventi pubblicati.</p>
       </a>
       <a class="tile" href="dettaglio-github.html">
         <span class="tag git">GitHub</span>
         <h3 style="margin-top:10px">Repository e PR</h3>
-        <p>Lettura SQL, gestione del token, creazione delle Pull Request.</p>
+        <p>Token, branch, gestione delle PR.</p>
       </a>
     </div>
   </div>
 
   <div class="footer">Team 14 · ETL Agent Tester · 4/4</div>
 </section>
+
+<style>
+  .ingredient-icon {
+    width: 56px; height: 56px;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    border-radius: 14px;
+    background: rgba(161, 0, 255, 0.10);
+    color: var(--acn-purple);
+    margin-bottom: 16px;
+  }
+  [data-theme="light"] .ingredient-icon {
+    background: rgba(161, 0, 255, 0.08);
+    color: var(--acn-purple-deep);
+  }
+
+  .react-example {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .react-step {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 10px 14px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  .react-label {
+    flex-shrink: 0;
+    width: 80px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--acn-purple);
+    padding-top: 2px;
+  }
+  [data-theme="light"] .react-label { color: var(--acn-purple-deep); }
+  .react-text { flex: 1; color: var(--fg); line-height: 1.55; }
+  .react-text code {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: var(--fg);
+  }
+  .react-step-more {
+    background: transparent;
+    border: 1px dashed var(--border);
+    justify-content: center;
+  }
+</style>
 
 </body>
 </html>

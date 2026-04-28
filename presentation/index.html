@@ -31,38 +31,104 @@
     <div class="eyebrow">Team 14 · presentazione progetto</div>
     <h1>ETL Agent Tester</h1>
     <p class="lede">
-      Un agente autonomo che testa le pipeline ETL su BigQuery, individua
-      i bug nel codice SQL e propone le correzioni come Pull Request — end to end.
+      Un agente autonomo che pianifica, esegue e interpreta test su pipeline ETL BigQuery,
+      e propone le correzioni come Pull Request.
     </p>
   </div>
 
-  <!-- ─── 2 CARD: COSA FA + VALORE ──────────────────────────────────── -->
+  <!-- ─── 4 PUNTI CHIAVE ────────────────────────────────────────────────── -->
   <div class="section">
-    <div class="grid-2">
-      <div class="card">
-        <h3>Cosa fa</h3>
-        <ul class="bullets" style="margin-top:14px">
-          <li><b>Pianifica</b> una batteria di test di qualità sull'ETL.</li>
-          <li><b>Esegue</b> ogni test su BigQuery e ne interpreta gli esiti.</li>
-          <li><b>Individua la causa</b> nel codice SQL quando un test fallisce.</li>
-          <li><b>Propone la correzione</b> aprendo una Pull Request su GitHub.</li>
-        </ul>
+    <div class="grid-2 intro-grid">
+
+      <div class="intro-card">
+        <span class="intro-num">01</span>
+        <h3>Use case</h3>
+        <p>
+          Costruire un <b>agente AI</b> capace di creare casi di test per le pipeline ETL su BigQuery.
+          Una fase oggi prevalentemente manuale, ripetitiva e ad alto rischio di errore.
+        </p>
       </div>
 
-      <div class="card">
-        <h3>Caratteristiche distintive</h3>
-        <ul class="bullets" style="margin-top:14px">
-          <li><b>Autonomia operativa</b> — un solo input dell'utente, l'agente porta a termine il flusso.</li>
-          <li><b>Tracciabilità completa</b> — ogni passo è loggato e visibile in tempo reale.</li>
-          <li><b>Integrazione cloud-native</b> — Vertex AI, BigQuery, Cloud Run, GitHub.</li>
-          <li><b>Human-in-the-loop</b> — la fix è proposta, mai applicata senza review.</li>
-        </ul>
+      <div class="intro-card">
+        <span class="intro-num">02</span>
+        <h3>Idea</h3>
+        <p>
+          <b>Massima autonomia</b> all'agente: pianificazione dei test, esecuzione su BigQuery,
+          individuazione dei bug e proposta della fix come Pull Request.
+          Un solo input dell'utente, workflow end-to-end.
+        </p>
       </div>
+
+      <div class="intro-card">
+        <span class="intro-num">03</span>
+        <h3>Implementazione</h3>
+        <p>
+          In due parole: <b>app agentica</b>. LLM Gemini su Vertex AI, framework Google Agent Development Kit,
+          tool Python per agire su BigQuery e GitHub.
+        </p>
+      </div>
+
+      <div class="intro-card">
+        <span class="intro-num">04</span>
+        <h3>Limitazione dei dati</h3>
+        <p>
+          Niente clienti reali a disposizione: <b>ambiente mock</b> con dataset BigQuery fittizi,
+          ETL di esempio e repository dedicato. Perimetro di demo —
+          l'architettura è pronta per casi reali.
+        </p>
+      </div>
+
     </div>
   </div>
 
   <div class="footer">Team 14 · ETL Agent Tester · 1/4</div>
 </section>
+
+<style>
+  .intro-grid { gap: 24px; }
+  .intro-card {
+    position: relative;
+    padding: 28px 26px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-md), var(--shadow-inset);
+    transition: box-shadow .3s var(--ease-out), border-color .25s var(--ease-out);
+  }
+  .intro-card:hover {
+    box-shadow: var(--shadow-lg), var(--shadow-inset);
+    border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  }
+  .intro-num {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--acn-purple);
+    background: rgba(161, 0, 255, 0.10);
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  [data-theme="light"] .intro-num {
+    color: var(--acn-purple-deep);
+    background: rgba(161, 0, 255, 0.08);
+  }
+  .intro-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .intro-card p {
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: 14.5px;
+    line-height: 1.65;
+  }
+  .intro-card p b { color: var(--fg); font-weight: 600; }
+</style>
 
 </body>
 </html>
