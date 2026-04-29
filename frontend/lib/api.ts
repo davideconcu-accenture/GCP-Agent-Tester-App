@@ -36,6 +36,7 @@ export interface RunSummary {
 }
 
 export const GEMINI_MODELS: { value: string; label: string }[] = [
+  { value: "gemini-3.1-pro-preview", label: "Gemini 3.1 Pro (preview)" },
   { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro (più accurato)" },
   { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash (più veloce)" },
   { value: "gemini-2.0-flash-001", label: "Gemini 2.0 Flash" },
