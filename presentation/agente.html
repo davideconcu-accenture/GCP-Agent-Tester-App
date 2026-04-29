@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agente — VEA</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="theme.js" defer></script>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>Team 14 · VEA</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">1 · Intro</a>
+      <a href="infrastruttura.html">2 · Infrastruttura</a>
+      <a href="agente.html" class="active">3 · Agente</a>
+      <a href="funzionamento.html">4 · Funzionamento</a>
+      <a href="dettaglio.html">5 · Dettaglio</a>
+    </div>
+  </div>
+</nav>
+
+<section class="container">
+  <a class="back" href="infrastruttura.html">← infrastruttura</a>
+  <div class="eyebrow">03 · Agente</div>
+  <h1 style="margin-top:14px">L'agente in tre componenti</h1>
+  <p class="lede">
+    Un singolo <code>LlmAgent</code> del Google ADK eseguito su Vertex AI:
+    modello, system prompt e tool, orchestrati da un loop ReAct.
+  </p>
+
+  <!-- ─── COMPOSIZIONE DELL'AGENTE ─────────────────────────────────── -->
+  <div class="section">
+    <div class="grid-3">
+      <div class="card">
+        <div class="ingredient-icon">
+          <svg viewBox="0 0 64 64" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 14a8 8 0 0 0-8 8v2a8 8 0 0 0-4 7 8 8 0 0 0 4 7v2a8 8 0 0 0 8 8h6V14h-6z"/>
+            <path d="M42 14a8 8 0 0 1 8 8v2a8 8 0 0 1 4 7 8 8 0 0 1-4 7v2a8 8 0 0 1-8 8h-6V14h6z"/>
+            <path d="M28 24h8M28 32h8M28 40h8"/>
+          </svg>
+        </div>
+        <span class="tag vertex">modello LLM</span>
+        <h3 style="margin-top:10px">Modello Gemini</h3>
+        <p style="color:var(--fg-muted); font-size:14px; line-height:1.6">
+          Modello generativo di Google su <b>Vertex AI</b>, integrato tramite il <b>Google ADK</b>.
+        </p>
+        <ul class="bullets vertex" style="margin-top:14px">
+          <li>Default: <code>gemini-2.5-pro</code></li>
+          <li>Alternativa: <code>gemini-2.5-flash</code></li>
+          <li>Selezionabile dall'utente prima del run</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="ingredient-icon">
+          <svg viewBox="0 0 64 64" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="14" y="10" width="36" height="44" rx="3"/>
+            <line x1="20" y1="20" x2="44" y2="20"/>
+            <line x1="20" y1="28" x2="44" y2="28"/>
+            <line x1="20" y1="36" x2="44" y2="36"/>
+            <line x1="20" y1="44" x2="36" y2="44"/>
+          </svg>
+        </div>
+        <span class="tag vertex">istruzioni</span>
+        <h3 style="margin-top:10px">System prompt</h3>
+        <p style="color:var(--fg-muted); font-size:14px; line-height:1.6">
+          Vincola il modello al dominio del testing ETL.
+        </p>
+        <ul class="bullets vertex" style="margin-top:14px">
+          <li><b>6 fasi</b>: lettura → pre-check → piano → esecuzione → fix+PR → report</li>
+          <li><b>7 regole</b> anti-allucinazione su SQL</li>
+          <li>Aggiornabile senza riaddestrare il modello</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="ingredient-icon">
+          <svg viewBox="0 0 64 64" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 32 L26 32"/>
+            <circle cx="32" cy="32" r="6"/>
+            <circle cx="32" cy="32" r="2" fill="currentColor"/>
+            <path d="M38 32 L50 32"/>
+            <path d="M44 26 L52 22 L52 42 L44 38 Z" fill="currentColor" stroke="none" opacity=".25"/>
+            <path d="M12 26 L20 22 L20 42 L12 38 Z" fill="currentColor" stroke="none" opacity=".25"/>
+          </svg>
+        </div>
+        <span class="tag vertex">tool</span>
+        <h3 style="margin-top:10px">Otto funzioni Python</h3>
+        <p style="color:var(--fg-muted); font-size:14px; line-height:1.6">
+          Registrate nell'ADK come <code>FunctionTool</code>: unico canale verso l'esterno.
+        </p>
+        <ul class="bullets vertex" style="margin-top:14px">
+          <li>Lettura del codice SQL su GitHub e dei dati su BigQuery (sola lettura)</li>
+          <li>Pubblicazione degli artefatti del run: piano, risultati, proposta di fix</li>
+          <li>Apertura della Pull Request e salvataggio del report finale</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── LOOP REACT ───────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="eyebrow">ragionamento</div>
+      <h2 style="margin-top:8px">Il loop ReAct</h2>
+      <p class="lede" style="margin-top:8px">
+        ReAct (<i>Reasoning + Acting</i>): il modello alterna ragionamento e azione,
+        raccoglie informazioni dai tool e aggiorna il contesto fino al report finale.
+      </p>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 1100 220" style="width:100%; height:auto" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#9b6dff"/>
+          </marker>
+        </defs>
+
+        <!-- 1 REASON -->
+        <g transform="translate(20, 70)">
+          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">1 · REASON</text>
+          <text x="120" y="62" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">ragionamento</text>
+          <text x="120" y="84" text-anchor="middle" fill="#9aa6cc" font-size="12">il modello sceglie il prossimo passo</text>
+        </g>
+
+        <!-- 2 ACT -->
+        <g transform="translate(290, 70)">
+          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">2 · ACT</text>
+          <text x="120" y="62" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">function_call</text>
+          <text x="120" y="84" text-anchor="middle" fill="#9aa6cc" font-size="12">invoca un tool con argomenti tipizzati</text>
+        </g>
+
+        <!-- 3 OBSERVE -->
+        <g transform="translate(560, 70)">
+          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">3 · OBSERVE</text>
+          <text x="120" y="62" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">function_response</text>
+          <text x="120" y="84" text-anchor="middle" fill="#9aa6cc" font-size="12">l'esito rientra nel contesto</text>
+        </g>
+
+        <!-- FINE -->
+        <g transform="translate(830, 70)">
+          <rect width="240" height="100" rx="12" fill="#0f2a1f" stroke="#34a853" stroke-width="1.5"/>
+          <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">FINE</text>
+          <text x="120" y="62" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">report finale</text>
+          <text x="120" y="84" text-anchor="middle" fill="#9aa6cc" font-size="12">workflow completato</text>
+        </g>
+
+        <!-- frecce orizzontali -->
+        <path d="M 260,120 L 290,120" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
+        <path d="M 530,120 L 560,120" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
+        <path d="M 800,120 L 830,120" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
+
+        <!-- ricircolo: torna al box REASON -->
+        <path d="M 680,170 C 680,210 140,210 140,170" stroke="#9b6dff" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#arA)"/>
+        <text x="410" y="215" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace">se il workflow non è concluso, riparte</text>
+      </svg>
+    </div>
+
+    <!-- Descrizione strutturata degli step -->
+    <div class="card" style="margin-top:20px">
+      <h3>Le tre fasi di ogni iterazione</h3>
+      <ul class="bullets vertex" style="margin-top:14px">
+        <li><b>Reason</b> — il modello sceglie l'azione: tool da invocare o fine.</li>
+        <li><b>Act</b> — emette una <code>function_call</code>; l'ADK esegue la funzione Python e replica gli eventi al frontend via SSE.</li>
+        <li><b>Observe</b> — la <code>function_response</code> rientra nel contesto: il modello la legge e decide il passo seguente.</li>
+      </ul>
+      <p style="color:var(--fg-muted); font-size:14px; margin-top:14px">
+        Termina con <code>save_final_report</code> o al limite di 40 iterazioni; l'utente può cancellare in qualsiasi momento.
+      </p>
+    </div>
+
+    <!-- Esempio concreto -->
+    <div class="card" style="margin-top:20px">
+      <h3 style="margin-bottom:14px">Esempio · "verifica i saldi correnti"</h3>
+      <div class="react-example">
+        <div class="react-step">
+          <span class="react-label">REASON</span>
+          <span class="react-text">"leggo il SQL dell'ETL"</span>
+        </div>
+        <div class="react-step">
+          <span class="react-label">ACT</span>
+          <span class="react-text"><code>read_sql_code("saldi_correnti")</code></span>
+        </div>
+        <div class="react-step">
+          <span class="react-label">OBSERVE</span>
+          <span class="react-text">file SQL ricevuti</span>
+        </div>
+        <div class="react-step">
+          <span class="react-label">REASON</span>
+          <span class="react-text">"verifico le tabelle del join"</span>
+        </div>
+        <div class="react-step">
+          <span class="react-label">ACT</span>
+          <span class="react-text"><code>execute_bigquery_query("… INFORMATION_SCHEMA.TABLES")</code></span>
+        </div>
+        <div class="react-step">
+          <span class="react-label">OBSERVE</span>
+          <span class="react-text">tabelle presenti</span>
+        </div>
+        <div class="react-step react-step-more">
+          <span class="react-text" style="color:var(--fg-subtle); font-style:italic">… e così via, fino al report o alla PR.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TEAM ──────────────────────────────────────────────────────────── -->
+  <div class="section team-section">
+    <div class="team-eyebrow">Team 14</div>
+    <div class="team-list">
+      <div class="team-member">
+        <div class="team-name">Carmelo Catalano</div>
+        <a class="team-email" href="mailto:c.catalano.puma@accenture.com">c.catalano.puma@accenture.com</a>
+      </div>
+      <div class="team-member">
+        <div class="team-name">Davide Concu</div>
+        <a class="team-email" href="mailto:davide.concu@accenture.com">davide.concu@accenture.com</a>
+      </div>
+      <div class="team-member">
+        <div class="team-name">Fulvio Collura</div>
+        <a class="team-email" href="mailto:fulvio.collura@accenture.com">fulvio.collura@accenture.com</a>
+      </div>
+      <div class="team-member">
+        <div class="team-name">Luca Codecasa</div>
+        <a class="team-email" href="mailto:luca.codecasa@accenture.com">luca.codecasa@accenture.com</a>
+      </div>
+      <div class="team-member">
+        <div class="team-name">Shelly Kurera</div>
+        <a class="team-email" href="mailto:s.warnakulasooriya@accenture.com">s.warnakulasooriya@accenture.com</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Team 14 · VEA · 3/5</div>
+</section>
+
+<style>
+  .ingredient-icon {
+    width: 56px; height: 56px;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    border-radius: 14px;
+    background: rgba(161, 0, 255, 0.10);
+    color: var(--acn-purple);
+    margin-bottom: 16px;
+  }
+  [data-theme="light"] .ingredient-icon {
+    background: rgba(161, 0, 255, 0.08);
+    color: var(--acn-purple-deep);
+  }
+
+  .react-example {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .react-step {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 10px 14px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  .react-label {
+    flex-shrink: 0;
+    width: 80px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--acn-purple);
+    padding-top: 2px;
+  }
+  [data-theme="light"] .react-label { color: var(--acn-purple-deep); }
+  .react-text { flex: 1; color: var(--fg); line-height: 1.55; }
+  .react-text code {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: var(--fg);
+  }
+  .react-step-more {
+    background: transparent;
+    border: 1px dashed var(--border);
+    justify-content: center;
+  }
+</style>
+
+</body>
+</html>
