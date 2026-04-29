@@ -42,7 +42,7 @@ gcloud run deploy "$SERVICE" \
   --timeout 3600 \
   --concurrency 20 \
   --max-instances 3 \
-  --set-env-vars "GCP_PROJECT_ID=$PROJECT_ID,GCP_LOCATION=us-west1,GEMINI_MODEL=gemini-2.5-pro,BQ_DATASET=banca_raw,GITHUB_REPO=davideconcu-accenture/Agent-GCP-ETL-Code,GITHUB_BRANCH=main,FIRESTORE_COLLECTION=etl_agent_runs,GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=us-west1" \
+  --set-env-vars "GCP_PROJECT_ID=$PROJECT_ID,GCP_LOCATION=us-central1,GEMINI_MODEL=gemini-2.5-pro,BQ_DATASET=banca_raw,GITHUB_REPO=davideconcu-accenture/Agent-GCP-ETL-Code,GITHUB_BRANCH=main,FIRESTORE_COLLECTION=etl_agent_runs,GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=us-central1" \
   --set-secrets "GITHUB_TOKEN=etl-agent-github-token:latest"
 
 URL=$(gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT_ID" --format 'value(status.url)')
