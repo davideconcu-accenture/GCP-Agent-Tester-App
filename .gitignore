@@ -19,3 +19,6 @@ build/
 *.log
 
 etl-agent-gcp/
+
+.claude/
+.gitignore

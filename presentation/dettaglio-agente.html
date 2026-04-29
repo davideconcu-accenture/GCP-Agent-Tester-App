@@ -27,142 +27,206 @@
 
 <section class="container">
   <a class="back" href="dettaglio.html">← hub dettaglio</a>
-  <div class="eyebrow"><span class="tag vertex">Deep-dive · Agente</span></div>
-  <h1 style="margin-top:14px">L'agente</h1>
+  <div class="eyebrow"><span class="tag vertex">Deep-dive · Agente · dal codice</span></div>
+  <h1 style="margin-top:14px">L'agente, riga per riga</h1>
   <p class="lede">
-    Il cuore del sistema: un singolo <code>LlmAgent</code> dell'Agent Development Kit
-    di Google, eseguito su Vertex AI con un modello configurabile.
+    Tutto l'agente vive in un solo file: <code>backend/app/agent.py</code>.
+    Non è un framework custom, è un singolo <code>LlmAgent</code> dell'Agent
+    Development Kit di Google. Qui sotto leggiamo il codice e lo commentiamo.
   </p>
 
-  <!-- ─── Stack ───────────────────────────────────────────────── -->
+  <!-- ─── Import ────────────────────────────────────────────── -->
   <div class="section">
     <div class="section-head">
-      <h2>Stack</h2>
-    </div>
-    <div class="card">
-      <ul class="bullets vertex">
-        <li><b>Google Agent Development Kit</b> — orchestrazione del loop ReAct e registrazione dei tool come <code>FunctionTool</code>.</li>
-        <li><b>Vertex AI</b> — endpoint del modello LLM, autenticazione via service account su Cloud Run.</li>
-        <li><b>Modello configurabile</b> — Gemini 2.5 Pro (default), Gemini 2.5 Flash, o altri modelli supportati da Vertex AI.</li>
-        <li><b>Persistenza degli eventi</b> — ogni passo dell'agente è salvato su Firestore e replicato in tempo reale al frontend via SSE.</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- ─── Loop ReAct ──────────────────────────────────────────── -->
-  <div class="section">
-    <div class="section-head">
-      <h2>Loop ReAct</h2>
+      <h2>1 · Gli import: cosa serve davvero</h2>
       <p class="lede" style="margin-top:8px">
-        L'agente lavora a iterazioni: a ogni passo ragiona, sceglie un tool, lo
-        esegue e osserva il risultato. Continua finché non termina il workflow.
+        Due classi dall'ADK (l'agente e il wrapper dei tool), più le funzioni Python
+        che esponiamo come capacità.
       </p>
-    </div>
-    <div class="card">
-      <svg viewBox="0 0 1100 200" style="width:100%; height:auto" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <marker id="arA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 Z" fill="#9b6dff"/>
-          </marker>
-        </defs>
-        <g transform="translate(20, 60)">
-          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
-          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">1 · PENSA</text>
-          <text x="120" y="60" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">ragionamento</text>
-          <text x="120" y="82" text-anchor="middle" fill="#9aa6cc" font-size="12">decide il prossimo passo</text>
-        </g>
-        <g transform="translate(290, 60)">
-          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
-          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">2 · AGISCE</text>
-          <text x="120" y="60" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">tool call</text>
-          <text x="120" y="82" text-anchor="middle" fill="#9aa6cc" font-size="12">invoca una funzione Python</text>
-        </g>
-        <g transform="translate(560, 60)">
-          <rect width="240" height="100" rx="12" fill="#1c1140" stroke="#9b6dff" stroke-width="1.5"/>
-          <text x="120" y="32" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace" letter-spacing="2">3 · OSSERVA</text>
-          <text x="120" y="60" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">tool response</text>
-          <text x="120" y="82" text-anchor="middle" fill="#9aa6cc" font-size="12">valuta il risultato</text>
-        </g>
-        <g transform="translate(830, 60)">
-          <rect width="240" height="100" rx="12" fill="#0f2a1f" stroke="#34a853" stroke-width="1.5"/>
-          <text x="120" y="32" text-anchor="middle" fill="#8fe0a4" font-size="11" font-family="monospace" letter-spacing="2">FINE</text>
-          <text x="120" y="60" text-anchor="middle" fill="#e6ecff" font-size="14" font-weight="600">report finale</text>
-          <text x="120" y="82" text-anchor="middle" fill="#9aa6cc" font-size="12">workflow completato</text>
-        </g>
-        <path d="M 260,110 L 290,110" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
-        <path d="M 530,110 L 560,110" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
-        <path d="M 800,110 L 830,110" stroke="#9b6dff" stroke-width="2" fill="none" marker-end="url(#arA)"/>
-        <path d="M 680,160 C 680,190 410,190 410,160" stroke="#9b6dff" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#arA)"/>
-        <text x="545" y="195" text-anchor="middle" fill="#c2a8ff" font-size="11" font-family="monospace">se non ha finito, riparte</text>
-      </svg>
-    </div>
-  </div>
-
-  <!-- ─── Configurazione runtime ─────────────────────────────── -->
-  <div class="section">
-    <div class="section-head">
-      <h2>Configurazione runtime</h2>
-    </div>
-    <div class="grid-2">
-      <div class="card">
-        <h4>Modello</h4>
-        <ul class="bullets vertex" style="margin-top:14px">
-          <li>Default: <code>gemini-2.5-pro</code> (più accurato sul ragionamento SQL).</li>
-          <li>Alternative: <code>gemini-2.5-flash</code> (più rapido, costi inferiori).</li>
-          <li>Selezionabile dall'utente al momento della richiesta.</li>
-          <li>Vertex AI gestisce la chiamata; il backend fa solo da orchestratore.</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h4>Limiti</h4>
-        <ul class="bullets vertex" style="margin-top:14px">
-          <li><code>max_iterations = 40</code>: massimo numero di passi del loop ReAct.</li>
-          <li><code>max_output_tokens = 8192</code>: limite per la risposta del modello.</li>
-          <li>Cancellazione cooperativa: l'utente può interrompere il run in qualsiasi momento.</li>
-          <li>Region <code>us-west1</code>, autenticazione via service account Cloud Run.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─── Snippet di codice ──────────────────────────────────── -->
-  <div class="section">
-    <div class="section-head">
-      <h2>L'agente in poche righe</h2>
     </div>
     <div class="card">
 <pre class="code"><span class="k">from</span> google.adk.agents <span class="k">import</span> LlmAgent
 <span class="k">from</span> google.adk.tools  <span class="k">import</span> FunctionTool
 
-agent = <span class="n">LlmAgent</span>(
-    name=<span class="s">"etl_qa_agent"</span>,
-    model=<span class="s">"gemini-2.5-pro"</span>,        <span class="c"># o gemini-2.5-flash, configurabile</span>
-    instruction=SYSTEM_PROMPT,     <span class="c"># 6 fasi + 7 regole critiche</span>
-    tools=[
-        <span class="n">FunctionTool</span>(func=list_available_etls),
-        <span class="n">FunctionTool</span>(func=read_sql_code),
-        <span class="n">FunctionTool</span>(func=execute_bigquery_query),
-        <span class="n">FunctionTool</span>(func=emit_test_plan),
-        <span class="n">FunctionTool</span>(func=emit_test_results),
-        <span class="n">FunctionTool</span>(func=emit_fix_proposal),
-        <span class="n">FunctionTool</span>(func=create_github_pr),
-        <span class="n">FunctionTool</span>(func=save_final_report),
-    ],
+<span class="k">from</span> app.config <span class="k">import</span> get_settings
+<span class="k">from</span> app.tools  <span class="k">import</span> (
+    create_github_pr,
+    emit_fix_proposal,
+    emit_test_plan,
+    emit_test_results,
+    execute_bigquery_query,
+    list_available_etls,
+    read_sql_code,
+    save_final_report,
 )</pre>
+      <ul class="bullets vertex" style="margin-top:14px">
+        <li><code>LlmAgent</code> è la classe ADK che gestisce il loop ReAct: prompt → modello → tool call → tool response → loop.</li>
+        <li><code>FunctionTool</code> trasforma una funzione Python in tool: lo schema viene generato dai type hint e dalla docstring.</li>
+        <li>Gli 8 tool importati sono semplici funzioni Python in <code>app/tools.py</code>: nessuna magia, nessuna registrazione runtime.</li>
+      </ul>
     </div>
   </div>
 
-  <!-- ─── Singolo agente ──────────────────────────────────────── -->
+  <!-- ─── System prompt costante ─────────────────────────────── -->
   <div class="section">
     <div class="section-head">
-      <h2>Perché un solo agente</h2>
+      <h2>2 · La costante <code>SYSTEM_PROMPT</code></h2>
+      <p class="lede" style="margin-top:8px">
+        Il prompt è una costante a livello di modulo, non viene caricata da file
+        esterno né concatenata a runtime: è codice, vive nel diff di Git.
+      </p>
+    </div>
+    <div class="card">
+<pre class="code">SYSTEM_PROMPT = <span class="s">"""Sei un Senior QA Engineer che testa pipeline ETL su BigQuery in modo autonomo.
+
+Ricevi una richiesta dell'utente in italiano (una segnalazione, un dubbio, una verifica)
+e la porti a termine DA SOLA usando i tool a disposizione: non esistono altri agenti.
+
+## AMBIENTE
+- Progetto BigQuery: `phrasal-method-484415-g7`.
+- Repo SQL ETL + PR:  `davideconcu-accenture/Agent-GCP-ETL-Code`, branch `main`.
+- Il DB è reale, le PR sono reali.
+
+## WORKFLOW
+Fase 1 — Comprensione    → list_available_etls + read_sql_code
+Fase 2 — Pre-check       → INFORMATION_SCHEMA.TABLES (1 query per dataset)
+Fase 3 — Pianificazione  → emit_test_plan (3-10 test)
+Fase 4 — Esecuzione      → execute_bigquery_query + emit_test_results
+Fase 5 — Fix &amp; PR        → emit_fix_proposal + create_github_pr
+Fase 6 — Report          → save_final_report (sempre)
+
+## REGOLE CRITICHE  (R1..R7)
+..."""</span>     <span class="c"># versione abbreviata: il dettaglio è nella sotto-pagina Prompt</span></pre>
+      <ul class="bullets vertex" style="margin-top:14px">
+        <li><b>Stringa Python multilinea</b>: niente template engine, niente runtime injection. Versionata col codice.</li>
+        <li><b>Italiano</b> in tutto il prompt: il modello produce report e PR-body coerenti per l'utente finale.</li>
+        <li><b>Markdown nel prompt</b>: i modelli Gemini ne sfruttano la struttura per ancorare le fasi del workflow.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── build_agent ─────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>3 · La factory <code>build_agent</code></h2>
+      <p class="lede" style="margin-top:8px">
+        Una sola funzione costruisce l'agente. Il backend la chiama una volta
+        per run e usa il valore di ritorno con il <code>Runner</code> ADK.
+      </p>
+    </div>
+    <div class="card">
+<pre class="code"><span class="k">def</span> <span class="n">build_agent</span>(model: str | None = <span class="k">None</span>) -&gt; <span class="n">LlmAgent</span>:
+    <span class="s">"""Crea l'agente ADK con tutti i tool registrati."""</span>
+    s = get_settings()                    <span class="c"># pydantic-settings: legge env / Secret Manager</span>
+
+    tools = [
+        <span class="n">FunctionTool</span>(func=list_available_etls),    <span class="c"># GitHub: discovery</span>
+        <span class="n">FunctionTool</span>(func=read_sql_code),           <span class="c"># GitHub: lettura SQL</span>
+        <span class="n">FunctionTool</span>(func=execute_bigquery_query),  <span class="c"># BigQuery: read-only</span>
+        <span class="n">FunctionTool</span>(func=emit_test_plan),          <span class="c"># Artefatto: piano test</span>
+        <span class="n">FunctionTool</span>(func=emit_test_results),       <span class="c"># Artefatto: esiti test</span>
+        <span class="n">FunctionTool</span>(func=emit_fix_proposal),       <span class="c"># Artefatto: fix proposto</span>
+        <span class="n">FunctionTool</span>(func=create_github_pr),        <span class="c"># GitHub: apre PR</span>
+        <span class="n">FunctionTool</span>(func=save_final_report),       <span class="c"># Artefatto: report finale</span>
+    ]
+
+    <span class="k">return</span> <span class="n">LlmAgent</span>(
+        name=<span class="s">"etl_qa_agent"</span>,
+        model=model <span class="k">or</span> s.gemini_model,    <span class="c"># default: gemini-2.5-pro, override per richiesta</span>
+        description=<span class="s">"Agente QA che testa ETL BigQuery e apre PR con i fix."</span>,
+        instruction=SYSTEM_PROMPT,            <span class="c"># il prompt visto sopra</span>
+        tools=tools,                          <span class="c"># gli 8 FunctionTool</span>
+    )</pre>
+    </div>
+  </div>
+
+  <!-- ─── Lettura riga-per-riga ─────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>4 · Cosa dice il codice, in chiaro</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h4>Argomento <code>model</code></h4>
+        <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+          La firma è <code>model: str | None = None</code>. Se la chiamata non
+          passa nulla, l'agente cade su <code>settings.gemini_model</code> (default
+          <code>gemini-2.5-pro</code>). Se l'utente sceglie nel frontend, il valore
+          arriva qui &mdash; un singolo punto di override.
+        </p>
+      </div>
+      <div class="card">
+        <h4>La lista <code>tools</code></h4>
+        <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+          Otto <code>FunctionTool</code>, niente di più. L'ordine non conta:
+          è il modello a scegliere quale chiamare, sulla base della docstring
+          e dei type hint. Aggiungere un tool = aggiungere una riga.
+        </p>
+      </div>
+      <div class="card">
+        <h4><code>name="etl_qa_agent"</code></h4>
+        <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+          Identifica l'agente nei log e negli eventi ADK. Resta stabile fra run
+          ed è la chiave per filtrare le tracce in osservabilità.
+        </p>
+      </div>
+      <div class="card">
+        <h4><code>instruction=SYSTEM_PROMPT</code></h4>
+        <p style="color:var(--fg-muted); font-size:14px; margin-top:8px">
+          È il system message: ADK lo mette in cima a ogni richiesta verso
+          Vertex AI. Il dettaglio del prompt &mdash; le 6 fasi e le 7 regole &mdash;
+          è nella sotto-pagina dedicata.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Cosa succede dopo build_agent ─────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>5 · Cosa fa il backend col valore di ritorno</h2>
+      <p class="lede" style="margin-top:8px">
+        <code>build_agent</code> ritorna un <code>LlmAgent</code>. Il backend lo
+        passa al <code>Runner</code> ADK, che gestisce il loop ReAct e produce
+        eventi che il backend inoltra al frontend via SSE.
+      </p>
+    </div>
+    <div class="card">
+<pre class="code">agent = build_agent(model=req.model)
+runner = <span class="n">Runner</span>(
+    app_name=<span class="s">"vea"</span>,
+    agent=agent,
+    session_service=<span class="n">InMemorySessionService</span>(),
+)
+
+<span class="k">async for</span> event <span class="k">in</span> runner.run_async(
+    user_id=user_id,
+    session_id=run_id,
+    new_message=<span class="n">Content</span>(role=<span class="s">"user"</span>, parts=[<span class="n">Part</span>(text=req.user_message)]),
+):
+    <span class="c"># event può essere: testo del modello, function_call, function_response.</span>
+    <span class="c"># Il backend lo normalizza e lo pubblica sul bus SSE → frontend.</span>
+    <span class="k">await</span> publish_event(run_id, event)</pre>
+      <ul class="bullets vertex" style="margin-top:14px">
+        <li>Il <b>Runner</b> ADK è ciò che fa girare davvero il loop: noi non scriviamo prompt-loop a mano.</li>
+        <li>Ogni <code>event</code> è atomico: testo, chiamata di tool, risposta del tool. Niente buffering opaco.</li>
+        <li>La <code>SessionService</code> è in-memory: ogni run è isolato. La persistenza vive su Firestore lato backend.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── Perché un solo agente ──────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>6 · Perché un solo <code>LlmAgent</code></h2>
     </div>
     <div class="card">
       <ul class="bullets vertex">
-        <li><b>Niente multi-agente, niente sub-agent</b>: un singolo loop ReAct con accesso diretto a tutti gli 8 tool.</li>
-        <li><b>Workflow lineare e cabinato</b>: aggiungere sub-agenti significa più parti mobili e più punti di fallimento.</li>
-        <li><b>Robustezza</b>: il system prompt strutturato in 6 fasi e 7 regole è sufficiente a guidare il comportamento dell'agente in modo deterministico.</li>
-        <li><b>Tracciabilità</b>: tutti gli eventi appartengono a un solo run; debugging e audit più semplici.</li>
+        <li><b>Niente sub-agent, niente orchestratore custom</b>: ADK fornisce già il loop ReAct robusto.</li>
+        <li><b>Un solo file da leggere</b>: chiunque entri nel progetto vede in 60 righe come si comporta l'agente.</li>
+        <li><b>Workflow lineare</b>: le 6 fasi del prompt + le 7 regole bastano a guidare il comportamento.</li>
+        <li><b>Tracciabilità</b>: tutti gli eventi appartengono a un run id; debugging e audit immediati.</li>
+        <li><b>Estendibilità</b>: aggiungere una capacità = scrivere una funzione Python e una riga in <code>tools=[...]</code>.</li>
       </ul>
     </div>
   </div>

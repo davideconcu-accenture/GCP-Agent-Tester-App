@@ -138,6 +138,81 @@
     </div>
   </div>
 
+  <!-- ─── ANOMALIE ETL — i bug seminati nel repo ──────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <div class="eyebrow" style="color:#ffce8a">demo &middot; bug seminati</div>
+      <h2>Le anomalie inserite negli ETL</h2>
+      <p class="lede" style="margin-top:8px">
+        Nel repo SQL abbiamo inserito di proposito sei bug realistici, due per ETL.
+        Sono i bug che l'agente deve scoprire, validare e chiudere con una PR.
+      </p>
+    </div>
+
+    <!-- ETL 1 -->
+    <div class="card" style="margin-bottom:20px">
+      <h3 style="margin:0 0 12px"><span class="tag git">ETL 1</span> &nbsp; Cliente 360</h3>
+
+      <h4 style="margin-top:6px">Anomalia 1A &mdash; <code>stg_cliente_movimenti</code></h4>
+      <div style="color:var(--fg-muted); font-size:13.5px; font-family:monospace; margin:4px 0 10px">etl_bank_data.sql:40</div>
+      <ul class="bullets git" style="margin-top:0">
+        <li><b>Bug</b>: rimosso il filtro <code>AND m.stato = 'COMPLETATO'</code> dalla CTE <code>mov_cli</code>.</li>
+        <li><b>Effetto</b>: entrate, uscite e contatori includono anche transazioni <code>ANNULLATO</code> e <code>RIFIUTATO</code> &rarr; totali gonfiati, stipendi e movimenti sovrastimati (~10% dei record dato che lo stato è 90% <code>COMPLETATO</code>).</li>
+        <li><b>Fix</b>: reintrodurre <code>AND m.stato = 'COMPLETATO'</code> nella WHERE.</li>
+      </ul>
+
+      <h4 style="margin-top:18px">Anomalia 1B &mdash; <code>stg_cliente_conti</code></h4>
+      <div style="color:var(--fg-muted); font-size:13.5px; font-family:monospace; margin:4px 0 10px">etl_bank_data.sql:26</div>
+      <ul class="bullets git" style="margin-top:0">
+        <li><b>Bug</b>: <code>SUM(c.saldo)</code> non filtra per <code>stato = 'ATTIVO'</code>.</li>
+        <li><b>Effetto</b>: <code>saldo_totale</code> (e quindi <code>value_tier</code> in <code>dm_cliente_360</code>) include i saldi dei conti <code>CHIUSO</code> e <code>BLOCCATO</code> &rarr; patrimonio sovrastimato, clienti classificati in tier più alti del dovuto.</li>
+        <li><b>Fix</b>: <code>SUM(IF(c.stato = 'ATTIVO', c.saldo, 0))</code>, oppure aggiungere <code>WHERE c.stato = 'ATTIVO'</code> gestendo coerentemente il <code>COUNT</code>.</li>
+      </ul>
+    </div>
+
+    <!-- ETL 2 -->
+    <div class="card" style="margin-bottom:20px">
+      <h3 style="margin:0 0 12px"><span class="tag git">ETL 2</span> &nbsp; Pacchetto Performance</h3>
+
+      <h4 style="margin-top:6px">Anomalia 2A &mdash; <code>stg_pacchetto_clienti</code></h4>
+      <div style="color:var(--fg-muted); font-size:13.5px; font-family:monospace; margin:4px 0 10px">etl2_pacchetto_performance.sql:20</div>
+      <ul class="bullets git" style="margin-top:0">
+        <li><b>Bug</b>: <code>COUNTIF(stato &lt;&gt; 'CHIUSO')</code> include anche i clienti in stato <code>SOSPESO</code> tra gli "attivi".</li>
+        <li><b>Effetto</b>: <code>num_clienti_attivi</code> sovrastimato &rarr; <code>performance_tier</code> troppo ottimistico.</li>
+        <li><b>Fix</b>: <code>COUNTIF(stato = 'ATTIVO')</code>.</li>
+      </ul>
+
+      <h4 style="margin-top:18px">Anomalia 2B &mdash; <code>dm_pacchetto_performance</code></h4>
+      <div style="color:var(--fg-muted); font-size:13.5px; font-family:monospace; margin:4px 0 10px">etl2_pacchetto_performance.sql:76-77</div>
+      <ul class="bullets git" style="margin-top:0">
+        <li><b>Bug</b>: <code>revenue_mensile_stimata</code> e <code>revenue_annua_stimata</code> moltiplicano per <code>num_clienti_totali</code> (che include i <code>CHIUSO</code>), non per <code>num_clienti_attivi</code>.</li>
+        <li><b>Effetto</b>: revenue ricorrente gonfiata &mdash; i clienti churned non pagano più il canone.</li>
+        <li><b>Fix</b>: usare <code>c.num_clienti_attivi * p.canone_mensile</code>.</li>
+      </ul>
+    </div>
+
+    <!-- ETL 3 -->
+    <div class="card">
+      <h3 style="margin:0 0 12px"><span class="tag git">ETL 3</span> &nbsp; Movimenti Mensili</h3>
+
+      <h4 style="margin-top:6px">Anomalia 3A &mdash; <code>dm_movimenti_mensili_segmento</code></h4>
+      <div style="color:var(--fg-muted); font-size:13.5px; font-family:monospace; margin:4px 0 10px">etl3_movimenti_mensili.sql:42</div>
+      <ul class="bullets git" style="margin-top:0">
+        <li><b>Bug</b>: <code>EXTRACT(MONTH FROM data_operazione)</code> estrae solo il mese, senza l'anno.</li>
+        <li><b>Effetto</b>: gennaio 2024 + gennaio 2025 vengono collassati nella stessa riga &rarr; serie temporale inutilizzabile per trend pluriennali. Classico bug da time-series.</li>
+        <li><b>Fix</b>: usare <code>DATE_TRUNC(data_operazione, MONTH) AS mese</code> (restituisce <code>DATE</code>, es. <code>2025-01-01</code>).</li>
+      </ul>
+
+      <h4 style="margin-top:18px">Anomalia 3B &mdash; <code>dm_movimenti_mensili_segmento</code></h4>
+      <div style="color:var(--fg-muted); font-size:13.5px; font-family:monospace; margin:4px 0 10px">etl3_movimenti_mensili.sql:54</div>
+      <ul class="bullets git" style="margin-top:0">
+        <li><b>Bug</b>: <code>importo_medio</code> è calcolato su tutti i movimenti, mischiando entrate (positive) e uscite (negative). Il risultato tende a zero e non ha significato di business.</li>
+        <li><b>Effetto</b>: KPI <code>importo_medio</code> praticamente inutile.</li>
+        <li><b>Fix</b>: separare in <code>avg_importo_entrate</code> e <code>avg_importo_uscite</code>, oppure usare solo <code>AVG(ABS(importo))</code> &mdash; già presente come <code>valore_assoluto_medio</code>.</li>
+      </ul>
+    </div>
+  </div>
+
   <!-- ─── Q&A box ───────────────────────────────────────────────── -->
 
   <!-- ─── TEAM ──────────────────────────────────────────────────────────── -->

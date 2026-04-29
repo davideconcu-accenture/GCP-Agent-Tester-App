@@ -27,17 +27,50 @@
 
 <section class="container">
   <a class="back" href="dettaglio.html">← hub dettaglio</a>
-  <div class="eyebrow"><span class="tag vertex">Deep-dive · System Prompt</span></div>
-  <h1 style="margin-top:14px">Il prompt dell'agente</h1>
+  <div class="eyebrow"><span class="tag vertex">Deep-dive · Prompt · dal codice</span></div>
+  <h1 style="margin-top:14px">Il prompt, letto dal sorgente</h1>
   <p class="lede">
-    Un singolo <code>LlmAgent</code> guidato da un system prompt strutturato.
-    Sei fasi obbligatorie, sette regole anti-allucinazione.
+    Il prompt è una stringa Python in <code>backend/app/agent.py</code>:
+    una costante <code>SYSTEM_PROMPT</code> versionata, modificarla è una PR.
+    Qui leggiamo i blocchi reali e spieghiamo perché ogni riga è dove è.
   </p>
 
-  <!-- ─── Le 6 fasi ─────────────────────────────────────────────── -->
+  <!-- ─── Blocco AMBIENTE ────────────────────────────────────── -->
   <div class="section">
     <div class="section-head">
-      <h2>Le 6 fasi del workflow</h2>
+      <h2>Blocco 1 · <code>## AMBIENTE</code></h2>
+      <p class="lede" style="margin-top:8px">
+        Le coordinate fisiche del sistema. Senza questo, il modello inventa
+        nomi di progetto, dataset, repository.
+      </p>
+    </div>
+    <div class="card">
+<pre class="code"><span class="s">## AMBIENTE
+
+- Progetto BigQuery: `phrasal-method-484415-g7`.
+- Ogni ETL dichiara i propri dataset DENTRO i file SQL, usando nomi fully qualified
+  nella forma `phrasal-method-484415-g7.&lt;dataset&gt;.&lt;tabella&gt;`.
+- NON esiste un dataset unico: ETL diversi possono usare dataset diversi, e un
+  singolo ETL può leggere/scrivere su più dataset contemporaneamente. L'unica
+  fonte di verità sui dataset è il codice SQL letto con `read_sql_code`.
+- Repo SQL ETL + PR: `davideconcu-accenture/Agent-GCP-ETL-Code`, branch `main`.
+- Il DB è reale, le PR sono reali.</span></pre>
+      <ul class="bullets vertex" style="margin-top:14px">
+        <li><b>Project id hardcoded</b>: è un'ancora che impedisce al modello di tentare query su progetti immaginari.</li>
+        <li><b>«fonte di verità è il codice SQL»</b>: scolpito qui per evitare che il modello assuma convenzioni di naming.</li>
+        <li><b>«il DB è reale, le PR sono reali»</b>: avverte il modello che ogni azione ha conseguenze, niente sandbox.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── Blocco WORKFLOW ────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Blocco 2 · <code>## WORKFLOW</code> in 6 fasi</h2>
+      <p class="lede" style="margin-top:8px">
+        Le fasi sono numerate nel prompt: il modello le segue in ordine perché
+        ogni fase chiude con la chiamata di un tool specifico.
+      </p>
     </div>
 
     <div class="phases">
@@ -54,49 +87,129 @@
       <div class="phase"><div class="num">FASE 6</div><div class="name">Report</div>
         <div class="desc"><code>save_final_report</code> &middot; sempre</div></div>
     </div>
+
+    <div class="card" style="margin-top:18px">
+      <h4>Il pezzo di prompt che governa la Fase 2 (la più delicata)</h4>
+<pre class="code" style="margin-top:14px"><span class="s">Fase 2 — Pre-check ambiente (OBBLIGATORIA, prima del piano di test)
+  3. Dal codice SQL estrai l'elenco completo di TUTTE le tabelle fully qualified
+     referenziate, SENZA distinguere tra source e target.
+  4. Raggruppa le tabelle per dataset e verifica l'esistenza con UNA query a
+     `INFORMATION_SCHEMA.TABLES` per dataset (una sola query per dataset, non
+     una per tabella):
+       SELECT table_name
+       FROM `phrasal-method-484415-g7.&lt;dataset&gt;.INFORMATION_SCHEMA.TABLES`
+       WHERE table_name IN ('t1','t2',...)
+  5. Se anche UNA sola tabella manca:
+       • NON generare test, NON proporre fix, NON aprire PR.
+       • Chiama `save_final_report` con un report che elenca le tabelle mancanti.
+       • FINE del workflow.</span></pre>
+      <ul class="bullets vertex" style="margin-top:14px">
+        <li><b>«UNA query per dataset»</b>: vincolo esplicito per non bombardare BigQuery con N query inutili.</li>
+        <li><b>«senza distinguere source/target»</b>: anche le tabelle create dall'ETL devono esistere &mdash; senza, non c'è output da testare.</li>
+        <li><b>«FINE del workflow»</b>: stop totale. Il modello impara che la Fase 2 può essere terminale.</li>
+      </ul>
+    </div>
   </div>
 
-  <!-- ─── Le 7 regole ─────────────────────────────────────────── -->
+  <!-- ─── Blocco REGOLE CRITICHE ─────────────────────────────── -->
   <div class="section">
     <div class="section-head">
-      <h2>Le 7 regole critiche</h2>
+      <h2>Blocco 3 · <code>## REGOLE CRITICHE</code> &mdash; le 7 regole</h2>
       <p class="lede" style="margin-top:8px">
-        Sono i sassolini su cui un LLM scivola: scolpirli nel prompt evita problemi.
+        Sono i sassolini su cui un LLM scivola: scolpirli nel prompt evita problemi
+        ricorrenti. Riga per riga, ecco il testo reale del codice.
       </p>
     </div>
+
+    <div class="card" style="margin-bottom:18px">
+<pre class="code"><span class="s">R1 — Non confrontare mai una colonna con la stessa formula del codice: se cerchi bug,
+    usa riferimenti indipendenti (colonne `*_ref`, commenti `-- BUG`, logica matematica).
+R2 — Usa solo colonne che esistono nel SELECT finale del CREATE TABLE, non delle CTE.
+R3 — Per campi via LEFT JOIN fai sempre NULL check.
+R4 — Non inventare dati: valuta solo ciò che torna da `execute_bigquery_query`.
+R5 — Italiano per UI/report/PR. Inglese solo nel SQL.
+R6 — NON proporre mai un fix che cambi il dataset di una tabella. Il dataset corretto
+    è SEMPRE quello dichiarato nel file SQL dell'ETL.
+R7 — Se la Fase 2 rileva tabelle mancanti, termina con `save_final_report` e basta.</span></pre>
+    </div>
+
     <div class="grid-2">
       <div class="card compact">
         <code style="color:#c2a8ff; font-weight:700">R1</code> &nbsp; <b>No auto-confronto</b>
-        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">Mai confrontare una colonna con la sua stessa formula del codice in test. Riferimenti indipendenti.</p>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">
+          Senza questa regola il modello tende a generare test del tipo
+          <code>WHERE col != FORMULA_DEL_CODICE</code> &mdash; e ovviamente passa sempre.
+          Forziamo riferimenti indipendenti.
+        </p>
       </div>
       <div class="card compact">
         <code style="color:#c2a8ff; font-weight:700">R2</code> &nbsp; <b>Solo SELECT finale</b>
-        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">Usa solo colonne del SELECT finale del CREATE TABLE, non quelle delle CTE intermedie.</p>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">
+          Le CTE intermedie sono nel codice ma non sono colonne queryabili. Il modello
+          deve testare solo la tabella materializzata.
+        </p>
       </div>
       <div class="card compact">
         <code style="color:#c2a8ff; font-weight:700">R3</code> &nbsp; <b>NULL check su LEFT JOIN</b>
-        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">I campi che arrivano da LEFT JOIN possono essere NULL: vanno sempre filtrati.</p>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">
+          Errore classico: confrontare un campo NULL con un valore atteso e ottenere
+          falsi positivi sui test.
+        </p>
       </div>
       <div class="card compact">
         <code style="color:#c2a8ff; font-weight:700">R4</code> &nbsp; <b>Niente invenzioni</b>
-        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">Si valuta solo ciò che torna da <code>execute_bigquery_query</code>. No numeri inventati.</p>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">
+          Vincola il modello a ragionare solo su ciò che <code>execute_bigquery_query</code>
+          ha effettivamente ritornato. Niente numeri stimati a occhio.
+        </p>
       </div>
       <div class="card compact">
         <code style="color:#c2a8ff; font-weight:700">R5</code> &nbsp; <b>Italiano</b>
-        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">UI, report e PR in italiano. Inglese solo nel SQL.</p>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">
+          Allinea l'output linguistico con l'utenza: il SQL resta in inglese
+          (è un linguaggio), tutto il resto è in italiano.
+        </p>
       </div>
       <div class="card compact">
         <code style="color:#c2a8ff; font-weight:700">R6</code> &nbsp; <b>Mai cambiare dataset nel fix</b>
-        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">Se una tabella manca dove il SQL la cerca, è un problema di ambiente, non un bug del codice.</p>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">
+          Se una tabella manca dove il SQL la cerca è un problema di ambiente,
+          non un bug del codice. Mai riscrivere il path nel fix.
+        </p>
       </div>
       <div class="card compact" style="grid-column: span 2">
         <code style="color:#c2a8ff; font-weight:700">R7</code> &nbsp; <b>Stop in Fase 2 = stop totale</b>
-        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">Se il pre-check rileva tabelle mancanti l'agente termina con il solo report finale: niente test, niente fix, niente PR.</p>
+        <p style="color:var(--fg-muted); font-size:13.5px; margin:6px 0 0">
+          Ridondante con la Fase 2 ma scolpito a parte: il modello capisce che NON deve
+          chiamare <code>emit_test_plan</code>, <code>emit_test_results</code>,
+          <code>emit_fix_proposal</code>, né <code>create_github_pr</code> se l'ambiente è incompleto.
+        </p>
       </div>
     </div>
   </div>
 
-  <!-- ─── Q&A box ───────────────────────────────────────────────── -->
+  <!-- ─── Blocco STILE ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Blocco 4 · <code>## STILE</code></h2>
+      <p class="lede" style="margin-top:8px">
+        Tre righe alla fine del prompt. Niente parlare per parlare,
+        niente paragrafi sterminati nel report.
+      </p>
+    </div>
+    <div class="card">
+<pre class="code"><span class="s">## STILE
+- Ragionamento in prosa breve (1-2 frasi prima di ogni azione).
+- Nel report finale usa tabelle Markdown per i risultati.
+- Se qualcosa fallisce in modo irrecuperabile DURANTE l'esecuzione dei test,
+  completa comunque le fasi possibili e scrivi un report parziale.</span></pre>
+      <ul class="bullets vertex" style="margin-top:14px">
+        <li><b>«1-2 frasi prima di ogni azione»</b>: trade-off tra ReAct visibile e verbosità.</li>
+        <li><b>«tabelle Markdown»</b>: il frontend renderizza Markdown nel report &mdash; coerenza visiva senza HTML custom.</li>
+        <li><b>«report parziale»</b>: il modello sa che fallire un test non significa abortire il run.</li>
+      </ul>
+    </div>
+  </div>
 
   <!-- ─── TEAM ──────────────────────────────────────────────────────────── -->
   <div class="section team-section">
