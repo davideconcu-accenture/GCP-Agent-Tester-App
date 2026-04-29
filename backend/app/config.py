@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     # Google Cloud / Vertex AI
     gcp_project_id: str = "phrasal-method-484415-g7"
-    gcp_location: str = "us-central1"
+    gcp_location: str = "us-west1"
     gemini_model: str = "gemini-2.5-pro"
 
     # BigQuery

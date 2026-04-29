@@ -21,5 +21,5 @@ os.environ.setdefault(
 )
 os.environ.setdefault(
     "GOOGLE_CLOUD_LOCATION",
-    os.environ.get("GCP_LOCATION", "us-central1"),
+    os.environ.get("GCP_LOCATION", "us-west1"),
 )
