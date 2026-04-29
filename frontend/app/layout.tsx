@@ -3,7 +3,7 @@ import ThemeToggle from "@/components/theme-toggle";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ACN Tester Agent",
+  title: "VEA",
   description: "Agente QA autonomo per ETL BigQuery",
 };
 
@@ -49,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 >
                   &gt;
                 </span>
-                <span>ACN Tester Agent</span>
+                <span>VEA</span>
               </a>
               <div className="flex items-center gap-3">
                 <div className="text-2xs font-mono text-fg-subtle uppercase tracking-wider">
